@@ -120,7 +120,10 @@ def quality_metrics(verdict):
 
 
 def speed_metrics(probe):
-    good = [r for r in probe['runs'] if r['ok']]
+    # Throughput is derived, unlike elapsed time and provider usage. Recompute
+    # it here so the checker never trusts the tool's redundant calculated field.
+    good = [{**r, 'output_tokens_per_s': r['usage']['completion_tokens'] / (r['latency_s'] - r['ttft_s'])}
+            for r in probe['runs'] if r['ok']]
     metrics = {'speed/completed_runs': len(good)}
     if len(good) != 8:
         return metrics

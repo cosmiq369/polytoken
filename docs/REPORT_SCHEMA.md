@@ -205,3 +205,9 @@ Failed HTTP responses have redacted status and detail in `logs/llm_errors.jsonl`
 Call rows distinguish a physical attempt from a budget rejection before dispatch.
 Historical runs with unknown usage in failed Nemotron attempts are labelled
 estimated when included in later reports. Original run logs remain unchanged.
+
+The final BudgetGuard reserves two seconds of its six-minute wall allowance for
+checking and serialization after external work stops. Earlier retained deadline
+runs reported about seventy milliseconds of finalization after the call deadline;
+their recorded durations are not rewritten. Startup catalogue discovery and REST
+registration checks are logged separately from the agent's bounded SQL tools.

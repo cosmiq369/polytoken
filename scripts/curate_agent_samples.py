@@ -12,6 +12,10 @@ def main():
     reports = [json.loads(p.read_text()) for p in sorted(sample.glob('agent_*report.json'))]
     run_ids = {r['id'] for r in reports}
     wanted = {eid for r in reports for eid in r.get('evidence_ids', [])}
+    validation = sample / 'agent_validation.jsonl'
+    if validation.exists():
+        wanted.update(row['evidence_id'] for line in validation.read_text().splitlines()
+                      if (row := json.loads(line)).get('event') == 'hosted_diagnostic' and row.get('evidence_id'))
     with WorldModel(logger=JsonlLogger()) as world:
         events = {event['event_id']: event for event in world.events()}
     pending = list(wanted)
@@ -29,7 +33,8 @@ def main():
         if not source.exists():
             continue
         selected = [row for line in source.read_text().splitlines() if (row := json.loads(line)).get('run_id') in run_ids]
-        (sample / ('agent_audit_' + stream + '.jsonl')).write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in selected))
+        if selected:
+            (sample / ('agent_audit_' + stream + '.jsonl')).write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in selected))
     print(f'Curated {len(run_ids)} runs and {len(rows)} World Model events; no best-run filtering.')
 
 

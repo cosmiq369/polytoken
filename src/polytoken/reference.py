@@ -6,6 +6,8 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[2] / 'data/reference'
+if not (ROOT / 'prices.json').is_file():
+    ROOT = Path.cwd() / 'data/reference'
 
 
 def _read(name, path):

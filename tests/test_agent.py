@@ -370,3 +370,11 @@ def test_persisted_cli_uuid_report_and_path_validation(tmp_path):
     with TestClient(create_app(reference=False, log_dir=tmp_path, state_dir=tmp_path)) as client:
         assert client.get(f'/investigations/{identifier}/report').json() == report
         assert client.get('/investigations/invalid.name/report').status_code == 404
+
+
+def test_speed_recomputes_throughput_from_usage():
+    from polytoken.agent.calculations import speed_metrics
+    rows = [dict(ok=True, variant=v, ttft_s=.2, latency_s=1.2,
+                 usage={'completion_tokens': 100}, output_tokens_per_s=999.)
+            for v in ('original', 'changed', 'changed', 'original') * 2]
+    assert speed_metrics({'runs': rows})['speed/output_tokens_per_s/original_median'] == 100.
