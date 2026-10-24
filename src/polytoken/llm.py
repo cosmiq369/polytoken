@@ -144,7 +144,7 @@ class NvidiaGenerator:
 
     def generate(self, prompt, system_prompt=None, attachments=None, on_stream=None, abort=None,
                  *, model=None, temperature=None, before_attempt=None, remaining=None,
-                 enable_thinking=None) -> dict:
+                 enable_thinking=None, max_tokens=None, timeout_s=None, max_retries=3, retry_timeouts=False) -> dict:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
@@ -152,7 +152,7 @@ class NvidiaGenerator:
         messages.append({"role": "user", "content": content})
         body = {
             "model": model or self.settings.agent_model, "messages": messages,
-            "max_tokens": self.max_tokens, "stream": on_stream is not None,
+            "max_tokens": max_tokens or self.max_tokens, "stream": on_stream is not None,
         }
         if temperature is not None:
             body["temperature"] = temperature
@@ -165,10 +165,11 @@ class NvidiaGenerator:
             "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:12],
             "system_prompt_length": len(system_prompt or ""),
             "attachments_count": len(attachments or []),
-            "enable_thinking": enable_thinking,
+            "enable_thinking": enable_thinking, "max_tokens": body["max_tokens"],
+            "read_timeout_s": timeout_s or self.timeout.read, "max_retries": max_retries,
         }
         total_start = self._clock()
-        for attempt in range(1, 5):  # One initial request and at most three retries.
+        for attempt in range(1, max_retries + 2):  # One initial request and at most three retries.
             usage = {}
             first_token = None
             attempted = False
@@ -183,7 +184,7 @@ class NvidiaGenerator:
                 with self._client.stream(
                     "POST", self.settings.nvidia_base_url + "/chat/completions",
                     headers={"Authorization": "Bearer " + self.settings.nvidia_api_key},
-                    json=body, timeout=min(self.timeout.read, max(.01, remaining())) if remaining else self.timeout,
+                    json=body, timeout=min(timeout_s or self.timeout.read, max(.01, remaining())) if remaining else (timeout_s or self.timeout),
                 ) as response:
                     response.raise_for_status()
                     if on_stream is not None:
@@ -227,8 +228,10 @@ class NvidiaGenerator:
                 retryable = isinstance(exc, httpx.HTTPStatusError) and (
                     exc.response.status_code == 429 or 500 <= exc.response.status_code <= 599
                 )
-                if retryable and attempt < 4:
-                    delay = max(2 ** (attempt - 1) + self._jitter(), _retry_after(exc.response.headers.get("Retry-After")))
+                retryable = retryable or (retry_timeouts and isinstance(exc, httpx.TimeoutException))
+                if retryable and attempt <= max_retries:
+                    retry_after = _retry_after(exc.response.headers.get("Retry-After")) if isinstance(exc, httpx.HTTPStatusError) else 0.0
+                    delay = max(2 ** (attempt - 1) + self._jitter(), retry_after)
                     try:
                         _wait(delay, self._sleep, abort)
                     except GenerationAborted:

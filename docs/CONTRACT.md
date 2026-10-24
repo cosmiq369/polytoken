@@ -74,3 +74,22 @@ at temperature 0, comparing the original system prompt with the changed prompt.
 Model switching is explicitly a different experiment with the prompt held fixed.
 Stand-in hosted models are labelled, and cannot establish quality or speed on
 the company's deployed model. Native review remains pending until human review.
+
+### 24 Oct 2026 — background hosted jobs (PROMPT-04B)
+
+Written before the PROMPT-04B serving probes and new company investigations.
+The six-minute limit covers the agent's reasoning loop. Fix experiments and speed
+probes are background jobs with a separate thirty-minute wall allowance and a
+combined seventy physical hosted attempts per investigation, including retries.
+Jobs use concurrency four, the shared NVIDIA limiter, a 120-second read timeout,
+and at most two retries on timeout. Reply limits are 200 tokens for Samudra and
+600 for Swara. The existing 25 Nemotron and 60 SQL call limits remain; deferred
+quality judging shares the Nemotron call limit and the job deadline. Reports show
+running jobs and are rechecked when results arrive. Only twenty complete pairs
+permit quality judging; smaller samples are insufficient, never pass or fail.
+Prompt-lever money reconstructs the same historical bill as the baseline with
+measured changed-system tokens. Generated output-length changes are reported
+separately. Served models must pass recorded probes; catalogue listing alone is
+insufficient. Successful generation evidence is reused by model, system hash and
+chat identity (with user text and generation settings included to avoid stale hits).
+The quality threshold, human review requirement and expected findings are unchanged.
