@@ -130,6 +130,8 @@ def speed_metrics(probe):
     if len(good) != 8:
         return metrics
     for field in ('ttft_s', 'output_tokens_per_s', 'latency_s'):
+        if field == 'output_tokens_per_s' and any(r.get('throughput_supported') is False for r in good):
+            continue
         vals = {v: [r[field] for r in good if r['variant'] == v] for v in ('original', 'changed')}
         if any(len(v) != 4 for v in vals.values()):
             raise ValueError('Four speed runs per variant required')

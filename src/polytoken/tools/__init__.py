@@ -337,13 +337,20 @@ class InvestigationTools:
             else:
                 row = self._hosted_call(args['user'], args['system'], model, config['model_in_use'])
             row.update(variant=variant, cache_key=key)
+            # Reasoning-model completion usage may include hidden tokens emitted
+            # before visible TTFT. Without a breakdown it is not visible throughput.
+            options = self.catalogue.get('serving_verification', {}).get(model, {}).get('generation_options', {})
+            row['throughput_supported'] = not bool(options.get('reasoning_effort'))
             if row['ok']:
                 output = row['usage'].get('completion_tokens')
                 ttft, elapsed = row.get('ttft_s'), row['latency_s']
                 if type(output) is not int or output <= 0 or ttft is None or elapsed <= ttft:
                     row.update(ok=False, error_class='MissingOrInvalidStreamUsage')
-                else:
+                elif row['throughput_supported']:
                     row['output_tokens_per_s'] = output / (elapsed - ttft)
+                else:
+                    row.pop('output_tokens_per_s', None)
+                    row['throughput_note'] = 'Unavailable: provider completion usage does not separate reasoning tokens from visible reply tokens.'
             runs.append(row)
             call_ids.append(self.observe('timed_call', row, {'operation': 'speed_probe', 'variant': variant, 'temperature': 0}, 'NVIDIA streamed usage'))
         result = {'runs': runs, 'order': 'ABBAABBA', 'supports': call_ids}

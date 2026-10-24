@@ -376,6 +376,7 @@ class Investigation:
                 'claims': self.claims, 'dropped_claims': self.dropped, 'fixes': fixes,
                 'quality_status': 'running' if self.job_status in ('queued', 'running') else ('automated pass; native review pending' if quality_pass else ('insufficient sample' if insufficient else 'failed')),
                 'review_status': 'pending', 'speed_status': speed_status,
+                'throughput_status': ('measured from provider usage' if 'speed/output_tokens_per_s/original_median' in verified else 'unavailable; missing or inseparable reasoning usage'),
                 'remembered': self.remembered, 'remembered_fields': ['volume', 'target', 'model', 'reply-language constraints'] if self.remembered else [],
                 'remembered_findings': self.remembered_findings,
                 'experiment': {k: self.experiment.get(k) for k in ('lever', 'models', 'model_label', 'accounting', 'accounting_version', 'target_tokenizer', 'evidence_ids')} if self.experiment else None,

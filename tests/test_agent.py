@@ -552,3 +552,15 @@ def test_completed_job_rechecks_previously_verified_baseline(apparatus):
     assert final['top_fix'] is None
     assert any(c['id'].startswith('baseline/') for c in final['dropped_claims'])
     assert not any(c['id'].startswith('baseline/') for c in final['claims'])
+
+
+def test_reasoning_usage_does_not_become_visible_output_throughput():
+    from polytoken.agent.calculations import speed_metrics
+    rows = [dict(ok=True, variant=v, ttft_s=.2, latency_s=1.2,
+                 usage={'completion_tokens': 100}, throughput_supported=False)
+            for v in ('original', 'changed', 'changed', 'original') * 2]
+    metrics = speed_metrics({'runs': rows})
+    assert metrics['speed/completed_runs'] == 8
+    assert metrics['speed/ttft_s/original_median'] == .2
+    assert metrics['speed/latency_s/original_median'] == 1.2
+    assert not any('output_tokens_per_s' in key for key in metrics)

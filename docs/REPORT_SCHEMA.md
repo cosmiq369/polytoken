@@ -274,3 +274,9 @@ follow-up trial, preserving earlier observations. The verified model's
 cache identity and raw request metadata. This follows NVIDIA's documented
 [GPT-OSS reasoning effort parameter](https://docs.api.nvidia.com/nim/reference/openai-gpt-oss-20b-infer).
 The reply-token caps remain 200/600; an empty answer is a failed observation.
+
+For reasoning-capable hosted calls whose provider usage does not separate hidden
+reasoning from visible completion tokens, `throughput_status` is unavailable and
+`speed/output_tokens_per_s/*` claims are omitted. Visible TTFT and total latency
+remain measured and checkable. Dividing all completion tokens by the time after
+visible TTFT would wrongly count reasoning generated before that timestamp.
