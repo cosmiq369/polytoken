@@ -91,6 +91,8 @@ The original negative run is explicitly retained. Source: `meterless_markovian_l
 14. The requested claude-mem work_state tools were unavailable. Execution evidence is in JSONL logs. The chat cannot switch its own model/effort, so the prompt header was treated as execution guidance; no subagents were used.
 15. Local services, dependency installation and git metadata/push needed approved sandbox escalation. No secrets, sibling-repository changes, main merges, tags, releases, UI work or contract scoring are included.
 
+16. Automatic push review initially held the upload for destination/payload verification. The configured origin was verified as the private `cosmiq369/polytoken` repository with ADMIN access, and every archived source text was matched exactly to the declared fictional demo fixtures; the full secret scan passed.
+
 ## Implementation commits
 
 - `fade191` — Record review evidence, verified references and signed Markovian savings
@@ -99,6 +101,8 @@ The original negative run is explicitly retained. Source: `meterless_markovian_l
 - `4f70677` — Use direct structured Nemotron replies and bound concurrent experiments
 - `a29397f` — Harden report provenance, deadline finalization and persisted API reads
 - `4d14acf` — Recompute throughput from raw usage and retain diagnostic evidence
+
+`6b478cb` archived all three live outcomes and replay evidence. A final audit commit records destination verification.
 
 The following evidence-only commit contains this report and the complete curated run artifacts; its hash is reported in the completion message.
 
