@@ -1,0 +1,6009 @@
+{
+  "schema_version": "1",
+  "id": "66f0a95a-adf4-4540-b4c7-12f5a03cef2d",
+  "company": "swara",
+  "status": "complete",
+  "partial_reason": null,
+  "needs_input": [],
+  "top_finding": "The largest billed cost component at the quoted provider price is output.",
+  "top_fix": null,
+  "money_status": "quoted provider scenario; content only",
+  "quoted_price": {
+    "model": "Qwen/Qwen3-4B",
+    "provider": "Fireworks AI (serverless size tier 4B-16B)",
+    "source_url": "https://docs.fireworks.ai/serverless/pricing.md",
+    "fetched_at": "2026-10-24T15:20:00Z"
+  },
+  "claims": [
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/chat_count",
+      "text": "baseline HuggingFaceTB SmolLM3-3B chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/requests",
+      "text": "baseline HuggingFaceTB SmolLM3-3B requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/billed_input",
+      "text": "baseline HuggingFaceTB SmolLM3-3B billed_input",
+      "value": 33451,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/billed_output",
+      "text": "baseline HuggingFaceTB SmolLM3-3B billed_output",
+      "value": 25039,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/billed_system_input",
+      "text": "baseline HuggingFaceTB SmolLM3-3B billed_system_input",
+      "value": 10989,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/monthly_chats",
+      "text": "baseline HuggingFaceTB SmolLM3-3B monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/system_prompt_tokens",
+      "text": "baseline HuggingFaceTB SmolLM3-3B system_prompt_tokens",
+      "value": 10989,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/system_prompt_share",
+      "text": "baseline HuggingFaceTB SmolLM3-3B system_prompt_share",
+      "value": 0.18787826978970765,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/user_tokens",
+      "text": "baseline HuggingFaceTB SmolLM3-3B user_tokens",
+      "value": 6894,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/user_share",
+      "text": "baseline HuggingFaceTB SmolLM3-3B user_share",
+      "value": 0.11786630193195417,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/output_tokens",
+      "text": "baseline HuggingFaceTB SmolLM3-3B output_tokens",
+      "value": 25039,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/output_share",
+      "text": "baseline HuggingFaceTB SmolLM3-3B output_share",
+      "value": 0.4280902718413404,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/assistant_tokens",
+      "text": "baseline HuggingFaceTB SmolLM3-3B assistant_tokens",
+      "value": 15568,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/assistant_share",
+      "text": "baseline HuggingFaceTB SmolLM3-3B assistant_share",
+      "value": 0.2661651564369978,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/english_system_input_saved",
+      "text": "baseline HuggingFaceTB SmolLM3-3B english_system_input_saved",
+      "value": 6138,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/HuggingFaceTB/SmolLM3-3B/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline HuggingFaceTB SmolLM3-3B english_system_inr_per_rupee_input_mtok",
+      "value": 7.3656,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/chat_count",
+      "text": "baseline Qwen Qwen3-4B chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/requests",
+      "text": "baseline Qwen Qwen3-4B requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/billed_input",
+      "text": "baseline Qwen Qwen3-4B billed_input",
+      "value": 59608,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/billed_output",
+      "text": "baseline Qwen Qwen3-4B billed_output",
+      "value": 45128,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/billed_system_input",
+      "text": "baseline Qwen Qwen3-4B billed_system_input",
+      "value": 19602,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/monthly_chats",
+      "text": "baseline Qwen Qwen3-4B monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/system_prompt_tokens",
+      "text": "baseline Qwen Qwen3-4B system_prompt_tokens",
+      "value": 19602,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/system_prompt_share",
+      "text": "baseline Qwen Qwen3-4B system_prompt_share",
+      "value": 0.1871562786434464,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/user_tokens",
+      "text": "baseline Qwen Qwen3-4B user_tokens",
+      "value": 11945,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/user_share",
+      "text": "baseline Qwen Qwen3-4B user_share",
+      "value": 0.11404865566758325,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/output_tokens",
+      "text": "baseline Qwen Qwen3-4B output_tokens",
+      "value": 45128,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/output_share",
+      "text": "baseline Qwen Qwen3-4B output_share",
+      "value": 0.430873816070883,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/assistant_tokens",
+      "text": "baseline Qwen Qwen3-4B assistant_tokens",
+      "value": 28061,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/assistant_share",
+      "text": "baseline Qwen Qwen3-4B assistant_share",
+      "value": 0.2679212496180874,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/monthly_inr",
+      "text": "baseline Qwen Qwen3-4B monthly_inr",
+      "value": 2386.553038848,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/system_prompt_cost_share",
+      "text": "baseline Qwen Qwen3-4B system_prompt_cost_share",
+      "value": 0.1871562786434464,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/user_cost_share",
+      "text": "baseline Qwen Qwen3-4B user_cost_share",
+      "value": 0.11404865566758325,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/output_cost_share",
+      "text": "baseline Qwen Qwen3-4B output_cost_share",
+      "value": 0.430873816070883,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/assistant_cost_share",
+      "text": "baseline Qwen Qwen3-4B assistant_cost_share",
+      "value": 0.2679212496180874,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/english_system_input_saved",
+      "text": "baseline Qwen Qwen3-4B english_system_input_saved",
+      "value": 14751,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline Qwen Qwen3-4B english_system_inr_per_rupee_input_mtok",
+      "value": 17.7012,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/english_system_monthly_saving_inr",
+      "text": "baseline Qwen Qwen3-4B english_system_monthly_saving_inr",
+      "value": 336.121714368,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/Qwen/Qwen3-4B/half_answers_monthly_saving_inr",
+      "text": "baseline Qwen Qwen3-4B half_answers_monthly_saving_inr",
+      "value": 833.855743776,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/chat_count",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/requests",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/billed_input",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct billed_input",
+      "value": 22802,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/billed_output",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct billed_output",
+      "value": 16345,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/billed_system_input",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct billed_system_input",
+      "value": 8217,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/monthly_chats",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/system_prompt_tokens",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct system_prompt_tokens",
+      "value": 8217,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/system_prompt_share",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct system_prompt_share",
+      "value": 0.20990114184995018,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/user_tokens",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct user_tokens",
+      "value": 4443,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/user_share",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct user_share",
+      "value": 0.11349528699517204,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/output_tokens",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct output_tokens",
+      "value": 16345,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/output_share",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct output_share",
+      "value": 0.41752880169617085,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/assistant_tokens",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct assistant_tokens",
+      "value": 10142,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/assistant_share",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct assistant_share",
+      "value": 0.25907476945870694,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/english_system_input_saved",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct english_system_input_saved",
+      "value": 3267,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/krutrim-ai-labs/Krutrim-2-instruct/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline krutrim-ai-labs Krutrim-2-instruct english_system_inr_per_rupee_input_mtok",
+      "value": 3.9204,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/chat_count",
+      "text": "baseline microsoft Phi-4-mini-instruct chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/requests",
+      "text": "baseline microsoft Phi-4-mini-instruct requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/billed_input",
+      "text": "baseline microsoft Phi-4-mini-instruct billed_input",
+      "value": 17943,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/billed_output",
+      "text": "baseline microsoft Phi-4-mini-instruct billed_output",
+      "value": 13194,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/billed_system_input",
+      "text": "baseline microsoft Phi-4-mini-instruct billed_system_input",
+      "value": 6138,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/monthly_chats",
+      "text": "baseline microsoft Phi-4-mini-instruct monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/system_prompt_tokens",
+      "text": "baseline microsoft Phi-4-mini-instruct system_prompt_tokens",
+      "value": 6138,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/system_prompt_share",
+      "text": "baseline microsoft Phi-4-mini-instruct system_prompt_share",
+      "value": 0.19712881780518354,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/user_tokens",
+      "text": "baseline microsoft Phi-4-mini-instruct user_tokens",
+      "value": 3622,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/user_share",
+      "text": "baseline microsoft Phi-4-mini-instruct user_share",
+      "value": 0.11632462986157947,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/output_tokens",
+      "text": "baseline microsoft Phi-4-mini-instruct output_tokens",
+      "value": 13194,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/output_share",
+      "text": "baseline microsoft Phi-4-mini-instruct output_share",
+      "value": 0.42374024472492533,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/assistant_tokens",
+      "text": "baseline microsoft Phi-4-mini-instruct assistant_tokens",
+      "value": 8183,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/assistant_share",
+      "text": "baseline microsoft Phi-4-mini-instruct assistant_share",
+      "value": 0.26280630760831164,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/english_system_input_saved",
+      "text": "baseline microsoft Phi-4-mini-instruct english_system_input_saved",
+      "value": 1287,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/microsoft/Phi-4-mini-instruct/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline microsoft Phi-4-mini-instruct english_system_inr_per_rupee_input_mtok",
+      "value": 1.5444,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/chat_count",
+      "text": "baseline openai gpt-oss-20b chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/requests",
+      "text": "baseline openai gpt-oss-20b requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/billed_input",
+      "text": "baseline openai gpt-oss-20b billed_input",
+      "value": 17943,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/billed_output",
+      "text": "baseline openai gpt-oss-20b billed_output",
+      "value": 13194,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/billed_system_input",
+      "text": "baseline openai gpt-oss-20b billed_system_input",
+      "value": 6138,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/monthly_chats",
+      "text": "baseline openai gpt-oss-20b monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/system_prompt_tokens",
+      "text": "baseline openai gpt-oss-20b system_prompt_tokens",
+      "value": 6138,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/system_prompt_share",
+      "text": "baseline openai gpt-oss-20b system_prompt_share",
+      "value": 0.19712881780518354,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/user_tokens",
+      "text": "baseline openai gpt-oss-20b user_tokens",
+      "value": 3622,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/user_share",
+      "text": "baseline openai gpt-oss-20b user_share",
+      "value": 0.11632462986157947,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/output_tokens",
+      "text": "baseline openai gpt-oss-20b output_tokens",
+      "value": 13194,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/output_share",
+      "text": "baseline openai gpt-oss-20b output_share",
+      "value": 0.42374024472492533,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/assistant_tokens",
+      "text": "baseline openai gpt-oss-20b assistant_tokens",
+      "value": 8183,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/assistant_share",
+      "text": "baseline openai gpt-oss-20b assistant_share",
+      "value": 0.26280630760831164,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/monthly_inr",
+      "text": "baseline openai gpt-oss-20b monthly_inr",
+      "value": 271.778707728,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/system_prompt_cost_share",
+      "text": "baseline openai gpt-oss-20b system_prompt_cost_share",
+      "value": 0.07719298245614035,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/user_cost_share",
+      "text": "baseline openai gpt-oss-20b user_cost_share",
+      "value": 0.04555115387033893,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/output_cost_share",
+      "text": "baseline openai gpt-oss-20b output_cost_share",
+      "value": 0.7743444633088097,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/assistant_cost_share",
+      "text": "baseline openai gpt-oss-20b assistant_cost_share",
+      "value": 0.10291140036471107,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/english_system_input_saved",
+      "text": "baseline openai gpt-oss-20b english_system_input_saved",
+      "value": 1287,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline openai gpt-oss-20b english_system_inr_per_rupee_input_mtok",
+      "value": 1.5444,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/english_system_monthly_saving_inr",
+      "text": "baseline openai gpt-oss-20b english_system_monthly_saving_inr",
+      "value": 4.3989083424,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/openai/gpt-oss-20b/half_answers_monthly_saving_inr",
+      "text": "baseline openai gpt-oss-20b half_answers_monthly_saving_inr",
+      "value": 119.209732488,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/chat_count",
+      "text": "baseline sarvamai sarvam-1 chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/requests",
+      "text": "baseline sarvamai sarvam-1 requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/billed_input",
+      "text": "baseline sarvamai sarvam-1 billed_input",
+      "value": 16344,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/billed_output",
+      "text": "baseline sarvamai sarvam-1 billed_output",
+      "value": 12084,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/billed_system_input",
+      "text": "baseline sarvamai sarvam-1 billed_system_input",
+      "value": 5643,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/monthly_chats",
+      "text": "baseline sarvamai sarvam-1 monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/system_prompt_tokens",
+      "text": "baseline sarvamai sarvam-1 system_prompt_tokens",
+      "value": 5643,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/system_prompt_share",
+      "text": "baseline sarvamai sarvam-1 system_prompt_share",
+      "value": 0.1985014774166315,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/user_tokens",
+      "text": "baseline sarvamai sarvam-1 user_tokens",
+      "value": 3239,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/user_share",
+      "text": "baseline sarvamai sarvam-1 user_share",
+      "value": 0.11393696355705642,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/output_tokens",
+      "text": "baseline sarvamai sarvam-1 output_tokens",
+      "value": 12084,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/output_share",
+      "text": "baseline sarvamai sarvam-1 output_share",
+      "value": 0.4250738708315745,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/assistant_tokens",
+      "text": "baseline sarvamai sarvam-1 assistant_tokens",
+      "value": 7462,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/assistant_share",
+      "text": "baseline sarvamai sarvam-1 assistant_share",
+      "value": 0.26248768819473756,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/english_system_input_saved",
+      "text": "baseline sarvamai sarvam-1 english_system_input_saved",
+      "value": 297,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/sarvamai/sarvam-1/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline sarvamai sarvam-1 english_system_inr_per_rupee_input_mtok",
+      "value": 0.3564,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/chat_count",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/requests",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/billed_input",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct billed_input",
+      "value": 33451,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/billed_output",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct billed_output",
+      "value": 25039,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/billed_system_input",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct billed_system_input",
+      "value": 10989,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/monthly_chats",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/system_prompt_tokens",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct system_prompt_tokens",
+      "value": 10989,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/system_prompt_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct system_prompt_share",
+      "value": 0.18787826978970765,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/user_tokens",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct user_tokens",
+      "value": 6894,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/user_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct user_share",
+      "value": 0.11786630193195417,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/output_tokens",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct output_tokens",
+      "value": 25039,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/output_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct output_share",
+      "value": 0.4280902718413404,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/assistant_tokens",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct assistant_tokens",
+      "value": 15568,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/assistant_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct assistant_share",
+      "value": 0.2661651564369978,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/monthly_inr",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct monthly_inr",
+      "value": 1131.9606817728,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/system_prompt_cost_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct system_prompt_cost_share",
+      "value": 0.05530214122805075,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/user_cost_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct user_cost_share",
+      "value": 0.03469405420203675,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/output_cost_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct output_cost_share",
+      "value": 0.8316578463718696,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/assistant_cost_share",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct assistant_cost_share",
+      "value": 0.07834595819804296,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/english_system_input_saved",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct english_system_input_saved",
+      "value": 6138,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct english_system_inr_per_rupee_input_mtok",
+      "value": 7.3656,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/english_system_monthly_saving_inr",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct english_system_monthly_saving_inr",
+      "value": 34.965681696,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/Llama-3.2-3B-Instruct/half_answers_monthly_saving_inr",
+      "text": "baseline unsloth Llama-3.2-3B-Instruct half_answers_monthly_saving_inr",
+      "value": 515.0442635184,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/chat_count",
+      "text": "baseline unsloth gemma-3-4b-it chat_count",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/requests",
+      "text": "baseline unsloth gemma-3-4b-it requests",
+      "value": 99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/billed_input",
+      "text": "baseline unsloth gemma-3-4b-it billed_input",
+      "value": 15164,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/billed_output",
+      "text": "baseline unsloth gemma-3-4b-it billed_output",
+      "value": 11586,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/billed_system_input",
+      "text": "baseline unsloth gemma-3-4b-it billed_system_input",
+      "value": 4851,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/monthly_chats",
+      "text": "baseline unsloth gemma-3-4b-it monthly_chats",
+      "value": 60000,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/system_prompt_tokens",
+      "text": "baseline unsloth gemma-3-4b-it system_prompt_tokens",
+      "value": 4851,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/system_prompt_share",
+      "text": "baseline unsloth gemma-3-4b-it system_prompt_share",
+      "value": 0.18134579439252335,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/user_tokens",
+      "text": "baseline unsloth gemma-3-4b-it user_tokens",
+      "value": 3101,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/user_share",
+      "text": "baseline unsloth gemma-3-4b-it user_share",
+      "value": 0.11592523364485981,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/output_tokens",
+      "text": "baseline unsloth gemma-3-4b-it output_tokens",
+      "value": 11586,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/output_share",
+      "text": "baseline unsloth gemma-3-4b-it output_share",
+      "value": 0.4331214953271028,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/assistant_tokens",
+      "text": "baseline unsloth gemma-3-4b-it assistant_tokens",
+      "value": 7212,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/assistant_share",
+      "text": "baseline unsloth gemma-3-4b-it assistant_share",
+      "value": 0.26960747663551404,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/monthly_inr",
+      "text": "baseline unsloth gemma-3-4b-it monthly_inr",
+      "value": 135.1072117824,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/system_prompt_cost_share",
+      "text": "baseline unsloth gemma-3-4b-it system_prompt_cost_share",
+      "value": 0.16362808425952474,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/user_cost_share",
+      "text": "baseline unsloth gemma-3-4b-it user_cost_share",
+      "value": 0.10459919383401076,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/output_cost_share",
+      "text": "baseline unsloth gemma-3-4b-it output_cost_share",
+      "value": 0.4885062317642892,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/assistant_cost_share",
+      "text": "baseline unsloth gemma-3-4b-it assistant_cost_share",
+      "value": 0.2432664901421753,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/english_system_input_saved",
+      "text": "baseline unsloth gemma-3-4b-it english_system_input_saved",
+      "value": -99,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/english_system_inr_per_rupee_input_mtok",
+      "text": "baseline unsloth gemma-3-4b-it english_system_inr_per_rupee_input_mtok",
+      "value": -0.1188,
+      "unit": "INR per INR input price per million tokens",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/english_system_monthly_saving_inr",
+      "text": "baseline unsloth gemma-3-4b-it english_system_monthly_saving_inr",
+      "value": -0.4511700864,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "baseline/unsloth/gemma-3-4b-it/half_answers_monthly_saving_inr",
+      "text": "baseline unsloth gemma-3-4b-it half_answers_monthly_saving_inr",
+      "value": 49.4338860576,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/assistant/native_to_english_ratio",
+      "text": "ratios HuggingFaceTB SmolLM3-3B assistant native_to_english_ratio",
+      "value": 2.5304699343102577,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/assistant/ci_low",
+      "text": "ratios HuggingFaceTB SmolLM3-3B assistant ci_low",
+      "value": 2.5047418578963767,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/assistant/ci_high",
+      "text": "ratios HuggingFaceTB SmolLM3-3B assistant ci_high",
+      "value": 2.55649900522587,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/assistant/paired_items",
+      "text": "ratios HuggingFaceTB SmolLM3-3B assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/assistant/cluster_count",
+      "text": "ratios HuggingFaceTB SmolLM3-3B assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/system_prompt/native_to_english_ratio",
+      "text": "ratios HuggingFaceTB SmolLM3-3B system_prompt native_to_english_ratio",
+      "value": 2.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/system_prompt/ci_low",
+      "text": "ratios HuggingFaceTB SmolLM3-3B system_prompt ci_low",
+      "value": 2.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/system_prompt/ci_high",
+      "text": "ratios HuggingFaceTB SmolLM3-3B system_prompt ci_high",
+      "value": 2.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/system_prompt/paired_items",
+      "text": "ratios HuggingFaceTB SmolLM3-3B system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/system_prompt/cluster_count",
+      "text": "ratios HuggingFaceTB SmolLM3-3B system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/user/native_to_english_ratio",
+      "text": "ratios HuggingFaceTB SmolLM3-3B user native_to_english_ratio",
+      "value": 2.2499008330027768,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/user/ci_low",
+      "text": "ratios HuggingFaceTB SmolLM3-3B user ci_low",
+      "value": 2.1932749236058062,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/user/ci_high",
+      "text": "ratios HuggingFaceTB SmolLM3-3B user ci_high",
+      "value": 2.3049388190219835,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/user/paired_items",
+      "text": "ratios HuggingFaceTB SmolLM3-3B user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/HuggingFaceTB/SmolLM3-3B/user/cluster_count",
+      "text": "ratios HuggingFaceTB SmolLM3-3B user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/assistant/native_to_english_ratio",
+      "text": "ratios Qwen Qwen3-4B assistant native_to_english_ratio",
+      "value": 4.5606872157655385,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/assistant/ci_low",
+      "text": "ratios Qwen Qwen3-4B assistant ci_low",
+      "value": 4.513956136690811,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/assistant/ci_high",
+      "text": "ratios Qwen Qwen3-4B assistant ci_high",
+      "value": 4.606980878561017,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/assistant/paired_items",
+      "text": "ratios Qwen Qwen3-4B assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/assistant/cluster_count",
+      "text": "ratios Qwen Qwen3-4B assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/system_prompt/native_to_english_ratio",
+      "text": "ratios Qwen Qwen3-4B system_prompt native_to_english_ratio",
+      "value": 4.040816326530612,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/system_prompt/ci_low",
+      "text": "ratios Qwen Qwen3-4B system_prompt ci_low",
+      "value": 4.040816326530612,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/system_prompt/ci_high",
+      "text": "ratios Qwen Qwen3-4B system_prompt ci_high",
+      "value": 4.040816326530612,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/system_prompt/paired_items",
+      "text": "ratios Qwen Qwen3-4B system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/system_prompt/cluster_count",
+      "text": "ratios Qwen Qwen3-4B system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/user/native_to_english_ratio",
+      "text": "ratios Qwen Qwen3-4B user native_to_english_ratio",
+      "value": 3.89170963903213,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/user/ci_low",
+      "text": "ratios Qwen Qwen3-4B user ci_low",
+      "value": 3.8106051988540615,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/user/ci_high",
+      "text": "ratios Qwen Qwen3-4B user ci_high",
+      "value": 3.975099060191179,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/user/paired_items",
+      "text": "ratios Qwen Qwen3-4B user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/Qwen/Qwen3-4B/user/cluster_count",
+      "text": "ratios Qwen Qwen3-4B user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/assistant/native_to_english_ratio",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct assistant native_to_english_ratio",
+      "value": 1.644862634597967,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/assistant/ci_low",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct assistant ci_low",
+      "value": 1.6336724792470758,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/assistant/ci_high",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct assistant ci_high",
+      "value": 1.6567519322847677,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/assistant/paired_items",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/assistant/cluster_count",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/system_prompt/native_to_english_ratio",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct system_prompt native_to_english_ratio",
+      "value": 1.66,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/system_prompt/ci_low",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct system_prompt ci_low",
+      "value": 1.66,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/system_prompt/ci_high",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct system_prompt ci_high",
+      "value": 1.66,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/system_prompt/paired_items",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/system_prompt/cluster_count",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/user/native_to_english_ratio",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct user native_to_english_ratio",
+      "value": 1.4144996059889676,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/user/ci_low",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct user ci_low",
+      "value": 1.3828646768753168,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/user/ci_high",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct user ci_high",
+      "value": 1.4464680054740684,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/user/paired_items",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/krutrim-ai-labs/Krutrim-2-instruct/user/cluster_count",
+      "text": "ratios krutrim-ai-labs Krutrim-2-instruct user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/assistant/native_to_english_ratio",
+      "text": "ratios microsoft Phi-4-mini-instruct assistant native_to_english_ratio",
+      "value": 1.3340748230535895,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/assistant/ci_low",
+      "text": "ratios microsoft Phi-4-mini-instruct assistant ci_low",
+      "value": 1.3244398142761955,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/assistant/ci_high",
+      "text": "ratios microsoft Phi-4-mini-instruct assistant ci_high",
+      "value": 1.3431714138681523,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/assistant/paired_items",
+      "text": "ratios microsoft Phi-4-mini-instruct assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/assistant/cluster_count",
+      "text": "ratios microsoft Phi-4-mini-instruct assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/system_prompt/native_to_english_ratio",
+      "text": "ratios microsoft Phi-4-mini-instruct system_prompt native_to_english_ratio",
+      "value": 1.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/system_prompt/ci_low",
+      "text": "ratios microsoft Phi-4-mini-instruct system_prompt ci_low",
+      "value": 1.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/system_prompt/ci_high",
+      "text": "ratios microsoft Phi-4-mini-instruct system_prompt ci_high",
+      "value": 1.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/system_prompt/paired_items",
+      "text": "ratios microsoft Phi-4-mini-instruct system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/system_prompt/cluster_count",
+      "text": "ratios microsoft Phi-4-mini-instruct system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/user/native_to_english_ratio",
+      "text": "ratios microsoft Phi-4-mini-instruct user native_to_english_ratio",
+      "value": 1.175327251090837,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/user/ci_low",
+      "text": "ratios microsoft Phi-4-mini-instruct user ci_low",
+      "value": 1.1489254576352586,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/user/ci_high",
+      "text": "ratios microsoft Phi-4-mini-instruct user ci_high",
+      "value": 1.2022128509205918,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/user/paired_items",
+      "text": "ratios microsoft Phi-4-mini-instruct user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/microsoft/Phi-4-mini-instruct/user/cluster_count",
+      "text": "ratios microsoft Phi-4-mini-instruct user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/assistant/native_to_english_ratio",
+      "text": "ratios openai gpt-oss-20b assistant native_to_english_ratio",
+      "value": 1.3340748230535895,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/assistant/ci_low",
+      "text": "ratios openai gpt-oss-20b assistant ci_low",
+      "value": 1.3244398142761955,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/assistant/ci_high",
+      "text": "ratios openai gpt-oss-20b assistant ci_high",
+      "value": 1.3431714138681523,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/assistant/paired_items",
+      "text": "ratios openai gpt-oss-20b assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/assistant/cluster_count",
+      "text": "ratios openai gpt-oss-20b assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/system_prompt/native_to_english_ratio",
+      "text": "ratios openai gpt-oss-20b system_prompt native_to_english_ratio",
+      "value": 1.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/system_prompt/ci_low",
+      "text": "ratios openai gpt-oss-20b system_prompt ci_low",
+      "value": 1.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/system_prompt/ci_high",
+      "text": "ratios openai gpt-oss-20b system_prompt ci_high",
+      "value": 1.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/system_prompt/paired_items",
+      "text": "ratios openai gpt-oss-20b system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/system_prompt/cluster_count",
+      "text": "ratios openai gpt-oss-20b system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/user/native_to_english_ratio",
+      "text": "ratios openai gpt-oss-20b user native_to_english_ratio",
+      "value": 1.175327251090837,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/user/ci_low",
+      "text": "ratios openai gpt-oss-20b user ci_low",
+      "value": 1.1489254576352586,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/user/ci_high",
+      "text": "ratios openai gpt-oss-20b user ci_high",
+      "value": 1.2022128509205918,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/user/paired_items",
+      "text": "ratios openai gpt-oss-20b user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/openai/gpt-oss-20b/user/cluster_count",
+      "text": "ratios openai gpt-oss-20b user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/assistant/native_to_english_ratio",
+      "text": "ratios sarvamai sarvam-1 assistant native_to_english_ratio",
+      "value": 1.1504188880426505,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/assistant/ci_low",
+      "text": "ratios sarvamai sarvam-1 assistant ci_low",
+      "value": 1.1401073270143987,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/assistant/ci_high",
+      "text": "ratios sarvamai sarvam-1 assistant ci_high",
+      "value": 1.1608017147731888,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/assistant/paired_items",
+      "text": "ratios sarvamai sarvam-1 assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/assistant/cluster_count",
+      "text": "ratios sarvamai sarvam-1 assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/system_prompt/native_to_english_ratio",
+      "text": "ratios sarvamai sarvam-1 system_prompt native_to_english_ratio",
+      "value": 1.0555555555555556,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/system_prompt/ci_low",
+      "text": "ratios sarvamai sarvam-1 system_prompt ci_low",
+      "value": 1.0555555555555556,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/system_prompt/ci_high",
+      "text": "ratios sarvamai sarvam-1 system_prompt ci_high",
+      "value": 1.0555555555555556,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/system_prompt/paired_items",
+      "text": "ratios sarvamai sarvam-1 system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/system_prompt/cluster_count",
+      "text": "ratios sarvamai sarvam-1 system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/user/native_to_english_ratio",
+      "text": "ratios sarvamai sarvam-1 user native_to_english_ratio",
+      "value": 1.0167300380228137,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/user/ci_low",
+      "text": "ratios sarvamai sarvam-1 user ci_low",
+      "value": 0.9906600082190312,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/user/ci_high",
+      "text": "ratios sarvamai sarvam-1 user ci_high",
+      "value": 1.0427519325409222,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/user/paired_items",
+      "text": "ratios sarvamai sarvam-1 user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/sarvamai/sarvam-1/user/cluster_count",
+      "text": "ratios sarvamai sarvam-1 user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/assistant/native_to_english_ratio",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct assistant native_to_english_ratio",
+      "value": 2.5304699343102577,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/assistant/ci_low",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct assistant ci_low",
+      "value": 2.5047418578963767,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/assistant/ci_high",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct assistant ci_high",
+      "value": 2.55649900522587,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/assistant/paired_items",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/assistant/cluster_count",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/system_prompt/native_to_english_ratio",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct system_prompt native_to_english_ratio",
+      "value": 2.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/system_prompt/ci_low",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct system_prompt ci_low",
+      "value": 2.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/system_prompt/ci_high",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct system_prompt ci_high",
+      "value": 2.2653061224489797,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/system_prompt/paired_items",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/system_prompt/cluster_count",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/user/native_to_english_ratio",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct user native_to_english_ratio",
+      "value": 2.2499008330027768,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/user/ci_low",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct user ci_low",
+      "value": 2.1932749236058062,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/user/ci_high",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct user ci_high",
+      "value": 2.3049388190219835,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/user/paired_items",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/Llama-3.2-3B-Instruct/user/cluster_count",
+      "text": "ratios unsloth Llama-3.2-3B-Instruct user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/assistant/native_to_english_ratio",
+      "text": "ratios unsloth gemma-3-4b-it assistant native_to_english_ratio",
+      "value": 1.1653590826795412,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/assistant/ci_low",
+      "text": "ratios unsloth gemma-3-4b-it assistant ci_low",
+      "value": 1.1528791165117733,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/assistant/ci_high",
+      "text": "ratios unsloth gemma-3-4b-it assistant ci_high",
+      "value": 1.1790701936230392,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/assistant/paired_items",
+      "text": "ratios unsloth gemma-3-4b-it assistant paired_items",
+      "value": 99,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/assistant/cluster_count",
+      "text": "ratios unsloth gemma-3-4b-it assistant cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/system_prompt/native_to_english_ratio",
+      "text": "ratios unsloth gemma-3-4b-it system_prompt native_to_english_ratio",
+      "value": 0.98,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/system_prompt/ci_low",
+      "text": "ratios unsloth gemma-3-4b-it system_prompt ci_low",
+      "value": 0.98,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/system_prompt/ci_high",
+      "text": "ratios unsloth gemma-3-4b-it system_prompt ci_high",
+      "value": 0.98,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/system_prompt/paired_items",
+      "text": "ratios unsloth gemma-3-4b-it system_prompt paired_items",
+      "value": 1,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/system_prompt/cluster_count",
+      "text": "ratios unsloth gemma-3-4b-it system_prompt cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/user/native_to_english_ratio",
+      "text": "ratios unsloth gemma-3-4b-it user native_to_english_ratio",
+      "value": 1.0212347620920172,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/user/ci_low",
+      "text": "ratios unsloth gemma-3-4b-it user ci_low",
+      "value": 0.9972676041306197,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/user/ci_high",
+      "text": "ratios unsloth gemma-3-4b-it user ci_high",
+      "value": 1.0459675281885699,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/user/paired_items",
+      "text": "ratios unsloth gemma-3-4b-it user paired_items",
+      "value": 124,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "ratios/unsloth/gemma-3-4b-it/user/cluster_count",
+      "text": "ratios unsloth gemma-3-4b-it user cluster_count",
+      "value": 50,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "baseline",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "hypotheses/openai/gpt-oss-20b/switch_monthly_saving_inr",
+      "text": "hypotheses openai gpt-oss-20b switch_monthly_saving_inr",
+      "value": 2114.77433112,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "hypotheses",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "hypotheses/unsloth/Llama-3.2-3B-Instruct/switch_monthly_saving_inr",
+      "text": "hypotheses unsloth Llama-3.2-3B-Instruct switch_monthly_saving_inr",
+      "value": 1254.5923570752002,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "hypotheses",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "hypotheses/unsloth/gemma-3-4b-it/switch_monthly_saving_inr",
+      "text": "hypotheses unsloth gemma-3-4b-it switch_monthly_saving_inr",
+      "value": 2251.4458270656,
+      "unit": "INR",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309"
+      ],
+      "recompute": {
+        "operation": "hypotheses",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "experiment/completed_pairs",
+      "text": "experiment completed_pairs",
+      "value": 0,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_4bc6432b6d6c9cc4e2d9b8cc",
+        "evt_79317280b01bbfc5f412d4b8",
+        "evt_833ec8f05981fee407844309",
+        "evt_e219c2a62e72f1fbf45024ff"
+      ],
+      "recompute": {
+        "operation": "experiment",
+        "inputs": {
+          "snapshot": "evt_4bc6432b6d6c9cc4e2d9b8cc",
+          "prices": "evt_79317280b01bbfc5f412d4b8",
+          "fx": "evt_833ec8f05981fee407844309",
+          "experiment": "evt_e219c2a62e72f1fbf45024ff"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "quality/passed",
+      "text": "quality passed",
+      "value": 0,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_500431e4381ac7c597f3b2b6"
+      ],
+      "recompute": {
+        "operation": "quality",
+        "inputs": {
+          "quality": "evt_500431e4381ac7c597f3b2b6"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "quality/judged",
+      "text": "quality judged",
+      "value": 0,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_500431e4381ac7c597f3b2b6"
+      ],
+      "recompute": {
+        "operation": "quality",
+        "inputs": {
+          "quality": "evt_500431e4381ac7c597f3b2b6"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "quality/queued_for_review",
+      "text": "quality queued_for_review",
+      "value": 20,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_500431e4381ac7c597f3b2b6"
+      ],
+      "recompute": {
+        "operation": "quality",
+        "inputs": {
+          "quality": "evt_500431e4381ac7c597f3b2b6"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "speed/completed_runs",
+      "text": "speed completed_runs",
+      "value": 1,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_181bea95d157229df905285b"
+      ],
+      "recompute": {
+        "operation": "speed",
+        "inputs": {
+          "speed": "evt_181bea95d157229df905285b"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "markovian/0/net_tokens",
+      "text": "markovian 0 net_tokens",
+      "value": 14768,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_cfb7f73b08478fc8dac0a8a8"
+      ],
+      "recompute": {
+        "operation": "markovian",
+        "inputs": {
+          "runs": "evt_cfb7f73b08478fc8dac0a8a8"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "markovian/0/net_percent",
+      "text": "markovian 0 net_percent",
+      "value": 51.146360047101204,
+      "unit": "percent",
+      "evidence_ids": [
+        "evt_cfb7f73b08478fc8dac0a8a8"
+      ],
+      "recompute": {
+        "operation": "markovian",
+        "inputs": {
+          "runs": "evt_cfb7f73b08478fc8dac0a8a8"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "markovian/1/net_tokens",
+      "text": "markovian 1 net_tokens",
+      "value": 9831,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_cfb7f73b08478fc8dac0a8a8"
+      ],
+      "recompute": {
+        "operation": "markovian",
+        "inputs": {
+          "runs": "evt_cfb7f73b08478fc8dac0a8a8"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "markovian/1/net_percent",
+      "text": "markovian 1 net_percent",
+      "value": 46.32893496701225,
+      "unit": "percent",
+      "evidence_ids": [
+        "evt_cfb7f73b08478fc8dac0a8a8"
+      ],
+      "recompute": {
+        "operation": "markovian",
+        "inputs": {
+          "runs": "evt_cfb7f73b08478fc8dac0a8a8"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "markovian/2/net_tokens",
+      "text": "markovian 2 net_tokens",
+      "value": 44501,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_cfb7f73b08478fc8dac0a8a8"
+      ],
+      "recompute": {
+        "operation": "markovian",
+        "inputs": {
+          "runs": "evt_cfb7f73b08478fc8dac0a8a8"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "markovian/2/net_percent",
+      "text": "markovian 2 net_percent",
+      "value": 68.72847457103585,
+      "unit": "percent",
+      "evidence_ids": [
+        "evt_cfb7f73b08478fc8dac0a8a8"
+      ],
+      "recompute": {
+        "operation": "markovian",
+        "inputs": {
+          "runs": "evt_cfb7f73b08478fc8dac0a8a8"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "budget/nemotron",
+      "text": "budget nemotron",
+      "value": 14,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_6979d89068b59bc2658db17f"
+      ],
+      "recompute": {
+        "operation": "budget",
+        "inputs": {
+          "budget": "evt_6979d89068b59bc2658db17f"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "budget/hosted",
+      "text": "budget hosted",
+      "value": 50,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_6979d89068b59bc2658db17f"
+      ],
+      "recompute": {
+        "operation": "budget",
+        "inputs": {
+          "budget": "evt_6979d89068b59bc2658db17f"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "budget/sql",
+      "text": "budget sql",
+      "value": 4,
+      "unit": "integer",
+      "evidence_ids": [
+        "evt_6979d89068b59bc2658db17f"
+      ],
+      "recompute": {
+        "operation": "budget",
+        "inputs": {
+          "budget": "evt_6979d89068b59bc2658db17f"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "budget/duration_s",
+      "text": "budget duration_s",
+      "value": 342.31043412489817,
+      "unit": "ratio",
+      "evidence_ids": [
+        "evt_6979d89068b59bc2658db17f"
+      ],
+      "recompute": {
+        "operation": "budget",
+        "inputs": {
+          "budget": "evt_6979d89068b59bc2658db17f"
+        }
+      },
+      "verified": true
+    },
+    {
+      "id": "budget/remaining_s",
+      "text": "budget remaining_s",
+      "value": 17.68956504110247,
+      "unit": "seconds",
+      "evidence_ids": [
+        "evt_6979d89068b59bc2658db17f"
+      ],
+      "recompute": {
+        "operation": "budget",
+        "inputs": {
+          "budget": "evt_6979d89068b59bc2658db17f"
+        }
+      },
+      "verified": true
+    }
+  ],
+  "dropped_claims": [],
+  "fixes": [
+    {
+      "lever": "model_switch",
+      "tokenizer": "unsloth/gemma-3-4b-it",
+      "claim_id": "hypotheses/unsloth/gemma-3-4b-it/switch_monthly_saving_inr",
+      "basis": "Quoted alternate tokenizer/provider scenario; hosting and output quality remain untested.",
+      "status": "rejected",
+      "reason": "Automated quality bar failed or could not be completed.",
+      "model_label": "tested on a stand-in model",
+      "experiment_evidence_ids": [
+        "evt_e219c2a62e72f1fbf45024ff"
+      ]
+    },
+    {
+      "lever": "model_switch",
+      "tokenizer": "openai/gpt-oss-20b",
+      "claim_id": "hypotheses/openai/gpt-oss-20b/switch_monthly_saving_inr",
+      "basis": "Quoted alternate tokenizer/provider scenario; hosting and output quality remain untested.",
+      "status": "untested estimate"
+    },
+    {
+      "lever": "model_switch",
+      "tokenizer": "unsloth/Llama-3.2-3B-Instruct",
+      "claim_id": "hypotheses/unsloth/Llama-3.2-3B-Instruct/switch_monthly_saving_inr",
+      "basis": "Quoted alternate tokenizer/provider scenario; hosting and output quality remain untested.",
+      "status": "untested estimate"
+    },
+    {
+      "lever": "answer_cap",
+      "claim_id": "baseline/Qwen/Qwen3-4B/half_answers_monthly_saving_inr",
+      "basis": "Hypothesis assumes half as many answer tokens, including replay; no measured cap benefit yet.",
+      "status": "untested estimate"
+    },
+    {
+      "lever": "english_system",
+      "claim_id": "baseline/Qwen/Qwen3-4B/english_system_monthly_saving_inr",
+      "basis": "Measured system-language substitution; reply-language instruction overhead and generated answers require experiment.",
+      "status": "untested estimate"
+    }
+  ],
+  "quality_status": "failed or not fully judged",
+  "review_status": "pending",
+  "speed_status": "not measured",
+  "remembered": [],
+  "remembered_fields": [],
+  "experiment": {
+    "lever": "model_switch",
+    "models": {
+      "original": "meta/llama-3.2-11b-vision-instruct",
+      "changed": "google/gemma-3-4b-it"
+    },
+    "model_label": "tested on a stand-in model",
+    "accounting": "One last-user-turn reply per sampled chat, content tokens, scaled to monthly chats; excludes template and history overhead.",
+    "evidence_ids": [
+      "evt_e219c2a62e72f1fbf45024ff"
+    ]
+  },
+  "markovian_runs": [
+    {
+      "log_index": 0,
+      "token_label": "estimated",
+      "claim_prefix": "markovian/0/"
+    },
+    {
+      "log_index": 1,
+      "token_label": "measured",
+      "claim_prefix": "markovian/1/"
+    },
+    {
+      "log_index": 2,
+      "token_label": "measured",
+      "claim_prefix": "markovian/2/"
+    }
+  ],
+  "limitations": [
+    "Synthetic paired translations and all native reviews remain pending.",
+    "Baseline reconstructs completed whole-chat content billing; excludes templates, retries and unpublished cache discounts.",
+    "A/B money scales one sampled last-turn response per chat, using the company tokenizer and quoted price. Do not compare it directly with the whole-chat baseline.",
+    "Hosted family membership is not proof of deployed-model quality or speed. Stand-in results require validation on the actual model.",
+    "Untested hypotheses are estimates, not validated recommendations.",
+    "Signed Markovian accounting is the reference history-replay counterfactual; it is not a measured second execution."
+  ],
+  "evidence_ids": [
+    "evt_ef2791167a0b76105f10c494",
+    "evt_764a21540e84d17a57d56d2a",
+    "evt_3f5166544cfb6ef24f2da3b7",
+    "evt_95b3a782e4b10e25d87f5679",
+    "evt_1b2ea954ff51113e267499b8",
+    "evt_4bc6432b6d6c9cc4e2d9b8cc",
+    "evt_4f66fc3f16c7792fd0d91e21",
+    "evt_79317280b01bbfc5f412d4b8",
+    "evt_833ec8f05981fee407844309",
+    "evt_4ea1c17db0995c847a78bff6",
+    "evt_a9ea6d6f8c039485992b27e0",
+    "evt_d3958c6045ffecaffbeebde8",
+    "evt_668dcdf7d6d4014ada2b0e32",
+    "evt_d99281d3a44ec7dd1c3c7da0",
+    "evt_88df95b037e33907524d5884",
+    "evt_dd0177b8ff66988cd1e06808",
+    "evt_ea60249bbfab77d86e212442",
+    "evt_1a6bf61b323971cf9e02abbd",
+    "evt_9ee557f7f66b4894852953d8",
+    "evt_a65ad15a96eb308be23b8c4d",
+    "evt_ef7c8e1749c15efca7562f66",
+    "evt_4a86a02c394b4009df945f35",
+    "evt_4ad5f90b2f4812ceda7de56a",
+    "evt_a772d865bb1acace8b5065b5",
+    "evt_23a050d4d1a652cec71a3f4f",
+    "evt_fc5902d4b64ed36650bf8b4d",
+    "evt_1c24d6a46fd29f93ffa600a8",
+    "evt_060b882892cd5d6c2c820939",
+    "evt_5b1724eab245ffa6bb39b4aa",
+    "evt_92c561f9ff7e024d859efc8b",
+    "evt_b7238e45fb8351a2365f82e9",
+    "evt_3225d7faa96bcf54d74ff217",
+    "evt_bb0a34e9d80031116a15ddbf",
+    "evt_93579a269f8ca20e72a199b1",
+    "evt_6831e2ab24e8273c4ee49388",
+    "evt_1b77a4f65e921e630dd2fbd8",
+    "evt_c3a7bc98d30df4ca761f31ad",
+    "evt_aa13e95044eb15895a764419",
+    "evt_fe98c17a5c953e6ab40ecaba",
+    "evt_0fd515e7e5cabbbf4996240c",
+    "evt_5d01bcbbed8ee7b7d21c5bfa",
+    "evt_e03a7df414ae98bcc408c4fc",
+    "evt_05234377f980cec1556e3a64",
+    "evt_c4f98d16d43e3a60617da544",
+    "evt_27d3fdd9e86dcaf95300cc05",
+    "evt_c2afe472382662582fa9c016",
+    "evt_ea072f3bd1dae795c0655871",
+    "evt_e551c1c83a775c98e74ddee4",
+    "evt_a0b937ff18ff61c432b79e1b",
+    "evt_843cfd4b034d1734606bb3da",
+    "evt_e219c2a62e72f1fbf45024ff",
+    "evt_500431e4381ac7c597f3b2b6",
+    "evt_92a21dacafa1dec33e65d3a4",
+    "evt_ee26e7bb722568b2f41c47ab",
+    "evt_e32ff75b240088205ca39945",
+    "evt_bfa73186ae939d7c4fcd324f",
+    "evt_d35e6876f3ddb56d77ecd827",
+    "evt_2367157947fb733363065abb",
+    "evt_10d2ea8b16fa1ac095ed2345",
+    "evt_5effe540fd0fa52aa0a4cbca",
+    "evt_181bea95d157229df905285b",
+    "evt_cfb7f73b08478fc8dac0a8a8",
+    "evt_6979d89068b59bc2658db17f"
+  ]
+}
