@@ -13,7 +13,7 @@ def test_seed_company_db_idempotent_live():
     settings = load_settings()
     assert seed_company_db(settings) == seed_company_db(settings) == {
         'samudra.bot_config':1, 'samudra.chats':223, 'swara.bot_config':1,
-        'swara.chats':223, 'reference.sentences':118, 'reference.prices':0}
+        'swara.chats':223, 'reference.sentences':118, 'reference.prices':7}
 
 
 def test_zetaris_sees_both_company_schemas():

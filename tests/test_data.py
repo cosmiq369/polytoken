@@ -60,8 +60,11 @@ def price():
                 source_url='https://example.test/fixture', fetched_at='2026-10-24T00:00:00Z', verified=True)
 
 
-def test_empty_prices_refuse_money():
-    assert load_prices(ROOT / 'data/reference/prices.json') == []
+def test_empty_prices_refuse_money(tmp_path):
+    empty = tmp_path / 'prices.json'
+    empty.write_text('[]')
+    assert load_prices(empty) == []
+    assert len(load_prices(ROOT / 'data/reference/prices.json')) == 7
     with pytest.raises(PriceUnavailable, match='verified price'):
         cost_usd(None, 10, 20)
 

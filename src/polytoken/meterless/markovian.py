@@ -53,6 +53,8 @@ def run_efficiency(chunks: list[dict], config: ChunkConfig | dict) -> dict:
     saved = max(0, standard - cost)
     return {"totalTokensUsed": total, "standardCost": standard,
             "markovianCost": cost, "tokensSaved": saved,
+            "net_tokens": standard - cost,
+            "net_percent": (standard - cost) / standard * 100 if standard else 0.0,
             "efficiencyPercent": saved / standard * 100 if standard else 0.0}
 
 

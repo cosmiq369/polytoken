@@ -1,0 +1,15 @@
+{
+  "source_url": "https://integrate.api.nvidia.com/v1/models",
+  "fetched_at": "2026-10-24T15:00:00Z",
+  "models_listed": 85,
+  "note": "Text models on the NVIDIA API catalogue whose tokenizer matches a measured family. Speed tests run only on these. Recheck /v1/models at startup; a model missing there is reported as not measured.",
+  "families": {
+    "Llama 3, 128k vocab (unsloth/Llama-3.2-3B-Instruct, HuggingFaceTB/SmolLM3-3B)": ["meta/llama-3.2-11b-vision-instruct", "meta/llama-3.2-90b-vision-instruct"],
+    "Gemma 3 (unsloth/gemma-3-4b-it)": ["google/gemma-3-4b-it", "google/gemma-3-12b-it"],
+    "OpenAI o200k (openai/gpt-oss-20b, microsoft/Phi-4-mini-instruct)": ["openai/gpt-oss-20b"],
+    "Qwen 3 (Qwen/Qwen3-4B)": [],
+    "Sarvam-1 (sarvamai/sarvam-1)": [],
+    "Krutrim 2 (krutrim-ai-labs/Krutrim-2-instruct)": []
+  },
+  "agent_model": "nvidia/nemotron-3.5-lightning-30b-a3b"
+}

@@ -61,3 +61,16 @@ whole chats, with a fixed seed and 95% percentile intervals; each resampled chat
 contributes its system prompt once. Repeated turns are not independent samples.
 The tokenizer configuration and corrected reference corpus are now vendored with
 hashes in data/reference/SOURCES.md; the eight tokenizer families are unchanged.
+
+### 24 Oct 2026 — separate call budgets and controlled hosted experiments (PROMPT-04)
+
+Written before any PROMPT-04 investigation run. The 25-call limit covers the
+agent's own Nemotron calls, including planning, repair and quality judging.
+Hosted fix experiments and speed probes have a separate limit of 70 calls per
+investigation. Every physical attempt, including retries, counts; all calls use
+one shared rate limiter. The SQL limit remains 60 and wall time six minutes.
+A prompt fix is tested A/B on the same hosted model, with the same user turns
+at temperature 0, comparing the original system prompt with the changed prompt.
+Model switching is explicitly a different experiment with the prompt held fixed.
+Stand-in hosted models are labelled, and cannot establish quality or speed on
+the company's deployed model. Native review remains pending until human review.
