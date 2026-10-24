@@ -9,7 +9,7 @@ import threading
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 from .agent.runtime import investigate
@@ -43,7 +43,12 @@ class Manager:
                 state['events'].append(row)
         def work():
             try:
-                report, _ = self.run(**payload, run_id=identifier, event_sink=emit)
+                def publish(report):
+                    with self.lock:
+                        state['report'] = report
+                import inspect
+                extra = {'report_sink': publish} if 'report_sink' in inspect.signature(self.run).parameters else {}
+                report, _ = self.run(**payload, run_id=identifier, event_sink=emit, **extra)
                 state['report'] = report
             except Exception as exc:
                 state['report'] = {'id': identifier, 'status': 'partial', 'partial_reason': 'startup failed: ' + type(exc).__name__,
@@ -121,7 +126,7 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
             entry = state(identifier)
             if entry['report'] is None:
                 raise HTTPException(202, 'Investigation is running')
-            return entry['report']
+            return JSONResponse(entry['report'], status_code=202 if entry['report'].get('status') == 'running' else 200)
         if not re.fullmatch(r'[A-Za-z0-9-]+', identifier):
             raise HTTPException(404, 'Investigation not found')
         path = Path(log_dir) / 'investigations' / (identifier + '.json')

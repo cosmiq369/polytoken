@@ -105,6 +105,7 @@ def main(argv=None) -> int:
     command.add_argument("--monthly-chats", type=int)
     command.add_argument("--latency-target-s", type=float)
     command.add_argument("--env-file", default=".env")
+    command.add_argument("--sample-suffix", default="", help="suffix for archived events and report, e.g. v2")
     command = subparsers.add_parser("serve", help="start the API and registered price endpoint")
     command.add_argument("--port", type=int, default=8000)
     args = parser.parse_args(argv)
@@ -129,12 +130,12 @@ def main(argv=None) -> int:
                     if row['event'] in ('step_started', 'done') else None)
             sample = Path('logs/sample')
             sample.mkdir(parents=True, exist_ok=True)
-            stem = sample / ('agent_' + args.company)
+            stem = sample / ('agent_' + args.company + ('_' + args.sample_suffix if args.sample_suffix else ''))
             # Never overwrite a previous run: append all events and archive old reports.
             with stem.with_suffix('.jsonl').open('a') as handle:
                 for row in events:
                     handle.write(json.dumps(row, ensure_ascii=False) + '\n')
-            destination = sample / ('agent_' + args.company + '_report.json')
+            destination = stem.with_name(stem.name + '_report.json')
             if destination.exists():
                 previous = json.loads(destination.read_text())
                 (sample / ('agent_' + args.company + '_' + previous['id'] + '_report.json')).write_text(destination.read_text())

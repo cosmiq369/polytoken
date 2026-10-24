@@ -27,7 +27,7 @@ def discover_hosted(settings, logger):
         response.raise_for_status()
         rows = response.json()['data']
     live = {row['id'] for row in rows if isinstance(row, dict) and isinstance(row.get('id'), str)}
-    result = {**declared, 'families': {f: [m for m in models if m in live] for f, models in declared['families'].items()},
+    result = {**declared, 'families': {f: [m for m in models if m in live and declared.get('serving_verification', {}).get(m, {}).get('served') is True] for f, models in declared['families'].items()},
               'live_fetched_at': now(), 'live_query': settings.nvidia_base_url + '/models'}
     logger.write('catalogue', 'live_intersection', ok=True, source=result['live_query'],
                  query='GET /models', time_window={'start': started, 'end': now()}, fetched_at=now(), families=result['families'])
@@ -51,7 +51,7 @@ def historical_runs(log_dir, agent_model=None):
 
 
 def investigate(company, *, question='', monthly_chats=None, latency_target_s=None,
-                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None):
+                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None, report_sink=None):
     settings = load_settings(env_file)
     logger = JsonlLogger(log_dir, run_id=run_id, secrets=settings.secrets)
     # These are composition-root startup reads, before the investigation begins.
@@ -66,10 +66,21 @@ def investigate(company, *, question='', monthly_chats=None, latency_target_s=No
         toolset = InvestigationTools(client, generator.generate, EvidenceStore(world), guard, logger, catalogue=catalogue)
         toolset.observe('query_result', catalogue, 'GET ' + catalogue.get('live_query', '/models'), 'NVIDIA catalogue intersected with verified allowlist')
         agent = Investigation(toolset, memory, question=question, monthly_chats=monthly_chats,
-                              latency_target_s=latency_target_s, event_sink=event_sink, historical_runs=history)
-        report = agent.run(company)
+                              latency_target_s=latency_target_s, event_sink=event_sink, historical_runs=history, background=True)
         directory = Path(log_dir) / 'investigations'
         directory.mkdir(parents=True, exist_ok=True)
-        (directory / (report['id'] + '.json')).write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + '\n')
-        logger.write('agent', 'report', report=report)
-        return report, agent.events
+        latest = {}
+        def publish(report):
+            latest.clear()
+            latest.update(report)
+            destination = directory / (report['id'] + '.json')
+            temporary = destination.with_suffix('.tmp')
+            temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + '\n')
+            temporary.replace(destination)
+            logger.write('agent', 'report', report=report)
+            if report_sink:
+                report_sink(report)
+        publish(agent.run(company))
+        if agent.pending_job:
+            agent.finish_jobs(company, publish)
+        return dict(latest), agent.events

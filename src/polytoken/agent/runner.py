@@ -3,6 +3,7 @@ import json
 from uuid import uuid4
 
 from .budget import BudgetExceeded
+from .jobs import JobBudget
 from .calculations import experiment_metrics, quality_metrics, speed_metrics, select_price
 from .planner import Planner
 from ..checker import Checker, make_claims
@@ -25,7 +26,11 @@ DEFAULT_WHY = {
 
 class Investigation:
     def __init__(self, tools, memory, *, question='', monthly_chats=None, latency_target_s=None,
-                 event_sink=None, historical_runs=None, run_id=None):
+                 event_sink=None, historical_runs=None, run_id=None, background=False):
+        self.background = background
+        self.pending_job = None
+        self.job_status = None
+        self.job_summary = None
         self.tools, self.memory = tools, memory
         self.guard, self.logger = tools.budget, tools.logger
         self.run_id = run_id or self.logger.run_id or uuid4().hex
@@ -173,17 +178,28 @@ class Investigation:
                 self.candidates = self.hypotheses()
             self.context['ranked_hypotheses'] = [{**c, 'expected_monthly_saving_inr': self.metrics.get(c['claim_id'])} for c in self.candidates]
         elif step == 'experiment':
+            if self.background:
+                self.pending_job = dict(args)
+                self.job_status = 'queued'
+                self.context['experiment'] = {'status': 'queued', **args}
+                return
+            t.target_tokenizer = next((c.get('tokenizer') for c in self.candidates
+                if c['lever'] == 'model_switch' and args.get('hosted_model') in t.hosted_choices(c['tokenizer'])), None) if args['lever'] == 'model_switch' else None
             self.experiment = t.fix_experiment(company, **args)
             metrics = experiment_metrics(self.experiment, t.snapshot, t.prices, t.fx)
             self.add_metrics(metrics, 'experiment', {**self.baseline_inputs(), 'experiment': self.experiment['evidence_ids'][0]})
             self.context['experiment'] = {'lever': args['lever'], 'model_label': self.experiment['model_label'], **metrics}
         elif step == 'judge':
+            if self.background or not self.experiment:
+                return
             self.quality = t.quality_judge(self.experiment['pairs'])
             self.add_metrics(quality_metrics(self.quality), 'quality', {'quality': self.quality['evidence_ids'][0]})
             self.context['quality'] = quality_metrics(self.quality)
         elif step == 'speed':
+            if self.background or not self.experiment:
+                return
             pair = self.experiment['pairs'][0]
-            variants = {v: {'system': self.experiment['systems'][v], 'user': pair['user'], 'model': self.experiment['models'][v]}
+            variants = {v: {'system': self.experiment['systems'][v], 'user': pair['user'], 'chat_id': pair['chat_id'], 'model': self.experiment['models'][v]}
                         for v in ('original', 'changed')}
             self.speed = t.speed_probe(self.experiment['models']['original'], variants)
             self.add_metrics(speed_metrics(self.speed), 'speed', {'speed': self.speed['evidence_ids'][0]})
@@ -271,10 +287,52 @@ class Investigation:
         if report['top_finding']:
             self.memory.add(content=report['top_finding'], source=self.run_id, layer='working',
                             type='finding', entities=[company], derived_from=list(self.baseline_inputs().values()))
+        if not self.pending_job:
+            self.emit('done', status=report['status'], report_url=f'/investigations/{self.run_id}/report')
+        return report
+
+    def finish_jobs(self, company, publish):
+        """Run the queued job outside reasoning, publishing into the same report ID.
+
+        The API owns the background worker; CLI waits for it. SQLite observations
+        stay on this owner thread while four HTTP workers perform only generation.
+        """
+        if not self.pending_job:
+            return
+        reasoning = self.guard
+        self.guard = self.tools.budget = JobBudget(reasoning)
+        self.job_status = 'running'
+        self.background = False
+        publish(self.build_report(company, {c['id']: c['value'] for c in self.claims}))
+        try:
+            for step in ('experiment', 'judge', 'speed'):
+                self.step, self.why = step, DEFAULT_WHY[step]
+                self.emit('step_started')
+                self.do_step(step, self.pending_job if step == 'experiment' else {}, company)
+        except Exception as exc:
+            self.partial_reason = 'Background job unavailable: ' + type(exc).__name__
+            self.logger.write('experiment_jobs', 'failed', ok=False, error_class=type(exc).__name__)
+        self.job_summary = self.guard.snapshot()
+        self.job_status = 'partial' if self.guard.reason or self.partial_reason else 'complete'
+        if self.guard.reason:
+            self.partial_reason = self.guard.reason
+        eid = self.tools.observe('measurement', self.job_summary, 'Background job physical attempts and monotonic deadline', 'Runtime telemetry')
+        self.claims.extend(make_claims({f'jobs/{k}': v for k, v in self.job_summary.items() if type(v) in (int, float)}, 'job_budget', {'budget': eid}))
+        # A new verification pass includes baseline and all newly arrived claims.
+        self.claims, dropped = self.checker.check(self.claims)
+        self.dropped.extend(dropped)
+        for row in dropped:
+            self.emit('claim_dropped', **row)
+        report = self.build_report(company, {c['id']: c['value'] for c in self.claims})
+        publish(report)
+        self.emit('experiment_done', status=self.job_status,
+                  done=next((c['value'] for c in self.claims if c['id'] == 'experiment/completed_pairs'), 0), total=20)
         self.emit('done', status=report['status'], report_url=f'/investigations/{self.run_id}/report')
+        self.guard = self.tools.budget = reasoning
         return report
 
     def build_report(self, company, verified):
+        insufficient = verified.get('quality/judged') != 20
         quality_pass = verified.get('quality/passed', 0) >= 18 and verified.get('quality/judged') == 20
         tested = self.experiment['lever'] if self.experiment else None
         fixes = []
@@ -283,8 +341,13 @@ class Investigation:
                 continue
             c = dict(candidate)
             if c['lever'] == tested and (c['lever'] != 'model_switch' or self.experiment['models']['changed'] in self.tools.hosted_choices(c['tokenizer'])):
-                c['status'] = 'provisional; native review pending' if quality_pass else 'rejected'
-                c['reason'] = 'Automated same-facts check passed; native review is pending.' if quality_pass else 'Automated quality bar failed or could not be completed.'
+                c['status'] = 'provisional; native review pending' if quality_pass else ('insufficient sample' if insufficient else 'rejected')
+                if self.experiment.get('accounting_version') == 2 and 'experiment/monthly_saving_inr' in verified:
+                    c['claim_id'] = 'experiment/monthly_saving_inr'
+                c['reason'] = 'Automated same-facts check passed; native review is pending.' if quality_pass else ('Insufficient sample; no pass or fail verdict.' if insufficient else 'Automated quality bar failed.')
+                if quality_pass and verified.get(c['claim_id'], 0) <= 0:
+                    c['status'] = 'quality passed; no demonstrated cost saving'
+                    c['reason'] = 'Same-facts check passed, but the comparable historical cost scenario does not establish a saving.'
                 c['model_label'] = self.experiment['model_label']
                 c['experiment_evidence_ids'] = self.experiment['evidence_ids']
             fixes.append(c)
@@ -298,26 +361,29 @@ class Investigation:
                          for v in ('original', 'changed'))
             difference = verified['speed/latency_s/paired_difference']
             speed_status = 'inconclusive' if low is None or low <= 0 <= high or abs(difference) <= spread else ('changed slower' if low > 0 else 'changed faster')
+        if self.speed and any(r.get('cache_hit') for r in self.speed['runs']):
+            speed_status = 'inconclusive; cached timing evidence retains original time windows'
         money = any(k.startswith('baseline/' + getattr(self, 'config', {}).get('model_in_use', '?') + '/') and k.endswith('/monthly_inr') for k in verified)
         baseline_valid = any(k.endswith('_cost_share') or k.endswith('_share') for k in verified)
-        return {'schema_version': '1', 'id': self.run_id, 'company': company,
-                'status': 'partial' if self.partial_reason else 'complete', 'partial_reason': self.partial_reason,
+        return {'schema_version': '2', 'id': self.run_id, 'company': company,
+                'status': 'running' if self.job_status in ('queued', 'running') else ('partial' if self.partial_reason else 'complete'),
+                'jobs': {'status': self.job_status, 'request': self.pending_job, 'budget': self.job_summary} if self.job_status else None, 'partial_reason': self.partial_reason,
                 'needs_input': self.needs_input, 'top_finding': getattr(self, 'finding', None) if baseline_valid else None,
                 'top_fix': next((f['lever'] for f in fixes if f['status'].startswith('provisional')), None),
                 'money_status': 'quoted provider scenario; content only' if money else 'money unavailable',
                 'quoted_price': {k: v for k, v in (select_price(self.tools.prices, self.config['model_in_use']) or {}).items()
                                  if k in ('model', 'provider', 'source_url', 'fetched_at')} if hasattr(self, 'config') else None,
                 'claims': self.claims, 'dropped_claims': self.dropped, 'fixes': fixes,
-                'quality_status': 'automated pass; native review pending' if quality_pass else 'failed or not fully judged',
+                'quality_status': 'running' if self.job_status in ('queued', 'running') else ('automated pass; native review pending' if quality_pass else ('insufficient sample' if insufficient else 'failed')),
                 'review_status': 'pending', 'speed_status': speed_status,
                 'remembered': self.remembered, 'remembered_fields': ['volume', 'target', 'model', 'reply-language constraints'] if self.remembered else [],
                 'remembered_findings': self.remembered_findings,
-                'experiment': {k: self.experiment[k] for k in ('lever', 'models', 'model_label', 'accounting', 'evidence_ids')} if self.experiment else None,
+                'experiment': {k: self.experiment.get(k) for k in ('lever', 'models', 'model_label', 'accounting', 'accounting_version', 'target_tokenizer', 'evidence_ids')} if self.experiment else None,
                 'markovian_runs': [{'log_index': i, 'token_label': r['tokenLabel'], 'claim_prefix': f'markovian/{i}/'} for i, r in enumerate([*self.history])]
                     + [{'log_index': len(self.history), 'token_label': self.current_run['tokenLabel'], 'claim_prefix': f'markovian/{len(self.history)}/'}],
                 'limitations': ['Synthetic paired translations and all native reviews remain pending.',
                                'Baseline reconstructs completed whole-chat content billing; excludes templates, retries and unpublished cache discounts.',
-                               'A/B money scales one sampled last-turn response per chat, using the company tokenizer and quoted price. Do not compare it directly with the whole-chat baseline.',
+                               'Prompt-lever money holds historical replies and replay fixed, changing only measured system tokens. Generated output-length changes are separate; model switches are alternate tokenizer/provider scenarios.',
                                'Hosted family membership is not proof of deployed-model quality or speed. Stand-in results require validation on the actual model.',
                                'Untested hypotheses are estimates, not validated recommendations.',
                                'Signed Markovian accounting is the reference history-replay counterfactual; it is not a measured second execution.'],

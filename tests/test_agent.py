@@ -378,3 +378,161 @@ def test_speed_recomputes_throughput_from_usage():
                  usage={'completion_tokens': 100}, output_tokens_per_s=999.)
             for v in ('original', 'changed', 'changed', 'original') * 2]
     assert speed_metrics({'runs': rows})['speed/output_tokens_per_s/original_median'] == 100.
+
+
+def test_background_jobs_publish_running_then_verified(apparatus):
+    a = apparatus
+    agent = Investigation(a['tools'], a['memory'], background=True)
+    initial = agent.run('samudra')
+    assert initial['status'] == 'running'
+    assert initial['jobs']['status'] == 'queued'
+    assert a['tools'].budget.counts['hosted'] == 0
+    assert not any(e['event'] == 'done' for e in agent.events)
+    updates = []
+    final = agent.finish_jobs('samudra', updates.append)
+    assert [r['status'] for r in updates] == ['running', 'complete']
+    assert final['id'] == initial['id']
+    assert final['dropped_claims'] == []
+    assert all(c['verified'] for c in final['claims'])
+    values = {c['id']: c['value'] for c in final['claims']}
+    assert values['budget/hosted'] == 0
+    assert values['jobs/hosted'] == 48
+    progress = [e for e in agent.events if e['event'] == 'experiment_progress']
+    assert [e['done'] + e['failed'] for e in progress] == list(range(41))
+    assert all(e['total'] == 40 for e in progress)
+    assert [e['event'] for e in agent.events[-2:]] == ['experiment_done', 'done']
+
+
+def test_cache_reuses_successful_calls_and_retries_failed_only(apparatus):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    t.measure('samudra', config, ids)
+    original = t.generate
+    failed_once = []
+    def fail_one(prompt, **kwargs):
+        if not failed_once:
+            failed_once.append(True)
+            kwargs['before_attempt']()
+            raise RuntimeError('one unavailable response')
+        return original(prompt, **kwargs)
+    t.generate = fail_one
+    first = t.fix_experiment('samudra', 'english_system')
+    assert sum(p[v]['ok'] for p in first['pairs'] for v in ('original', 'changed')) == 39
+    t.generate = original
+    t.budget = BudgetGuard()
+    second = t.fix_experiment('samudra', 'english_system')
+    assert all(p[v]['ok'] for p in second['pairs'] for v in ('original', 'changed'))
+    assert t.budget.counts['hosted'] == 1
+    t.budget = BudgetGuard()
+    t.fix_experiment('samudra', 'english_system')
+    assert t.budget.counts['hosted'] == 0
+
+
+def test_quality_refuses_nineteen_complete_pairs(apparatus):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    t.measure('samudra', config, ids)
+    experiment = t.fix_experiment('samudra', 'english_system')
+    experiment['pairs'][0]['changed']['ok'] = False
+    before = t.budget.counts['nemotron']
+    result = t.quality_judge(experiment['pairs'])
+    assert result['sample_status'] == 'insufficient sample'
+    assert t.budget.counts['nemotron'] == before
+    assert all(p['same_facts'] is None for p in result['pairs'])
+
+
+def test_prompt_bill_uses_history_and_measured_system_not_generated_lengths(apparatus):
+    from polytoken.agent.calculations import baseline_metrics, experiment_metrics
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    t.measure('samudra', config, ids)
+    experiment = t.fix_experiment('samudra', 'english_system')
+    original = experiment_metrics(experiment, t.snapshot, t.prices, t.fx)
+    baseline = baseline_metrics(t.snapshot, t.prices, t.fx)
+    assert original['experiment/original_monthly_inr'] == baseline['baseline/fixture/model/monthly_inr']
+    for pair in experiment['pairs']:
+        pair['changed']['output_tokens'] *= 100
+    changed = experiment_metrics(experiment, t.snapshot, t.prices, t.fx)
+    assert changed['experiment/changed_monthly_inr'] == original['experiment/changed_monthly_inr']
+    assert changed['experiment/output_tokens_change'] > original['experiment/output_tokens_change']
+    experiment['changed_system_tokens'] *= 2
+    measured = experiment_metrics(experiment, t.snapshot, t.prices, t.fx)
+    assert measured['experiment/changed_monthly_inr'] > changed['experiment/changed_monthly_inr']
+
+
+@pytest.mark.parametrize('succeed,cap,expected', [(True, 70, 3), (False, 70, 3), (False, 2, 2)])
+def test_job_timeout_retries_are_physical_budget_attempts(settings, logger, clock, succeed, cap, expected):
+    import httpx
+    from polytoken.agent.jobs import JobBudget
+    from polytoken.llm import NvidiaGenerator, SlidingWindowLimiter, LLMError
+    reasoning = BudgetGuard(clock=clock)
+    clock.now = 400  # A completed reasoning deadline does not consume job time.
+    guard = JobBudget(reasoning)
+    guard.LIMITS = {**guard.LIMITS, 'hosted': cap}
+    calls = []
+    def handle(request):
+        calls.append(request)
+        if not succeed or len(calls) < 3:
+            raise httpx.ReadTimeout('fixture timeout')
+        return httpx.Response(200, json={'choices': [{'message': {'content': 'ok'}}], 'usage': {}})
+    with NvidiaGenerator(settings, logger=logger, client=httpx.Client(transport=httpx.MockTransport(handle)),
+                         limiter=SlidingWindowLimiter(40, clock=clock, sleep=clock.sleep),
+                         clock=clock, sleep=clock.sleep, jitter=lambda: 0) as generator:
+        def run():
+            return generator.generate('test', max_retries=2, retry_timeouts=True, timeout_s=120,
+                                      before_attempt=lambda: guard.consume('hosted'),
+                                      remaining=guard.remaining, abort=guard.check)
+        if succeed:
+            assert run()['text'] == 'ok'
+        else:
+            with pytest.raises(LLMError):
+                run()
+    assert len(calls) == guard.counts['hosted'] == expected
+    assert all(r.extensions['timeout']['read'] == 120 for r in calls)
+    with pytest.raises(BudgetExceeded):
+        reasoning.check()
+
+
+def test_api_serves_running_report_then_same_id_completed():
+    import threading
+    published, release = threading.Event(), threading.Event()
+    def run(company, run_id, event_sink, report_sink, **kwargs):
+        report_sink({'id': run_id, 'status': 'running', 'jobs': {'status': 'running'}, 'claims': []})
+        published.set()
+        release.wait(5)
+        final = {'id': run_id, 'status': 'complete', 'claims': []}
+        event_sink({'event': 'experiment_done', 'investigation_id': run_id})
+        event_sink({'event': 'done', 'investigation_id': run_id})
+        return final, []
+    with TestClient(create_app(run=run, reference=False)) as client:
+        identifier = client.post('/investigations', json={'company': 'samudra'}).json()['id']
+        try:
+            assert published.wait(2)
+            response = client.get(f'/investigations/{identifier}/report')
+            assert response.status_code == 202
+            assert response.json()['jobs']['status'] == 'running'
+        finally:
+            release.set()
+        events = client.get(f'/investigations/{identifier}/events').text
+        assert events.index('event: experiment_done') < events.index('event: done')
+        assert client.get(f'/investigations/{identifier}/report').json()['id'] == identifier
+        assert client.get(f'/investigations/{identifier}/report').json()['status'] == 'complete'
+
+
+def test_job_deadline_and_speed_cache(apparatus, clock):
+    from polytoken.agent.jobs import JobBudget
+    guard = JobBudget(BudgetGuard(clock=clock))
+    clock.now += 1800
+    with pytest.raises(BudgetExceeded, match='wall'):
+        guard.consume('hosted')
+    a = apparatus
+    agent = Investigation(a['tools'], a['memory'], background=True)
+    agent.run('samudra')
+    agent.finish_jobs('samudra', lambda _: None)
+    a['tools'].budget = BudgetGuard()
+    second = Investigation(a['tools'], a['memory'], background=True)
+    second.run('samudra')
+    report = second.finish_jobs('samudra', lambda _: None)
+    assert report['jobs']['budget']['hosted'] == 0
+    assert report['speed_status'].startswith('inconclusive; cached')
+    assert report['dropped_claims'] == []

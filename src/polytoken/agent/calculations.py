@@ -89,6 +89,8 @@ def experiment_metrics(experiment, snapshot, prices, fx):
     pairs = experiment['pairs']
     ok = [p for p in pairs if p['original']['ok'] and p['changed']['ok']]
     metrics = {'experiment/completed_pairs': len(ok)}
+    if experiment.get('accounting_version') == 2:
+        return reconstructed_experiment_metrics(experiment, snapshot, prices, fx, metrics)
     if len(ok) != 20:
         return metrics
     spec = snapshot['config']['model_in_use']
@@ -143,4 +145,36 @@ def speed_metrics(probe):
         metrics[f'speed/{field}/paired_difference'] = median(differences)
         metrics[f'speed/{field}/difference_min'] = min(differences)
         metrics[f'speed/{field}/difference_max'] = max(differences)
+    return metrics
+
+
+def reconstructed_experiment_metrics(experiment, snapshot, prices, fx, metrics):
+    """Same historical requests, prices and outputs; only the specified input changes."""
+    import copy
+    spec = snapshot['config']['model_in_use']
+    baseline = baseline_metrics(snapshot, prices, fx)
+    changed = copy.deepcopy(snapshot)
+    target = spec
+    if experiment['lever'] == 'model_switch':
+        target = experiment.get('target_tokenizer')
+        after = baseline
+    else:
+        for row in changed['counts']:
+            if row['tokenizer_spec'] == spec and row['part'] == 'system_prompt' and row['lang_variant'] == snapshot['config']['language']:
+                row['tokens'] = experiment['changed_system_tokens']
+        after = baseline_metrics(changed, prices, fx)
+    for variant, source, tokenizer in [('original', baseline, spec), ('changed', after, target)]:
+        key = 'baseline/' + str(tokenizer) + '/monthly_inr'
+        if key in source:
+            metrics['experiment/' + variant + '_monthly_inr'] = source[key]
+    if all('experiment/' + v + '_monthly_inr' in metrics for v in ('original', 'changed')):
+        metrics['experiment/monthly_saving_inr'] = metrics['experiment/original_monthly_inr'] - metrics['experiment/changed_monthly_inr']
+    ok = [p for p in experiment['pairs'] if p['original']['ok'] and p['changed']['ok']]
+    if len(ok) == 20:
+        for variant in ('original', 'changed'):
+            metrics['experiment/' + variant + '_output_tokens'] = sum(p[variant]['output_tokens'] for p in ok)
+        original = metrics['experiment/original_output_tokens']
+        metrics['experiment/output_tokens_change'] = metrics['experiment/changed_output_tokens'] - original
+        if original:
+            metrics['experiment/output_tokens_ratio'] = metrics['experiment/changed_output_tokens'] / original
     return metrics

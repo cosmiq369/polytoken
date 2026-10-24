@@ -86,8 +86,9 @@ class Checker:
                             net = actual['standardCost'] - actual['markovianCost']
                             result[f'markovian/{index}/net_tokens'] = net
                             result[f'markovian/{index}/net_percent'] = net / actual['standardCost'] * 100 if actual['standardCost'] else 0.
-                    elif op == 'budget':
-                        result = {f'budget/{k}': v for k, v in args['budget'].items() if type(v) in (int, float)}
+                    elif op in ('budget', 'job_budget'):
+                        prefix = 'jobs' if op == 'job_budget' else 'budget'
+                        result = {f'{prefix}/{k}': v for k, v in args['budget'].items() if type(v) in (int, float)}
                     else:
                         raise ValueError('Unsupported recomputation')
                     cache[key] = result
