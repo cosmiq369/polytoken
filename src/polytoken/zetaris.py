@@ -116,7 +116,8 @@ class ZetarisClient:
             self.logger.write("zetaris_admin", "execute", sql=self.logger.redact(sql),
                               latency_s=time.monotonic()-started, ok=ok)
 
-    def query(self, sql: str, page_limit: int = 1000, *, allow_truncated: bool = False) -> list[dict]:
+    def query(self, sql: str, page_limit: int = 1000, *, allow_truncated: bool = False,
+              before_attempt=None, remaining=None) -> list[dict]:
         start = time.monotonic()
         rows = []
         ok = False
@@ -128,11 +129,14 @@ class ZetarisClient:
             if self._token is None:
                 self.login()
             for attempt in range(2):
+                if before_attempt:
+                    before_attempt()
                 response = self._client.post(
                     self.settings.zetaris_url + "/api/proxy/query/sql/start",
                     headers={"Authorization": "Bearer " + self._token,
                              "X-Org-ID": str(self.org_id), "X-Request-ID": str(uuid4())},
-                    json={"select": sql, "pageLimit": page_limit}, timeout=self._timeout,
+                    json={"select": sql, "pageLimit": page_limit},
+                    timeout=min(self._timeout.read, max(.01, remaining())) if remaining else self._timeout,
                 )
                 if response.status_code == 401 and attempt == 0:
                     self._token = None

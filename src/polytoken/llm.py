@@ -142,20 +142,23 @@ class NvidiaGenerator:
     def __exit__(self, *args):
         self.close()
 
-    def generate(self, prompt, system_prompt=None, attachments=None, on_stream=None, abort=None) -> dict:
+    def generate(self, prompt, system_prompt=None, attachments=None, on_stream=None, abort=None,
+                 *, model=None, temperature=None, before_attempt=None, remaining=None) -> dict:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
         content = [{"type": "text", "text": prompt}, *attachments] if attachments else prompt
         messages.append({"role": "user", "content": content})
         body = {
-            "model": self.settings.agent_model, "messages": messages,
+            "model": model or self.settings.agent_model, "messages": messages,
             "max_tokens": self.max_tokens, "stream": on_stream is not None,
         }
+        if temperature is not None:
+            body["temperature"] = temperature
         if on_stream is not None:
             body["stream_options"] = {"include_usage": True}
         metadata = {
-            "model": self.settings.agent_model, "prompt_length": len(prompt),
+            "model": body["model"], "prompt_length": len(prompt),
             "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:12],
             "system_prompt_length": len(system_prompt or ""),
             "attachments_count": len(attachments or []),
@@ -163,19 +166,27 @@ class NvidiaGenerator:
         total_start = self._clock()
         for attempt in range(1, 5):  # One initial request and at most three retries.
             usage = {}
+            first_token = None
             start = self._clock()
             try:
                 self.limiter.acquire(abort)
                 _check_abort(abort)
+                if before_attempt:
+                    before_attempt()
                 start = self._clock()
                 with self._client.stream(
                     "POST", self.settings.nvidia_base_url + "/chat/completions",
                     headers={"Authorization": "Bearer " + self.settings.nvidia_api_key},
-                    json=body, timeout=self.timeout,
+                    json=body, timeout=min(self.timeout.read, max(.01, remaining())) if remaining else self.timeout,
                 ) as response:
                     response.raise_for_status()
                     if on_stream is not None:
-                        text, usage = self._read_stream(response, on_stream, abort)
+                        def receive(text):
+                            nonlocal first_token
+                            if first_token is None:
+                                first_token = self._clock()
+                            on_stream(text)
+                        text, usage = self._read_stream(response, receive, abort)
                     else:
                         response.read()
                         _check_abort(abort)
@@ -189,8 +200,12 @@ class NvidiaGenerator:
                 if not isinstance(usage, dict):
                     raise ProtocolError("Completion usage is not an object")
                 self._log(metadata, usage, start, attempt, True, None)
-                return {"text": text, "usage": usage,
-                        "latency_s": self._clock() - total_start, "model": self.settings.agent_model}
+                result = {"text": text, "usage": usage,
+                          "latency_s": self._clock() - total_start, "model": body["model"]}
+                if on_stream is not None:
+                    result.update(request_latency_s=self._clock() - start,
+                                  ttft_s=first_token - start if first_token is not None else None)
+                return result
             except Exception as exc:
                 self._log(metadata, usage, start, attempt, False, type(exc).__name__)
                 retryable = isinstance(exc, httpx.HTTPStatusError) and (
