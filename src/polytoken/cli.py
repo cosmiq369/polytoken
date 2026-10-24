@@ -99,7 +99,52 @@ def main(argv=None) -> int:
     command = subparsers.add_parser("engines-demo", help="demonstrate Meterless accounting and evidence storage")
     command.add_argument("--live", action="store_true")
     command.add_argument("--env-file", default=None)
+    command = subparsers.add_parser("investigate", help="run a bounded live investigation")
+    command.add_argument("--company", choices=("samudra", "swara"), required=True)
+    command.add_argument("--question", default="Explain the workload cost and latency and test a fix.")
+    command.add_argument("--monthly-chats", type=int)
+    command.add_argument("--latency-target-s", type=float)
+    command.add_argument("--env-file", default=".env")
+    command = subparsers.add_parser("serve", help="start the API and registered price endpoint")
+    command.add_argument("--port", type=int, default=8000)
     args = parser.parse_args(argv)
+    if args.command == "serve":
+        import uvicorn
+        from .api import create_app
+        uvicorn.run(create_app(), host="127.0.0.1", port=args.port)
+        return 0
+    if args.command == "investigate":
+        import json
+        from .agent.runtime import investigate
+        from .reference_server import ensure_reference_server, ensure_reference_table
+        logger = JsonlLogger(env_file=args.env_file)
+        server = ensure_reference_server(logger)
+        try:
+            with ZetarisClient(load_settings(args.env_file), logger=logger) as client:
+                ensure_reference_table(client, logger)
+            report, events = investigate(args.company, question=args.question,
+                monthly_chats=args.monthly_chats, latency_target_s=args.latency_target_s,
+                env_file=args.env_file,
+                event_sink=lambda row: print(f"{row['step']}: {row['event']} — {row['why']}", flush=True)
+                    if row['event'] in ('step_started', 'done') else None)
+            sample = Path('logs/sample')
+            sample.mkdir(parents=True, exist_ok=True)
+            stem = sample / ('agent_' + args.company)
+            # Never overwrite a previous run: append all events and archive old reports.
+            with stem.with_suffix('.jsonl').open('a') as handle:
+                for row in events:
+                    handle.write(json.dumps(row, ensure_ascii=False) + '\n')
+            destination = sample / ('agent_' + args.company + '_report.json')
+            if destination.exists():
+                previous = json.loads(destination.read_text())
+                (sample / ('agent_' + args.company + '_' + previous['id'] + '_report.json')).write_text(destination.read_text())
+            destination.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+            print(f"{report['status']}: {destination}")
+            return 0
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
     if args.command == "engines-demo":
         return engines_demo(live=args.live, env_file=args.env_file)
     if args.command == "measure":
@@ -153,7 +198,7 @@ def engines_demo(*, live=False, env_file=None) -> int:
         run = Markovian({"maxChunks": 4}).run("Demonstrate bounded token accounting", fake, reflect=False)
     print(f"Markovian: {len(run['chunks'])} chunks, {run['status']}, tokenLabel={run['tokenLabel']}")
     print(f"Projected savings: {run['projected']['savings']} tokens ({run['projected']['efficiency'] * 100:.2f}%)")
-    print(f"Actual savings: {run['actual']['tokensSaved']} tokens ({run['actual']['efficiencyPercent']:.2f}%)")
+    print(f"Signed savings: {run['actual']['net_tokens']} tokens ({run['actual']['net_percent']:.2f}%)")
     with TemporaryDirectory() as directory:
         with WorldModel(Path(directory) / "world.sqlite") as world:
             sample = root / "logs" / "sample" / "federation.jsonl"

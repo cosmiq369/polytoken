@@ -5,6 +5,7 @@ from polytoken.config import load_settings
 from polytoken.logs import JsonlLogger
 from polytoken.measurement_report import verify_and_save
 from polytoken.zetaris import ZetarisClient
+from polytoken.company_db import ROOT
 
 pytestmark = pytest.mark.live
 
@@ -29,7 +30,7 @@ def test_checked_federation_both_companies():
     settings = load_settings()
     logger = JsonlLogger(secrets=settings.secrets)
     with ZetarisClient(settings,logger=logger) as client:
-        rows, shares = verify_and_save(client,logger)
+        rows, shares = verify_and_save(client,logger, sample_dir=ROOT / 'logs/live_validation')
     assert {r['company'] for r in rows} == {'samudra','swara'}
     assert {r['part'] for r in rows} == {'system_prompt','user','assistant'}
     assert all(r['chat_count']==50 for r in shares)

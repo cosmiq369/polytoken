@@ -32,8 +32,11 @@ class Checker:
     def check(self, claims):
         events = {e['event_id']: e for e in self.store.world.events()}
         checked, dropped, cache = [], [], {}
+        verified_events = {}
 
         def verify(eid, visiting=None):
+            if eid in verified_events:
+                return verified_events[eid]
             visiting = set() if visiting is None else visiting
             if eid in visiting:
                 raise ValueError('Cyclic evidence support')
@@ -46,6 +49,7 @@ class Checker:
             # calculators explicitly exclude them from measurements and money.
             for parent in event['payload'].get('supports', []):
                 verify(parent, visiting | {eid})
+            verified_events[eid] = event['payload']
             return event['payload']
 
         for claim in claims:
