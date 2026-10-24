@@ -1,0 +1,20 @@
+name: polytoken
+services:
+  company-db:
+    image: postgres:16
+    container_name: company-db
+    ports:
+      - "127.0.0.1:55432:5432"
+    environment:
+      POSTGRES_DB: company_systems
+      POSTGRES_USER: ${COMPANY_DB_USER:?Set COMPANY_DB_USER in PolyToken .env}
+      POSTGRES_PASSWORD: ${COMPANY_DB_PASSWORD:?Set COMPANY_DB_PASSWORD in PolyToken .env}
+    volumes:
+      - company-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d company_systems"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  company-data:

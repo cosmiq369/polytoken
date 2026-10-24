@@ -31,12 +31,22 @@ class Settings:
     zetaris_password: str = field(repr=False)
     nvidia_rpm: float = 40.0
     hf_token: str | None = field(default=None, repr=False)
+    company_db_user: str | None = field(default=None, repr=False)
+    company_db_password: str | None = field(default=None, repr=False)
 
     @property
     def secrets(self) -> tuple[str, ...]:
         return tuple(v for v in (
-            self.nvidia_api_key, self.zetaris_password, self.hf_token,
+            self.nvidia_api_key, self.zetaris_password, self.hf_token, self.company_db_password,
         ) if v)
+
+    def require_company_db(self) -> None:
+        missing = [name for name, value in (
+            ("COMPANY_DB_USER", self.company_db_user),
+            ("COMPANY_DB_PASSWORD", self.company_db_password),
+        ) if not value]
+        if missing:
+            raise ConfigError("Missing required environment variables: " + ", ".join(missing))
 
 
 def load_settings(
@@ -80,4 +90,6 @@ def load_settings(
         zetaris_password=values["ZETARIS_PASSWORD"],
         nvidia_rpm=rpm,
         hf_token=values.get("HF_TOKEN") or None,
+        company_db_user=values.get("COMPANY_DB_USER") or None,
+        company_db_password=values.get("COMPANY_DB_PASSWORD") or None,
     )
