@@ -103,7 +103,7 @@ The harness comes from its pinned Git commit. Corpus and tokenizer defaults use
 checkout is not required. Run commands from the cloned PolyToken directory. See
 [the declarations](docs/DECLARATIONS.md) for provenance and licences.
 
-## Demo company data and measurements (PROMPT-02)
+## Demo company data and measurements (v2)
 
 Add `COMPANY_DB_USER` and `COMPANY_DB_PASSWORD` to `.env`. Use a new password for
 this isolated fictional database. From PolyToken, with its virtualenv active:
@@ -115,10 +115,11 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/seed_company_db.py
 
 The seeder upserts checked-in JSONL for 50 chats / 223 turns per company, two bot
 configurations, and 118 parallel reference variants imported from the declared
-harness. Running it twice keeps the same counts. All generated rows remain
+vendored corpus. Running it twice keeps the same counts. All generated rows remain
 `pending`; no translation has been approved. The reference `review` field retains
 its original JSON value. `scripts/generate_demo_data.py` reproduces the fixtures;
-do not tune or regenerate them in response to measurement results.
+the fixed-seed v2 realism revision is disclosed in the contract addenda. V1 and
+its original results remain in `data/demo/v1/` and `logs/sample/v1/`.
 
 Start the tiny price server in a separate terminal and leave it running:
 
@@ -206,9 +207,13 @@ prices. **Money is unavailable.** The zero REST row count is source coverage, no
 a zero price. Populating the REST list later requires refreshing its inferred
 schema before selecting price columns.
 
-The token-share check counts one system prompt per chat and each recorded turn
-once: system input share = `S/(S+U)`; output share = `A/(S+U+A)`.
-It excludes replayed history, chat templates, retries and provider billing rules.
+The token-share check reports two conventions, for both native and English.
+Billed content tokens replay the system prompt and all earlier turns for each
+completed assistant reply; a final unanswered user turn incurs no request.
+Corpus counts include one system prompt per chat and each turn once. Any money
+calculation must use the billed convention. Both exclude chat-template overhead
+and retries; cache discounts need published provider prices. Per-part paired
+ratios have 95% chat-cluster bootstrap intervals (2,000 resamples, seed 20261024).
 Token shares alone do not prove cost or latency dominance. See
 [decisions and deviations](docs/DECISIONS.md) for the assumptions fixed before
 measurement. All quality judgments remain pending native review.
@@ -223,3 +228,29 @@ PYTHONDONTWRITEBYTECODE=1 HF_HOME="$PWD/.cache/huggingface" python -m pytest -q 
 The live suite also checks the idempotent PostgreSQL seeder, both company schemas,
 and the independently checked federation. It requires the demo DB, Zetaris,
 price server and completed measurements, in addition to the foundation services.
+
+
+## Verify the dependency pin and archived evidence
+
+The default dependency is public Git commit
+`0f61ec90ae49082d0fef7a21774e746fe17ed1cf`. No sibling checkout is needed.
+From the clone, use a fresh, non-editable install:
+
+```sh
+uv venv .cache/pin-check
+uv pip install --python .cache/pin-check/bin/python '.[dev]'
+PYTHONDONTWRITEBYTECODE=1 HF_HOME="$PWD/.cache/huggingface" .cache/pin-check/bin/python scripts/check_pin.py
+```
+
+The check runs the offline suite, verifies installed Git provenance, then recounts
+five stored v1 measurement texts and writes `logs/sample/pin_check.jsonl`.
+The tokenizer recount needs cached tokenizers or Hugging Face access. It is separate
+from the network-blocked pytest suite. To recompute archived accounting/intervals:
+
+```sh
+python scripts/recompute_snapshot.py logs/sample/v1_recomputed/measurement_snapshot.jsonl
+python scripts/recompute_snapshot.py logs/sample/measurement_snapshot.jsonl
+```
+
+See `logs/sample/revision_report.md` for both versions' shares, the complete v2
+ratio table, selected bootstrap intervals, validation commands and deviations.

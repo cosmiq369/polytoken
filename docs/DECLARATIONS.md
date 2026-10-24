@@ -6,7 +6,7 @@ Build window: 22 Oct 2026 00:00 UTC to 27 Oct 2026 23:45 UTC. PolyToken's own co
 | Component | Origin | Licence | How PolyToken uses it |
 |---|---|---|---|
 | `indictax` measurement harness | github.com/cosmiq369/indic-inference-tax, commit `0f61ec90ae49082d0fef7a21774e746fe17ed1cf`, by the same author, first commits Sept 2026 | MIT | Imported as a library for tokenizer loading, token counting and OpenAI-compatible streaming calls |
-| Seed parallel corpus (18 prompts, en/hi/te and romanized/code-mixed) | Same repo, `data/prompts/` | CC BY 4.0 | Reference sentences for English-vs-Indic comparisons |
+| Seed parallel corpus (18 prompts, en/hi/te and romanized/code-mixed) | Author's corrected local corpus, now vendored as `data/reference/seed_v0_corrected.jsonl`; absent from the public pinned commit | CC BY 4.0 | Reference sentences for English-vs-Indic comparisons; original review metadata preserved |
 | Zetaris platform | Zetaris, hackathon distribution | Sponsor licence | Data layer |
 | Meterless engines (World Model, H-MEM, Markovian) | github.com/Meterless/Meterless at 1742dec56a66e58eef9dda2d2b865823758ca8cd | Apache-2.0 | Python implementation from the specs, conformance checks ported to pytest; see docs/METERLESS.md |
 

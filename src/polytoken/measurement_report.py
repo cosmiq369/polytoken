@@ -100,7 +100,8 @@ def verify_and_save(client, logger, sample_dir=ROOT / 'logs/sample'):
                 or int(row['english_reference_sentences']) != reference['en']
                 or int(row['price_rows']) != price_count):
             raise ValueError('Federation reference coverage failed independent verification')
-    shares = planted_shares(computed, inputs)
+    shares = billed_shares(inputs, records)
+    intervals = bootstrap_ratios(inputs, records)
     provenance = dict(source='Zetaris SQL', query=sql, verification_queries=queries+[ref_sql, price_sql],
                       fetched_at=utcnow(), time_window={'start':started,'end':utcnow()},
                       measurement_run_ids=sorted({r['run_id'] for r in records}),
@@ -108,6 +109,150 @@ def verify_and_save(client, logger, sample_dir=ROOT / 'logs/sample'):
     sample = JsonlLogger(sample_dir, run_id=logger.run_id)
     sample.write('federation', 'verified_federation', rows=federated, checked_rows=computed, **provenance)
     sample.write('planted_properties', 'verified_token_shares', rows=shares,
-                 accounting='One system prompt per chat; each user/assistant turn once; no history replay or template overhead', **provenance)
+                 accounting='Billed: stateless history replay for each completed reply. Corpus: system once per chat and every turn once. Content only; no template overhead or cache discounts.', **provenance)
+    sample.write('bootstrap', 'verified_cluster_intervals', rows=intervals, **provenance)
     logger.write('measurements', 'federation_verified', groups=len(computed), **provenance)
     return computed, shares
+
+
+def _count_index(chat_rows, counts):
+    """Validate complete paired evidence before either accounting convention."""
+    if not counts:
+        raise ValueError('No measurement evidence')
+    checked_ratios(counts, chat_rows)
+    index, runs = {}, defaultdict(set)
+    for row in counts:
+        key = (row['company'], row['tokenizer_spec'], row['lang_variant'])
+        runs[key[:2]].add(row['run_id'])
+        index.setdefault(key, {})[(row['chat_id'], int(row['turn']), row['part'])] = int(row['tokens'])
+    if any(len(values) != 1 for values in runs.values()):
+        raise ValueError('Mixed measurement runs')
+    if {r['company'] for r in chat_rows} != {k[0] for k in index}:
+        raise ValueError('Missing company measurements')
+    return index
+
+
+def billed_tokens(chat_rows, counts):
+    """Reconstruct completed stateless requests from read_inputs items and counts.
+
+    All earlier user/assistant content is replayed for each recorded reply. A
+    trailing unanswered user remains in corpus totals but incurs no completed
+    request. These are content tokens, excluding chat templates/retries/cache.
+    Returns both language variants so future cost comparisons stay paired.
+    """
+    index = _count_index(chat_rows, counts)
+    chats = defaultdict(lambda: defaultdict(list))
+    systems = defaultdict(list)
+    for row in chat_rows:
+        if row['part'] == 'system_prompt':
+            systems[row['company']].append(row)
+        else:
+            chats[row['company']][row['chat_id']].append(row)
+    for company, company_chats in chats.items():
+        if len(systems[company]) != 1:
+            raise ValueError('Need one system prompt per company')
+        for rows in company_chats.values():
+            rows.sort(key=lambda r: int(r['turn']))
+            if [int(r['turn']) for r in rows] != list(range(1, len(rows)+1)):
+                raise ValueError('Nonconsecutive chat turns')
+            if any(r['part'] != ('user' if i % 2 == 0 else 'assistant') for i,r in enumerate(rows)):
+                raise ValueError('Chat roles must alternate from user')
+    result = []
+    for (company, spec, variant), values in sorted(index.items()):
+        system = systems[company][0]
+        s = values[(system['chat_id'], int(system['turn']), 'system_prompt')]
+        billed_input = billed_output = system_input = requests = users = assistants = 0
+        for rows in chats[company].values():
+            history = s
+            for row in rows:
+                n = values[(row['chat_id'], int(row['turn']), row['part'])]
+                if row['part'] == 'assistant':
+                    billed_input += history
+                    billed_output += n
+                    system_input += s
+                    requests += 1
+                    assistants += n
+                else:
+                    users += n
+                history += n
+        if not requests:
+            raise ValueError('No completed replies for billed accounting')
+        result.append(dict(company=company, tokenizer_spec=spec, lang_variant=variant,
+                           chat_count=len(chats[company]), requests=requests,
+                           billed_input=billed_input, billed_output=billed_output,
+                           billed_system_input=system_input,
+                           corpus_system_input=s*len(chats[company]),
+                           corpus_input=s*len(chats[company])+users, corpus_output=assistants))
+    return result
+
+
+def billed_shares(chat_rows, counts):
+    """Per company/tokenizer, show native and English under both conventions."""
+    groups = {}
+    languages = {r['company']:r['lang'] for r in chat_rows}
+    for row in billed_tokens(chat_rows, counts):
+        key = row['company'], row['tokenizer_spec']
+        group = groups.setdefault(key, dict(company=key[0], tokenizer_spec=key[1],
+                                           chat_count=row['chat_count'], requests=row['requests']))
+        conventions = {}
+        for convention, system_key in (('billed', 'billed_system_input'), ('corpus', 'corpus_system_input')):
+            i, o = row[convention+'_input'], row[convention+'_output']
+            conventions[convention] = dict(input_tokens=i, output_tokens=o, system_input_tokens=row[system_key],
+                                           system_share_of_input=row[system_key]/i,
+                                           output_share_of_total=o/(i+o))
+        if row['lang_variant'] == languages[row['company']]:
+            group.update(conventions)
+        else:
+            group['english'] = conventions
+    return [groups[key] for key in sorted(groups)]
+
+
+def cluster_bootstrap(chat_pairs, *, B=2000, seed=20261024):
+    """Paired ratio of sums; resample whole chats, percentile (linear) CI."""
+    import random
+    if not chat_pairs or type(B) is not int or B < 2:
+        raise ValueError('Need chats and at least two bootstrap replicates')
+    pairs = [chat_pairs[key] for key in sorted(chat_pairs)]
+    if any(len(p) != 2 or any(type(n) is not int or n < 0 for n in p) for p in pairs):
+        raise ValueError('Expected nonnegative integer token pairs')
+    if any(e <= 0 for _, e in pairs):
+        raise ValueError('Each chat must have English evidence for this part')
+    rng = random.Random(seed)
+    ratios = []
+    for _ in range(B):
+        native = english = 0
+        for _ in pairs:
+            n, e = pairs[rng.randrange(len(pairs))]
+            native += n
+            english += e
+        ratios.append(native/english)
+    ratios.sort()
+    def percentile(q):
+        position = q*(B-1)
+        lo = math.floor(position)
+        hi = math.ceil(position)
+        return ratios[lo] + (ratios[hi]-ratios[lo])*(position-lo)
+    return dict(ci_low=percentile(.025), ci_high=percentile(.975),
+                bootstrap_replicates=B, bootstrap_seed=seed, cluster_count=len(pairs),
+                bootstrap_unit='chat', confidence=.95)
+
+
+def bootstrap_ratios(chat_rows, counts, *, B=2000, seed=20261024):
+    index = _count_index(chat_rows, counts)
+    result = []
+    for row in checked_ratios(counts, chat_rows):
+        company, spec, part = row['company'], row['tokenizer_spec'], row['part']
+        items = [r for r in chat_rows if r['company'] == company]
+        language = items[0]['lang']
+        pairs = {r['chat_id']:[0,0] for r in items if r['part'] != 'system_prompt'}
+        for item in items:
+            if item['part'] != part:
+                continue
+            key = item['chat_id'], int(item['turn']), part
+            n, e = index[(company,spec,language)][key], index[(company,spec,'en')][key]
+            targets = pairs if part == 'system_prompt' else [item['chat_id']]
+            for chat_id in targets:
+                pairs[chat_id][0] += n
+                pairs[chat_id][1] += e
+        result.append({**row, **cluster_bootstrap(pairs, B=B, seed=seed)})
+    return result

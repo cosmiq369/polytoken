@@ -75,3 +75,82 @@ def test_federation_arithmetic_mismatch_rejected():
     wrong = [{**r,'native_to_english_ratio':999} for r in computed]
     with pytest.raises(ValueError,match='ratio differs'):
         check_federation(wrong,computed)
+
+
+def accounting_fixture():
+    items = inputs() + [dict(company='samudra',chat_id='one',turn=t,part=p,native='native',en='english',lang='te')
+                        for t,p in [(3,'user'),(4,'assistant')]]
+    calls = iter([100,50,10,5,20,10,5,2,30,15])
+    rows, _, _ = measure_batch(items, 'fixture', 'run', provenance(), load=lambda s:None,
+                               count=lambda *a:next(calls), fragment=lambda *a:0.1)
+    return items,rows
+
+
+def test_billed_history_matches_hand_computation():
+    from polytoken.measurement_report import billed_tokens, billed_shares
+    items,counts = accounting_fixture()
+    native = next(r for r in billed_tokens(items,counts) if r['lang_variant']=='te')
+    assert native['billed_input'] == 245
+    assert native['billed_output'] == 50
+    assert native['billed_system_input'] == 200
+    shares = billed_shares(items,counts)[0]
+    assert shares['billed']['system_share_of_input'] == 200/245
+    assert shares['billed']['output_share_of_total'] == 50/295
+    assert shares['corpus']['input_tokens'] == 115
+    assert shares['corpus']['output_tokens'] == 50
+    assert shares['english']['billed']['input_tokens'] == 122
+
+
+def test_unanswered_user_is_not_a_billed_request():
+    from polytoken.measurement_report import billed_tokens
+    items,counts = accounting_fixture()
+    items.append({**items[1], 'turn':5})
+    counts.extend([{**counts[2], 'turn':5, 'tokens':700}, {**counts[3], 'turn':5, 'tokens':300}])
+    native = next(r for r in billed_tokens(items,counts) if r['lang_variant']=='te')
+    assert native['billed_input']==245 and native['billed_output']==50 and native['requests']==2
+    assert native['corpus_input']==815
+
+
+@pytest.mark.parametrize('mutation', ['missing','mixed_run','role','turn'])
+def test_accounting_rejects_invalid_evidence(mutation):
+    from polytoken.measurement_report import billed_tokens
+    items,counts = accounting_fixture()
+    if mutation=='missing': counts.pop()
+    if mutation=='mixed_run':
+        for row in counts[:2]: row['run_id']='different'
+    if mutation=='role':
+        items[-1]['part']='user'
+        for row in counts[-2:]: row['part']='user'
+    if mutation=='turn':
+        items[-1]['turn']=8
+        for row in counts[-2:]: row['turn']=8
+    with pytest.raises(ValueError): billed_tokens(items,counts)
+
+
+def test_chat_bootstrap_repeated_answers_do_not_narrow_interval():
+    from polytoken.measurement_report import bootstrap_ratios
+    def fixture(repeat):
+        items = [inputs()[0]]
+        counts = [{**r,'tokens':10} for r in fake_counts()[:2]]
+        for chat in range(10):
+            for k in range(repeat):
+                for role,turn in [('user',2*k+1),('assistant',2*k+2)]:
+                    items.append({**inputs()[1], 'chat_id':str(chat),'turn':turn,'part':role})
+                    for lang,n in [('te', (chat+1)**2+1),('en',chat+2)]:
+                        counts.append({**fake_counts()[0], 'chat_id':str(chat),'turn':turn,'part':role,'lang_variant':lang,'tokens':n})
+        return items, counts
+    one = bootstrap_ratios(*fixture(1))
+    three = bootstrap_ratios(*fixture(3))
+    for part in ('assistant','system_prompt'):
+        a = next(r for r in one if r['part']==part)
+        b = next(r for r in three if r['part']==part)
+        assert (a['ci_low'],a['ci_high']) == (b['ci_low'],b['ci_high'])
+        assert a['cluster_count']==10 and a['bootstrap_replicates']==2000
+    assistant = next(r for r in one if r['part']=='assistant')
+    assert assistant['ci_low'] < assistant['native_to_english_ratio'] < assistant['ci_high']
+
+
+def test_bootstrap_rejects_missing_pairs():
+    from polytoken.measurement_report import bootstrap_ratios
+    items,counts = accounting_fixture()
+    with pytest.raises(ValueError): bootstrap_ratios(items,counts[:-1])
