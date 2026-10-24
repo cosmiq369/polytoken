@@ -1,0 +1,5 @@
+{"check": "environment", "ok": true, "ts": "2026-10-24T11:59:18.680065+00:00", "run_id": "6419b13c-19d1-4864-8392-b9af61eec508", "event": "check"}
+{"check": "Zetaris", "ok": true, "ts": "2026-10-24T11:59:19.078566+00:00", "run_id": "6419b13c-19d1-4864-8392-b9af61eec508", "event": "check"}
+{"check": "NVIDIA", "ok": true, "ts": "2026-10-24T11:59:19.692196+00:00", "run_id": "6419b13c-19d1-4864-8392-b9af61eec508", "event": "check"}
+{"source": "unsloth/gemma-3-4b-it", "query": {"operation": "count", "text": "తెలుగు భాష అందమైనది."}, "fetched_at": "2026-10-24T11:59:20.473950+00:00", "token_count": 7, "ok": true, "ts": "2026-10-24T11:59:20.473971+00:00", "run_id": "6419b13c-19d1-4864-8392-b9af61eec508", "event": "tokenizer_observation"}
+{"check": "indictax", "ok": true, "ts": "2026-10-24T11:59:20.474214+00:00", "run_id": "6419b13c-19d1-4864-8392-b9af61eec508", "event": "check"}

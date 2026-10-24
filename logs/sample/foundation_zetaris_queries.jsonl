@@ -1,0 +1,1 @@
+{"sql": "select 7 as seven", "rows_returned": 1, "latency_s": 0.20647624996490777, "ok": true, "error_class": null, "ts": "2026-10-24T11:59:19.077778+00:00", "run_id": "6419b13c-19d1-4864-8392-b9af61eec508", "event": "query"}
