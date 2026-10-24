@@ -91,5 +91,26 @@ def main(argv=None) -> int:
     subparsers = parser.add_subparsers(dest="command", required=True)
     command = subparsers.add_parser("doctor", help="check configuration and the three live dependencies")
     command.add_argument("--env-file", default=".env")
+    command = subparsers.add_parser("measure", help="measure paired demo text through all configured tokenizers")
+    command.add_argument("--company", choices=("samudra", "swara", "all"), required=True)
+    command.add_argument("--env-file", default=".env")
     args = parser.parse_args(argv)
+    if args.command == "measure":
+        from .measure import measure
+        from .measurement_report import verify_and_save
+        logger = JsonlLogger(env_file=args.env_file)
+        try:
+            settings = load_settings(args.env_file)
+            logger.add_secrets(*settings.secrets)
+            batches = measure(settings, args.company, logger)
+            if args.company == "all":
+                with ZetarisClient(settings, logger=logger) as client:
+                    rows, _ = verify_and_save(client, logger)
+                print(f"Federation verified: {len(rows)} company/tokenizer/part groups; evidence in logs/sample/.")
+            print("Money unavailable: no verified prices have been supplied; token shares do not establish cost or latency.")
+            return int(any(b['status'] == 'failed' for b in batches) or not any(b['status'] == 'completed' for b in batches))
+        except Exception as exc:
+            logger.write("measurements", "run_failed", ok=False, error_class=type(exc).__name__)
+            print(f"Measurement failed: {logger.redact(str(exc))[:600]}")
+            return 1
     return doctor(args.env_file)

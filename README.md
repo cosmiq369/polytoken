@@ -3,7 +3,8 @@
 PolyToken investigates the cost and latency of AI workloads in Telugu and Hindi,
 using English as the paired baseline. This foundation provides typed configuration,
 an injectable NVIDIA generator, Zetaris SQL access, tokenizer helpers and JSONL
-telemetry. The investigation loop and data loading belong to later work.
+telemetry. It also seeds fictional company data and measures paired token counts
+through Zetaris. The investigation loop belongs to later work.
 
 ## Install
 
@@ -46,7 +47,7 @@ python -m pytest -q -m live
 polytoken doctor
 ```
 
-The default test run blocks network connections and skips the three `live` tests.
+The default test run blocks network connections and skips all `live` tests.
 `-m live` explicitly selects the Zetaris, NVIDIA and tokenizer probes. Doctor prints
 one environment check and those three probes, then exits non-zero on any failure.
 Its NVIDIA probe caps output at eight tokens; a reasoning model can spend those
@@ -100,3 +101,124 @@ including .env/process secrets and login tokens returned by Zetaris.
 `is_fragment` flag is true, with zero for empty input, matching the harness.
 All reference code stays in `../solve-it` and `~/zetaris-platform`; see
 [the declarations](docs/DECLARATIONS.md) for provenance and licences.
+
+## Demo company data and measurements (PROMPT-02)
+
+Add `COMPANY_DB_USER` and `COMPANY_DB_PASSWORD` to `.env`. Use a new password for
+this isolated fictional database. From PolyToken, with its virtualenv active:
+
+```sh
+docker compose --env-file .env -f infra/docker-compose.yml up -d --wait
+PYTHONDONTWRITEBYTECODE=1 python scripts/seed_company_db.py
+```
+
+The seeder upserts checked-in JSONL for 50 chats / 223 turns per company, two bot
+configurations, and 118 parallel reference variants imported from the declared
+harness. Running it twice keeps the same counts. All generated rows remain
+`pending`; no translation has been approved. The reference `review` field retains
+its original JSON value. `scripts/generate_demo_data.py` reproduces the fixtures;
+do not tune or regenerate them in response to measurement results.
+
+Start the tiny price server in a separate terminal and leave it running:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python scripts/serve_reference.py
+```
+
+Then register and measure:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python scripts/register_zetaris_sources.py
+PYTHONDONTWRITEBYTECODE=1 HF_HOME="$PWD/.cache/huggingface" polytoken measure --company all
+```
+
+`--company samudra` or `--company swara` measures just that company. `all` also
+runs and independently verifies the federation SQL. Every configured tokenizer is
+attempted; load failures are explicit skipped batches with reasons and no count
+rows. A failed batch is discarded in full. Direct PostgreSQL access is limited to
+schema creation, seeding and measurement writes. All workload reads, reference
+reads and the final proof use Zetaris SQL.
+
+### Exact registration procedure
+
+No manual UI operation is needed. The script logs in with `POST /api/auth/login`,
+uses the returned JWT and `orgId`, and supplies `Authorization: Bearer …`,
+`X-Org-ID` and a fresh `X-Request-ID` UUID. Management statements go to
+`POST /api/proxy/sql-editor/sqls/run-query` as `{"sql": "<statement>"}`.
+After `SHOW DATASOURCES`, create `company_systems` if absent (the placeholders
+below are injected from `.env`, never written into documentation or logs):
+
+```sql
+CREATE DATASOURCE company_systems OPTIONS (
+ jdbcdriver "org.postgresql.Driver",
+ jdbcurl "jdbc:postgresql://host.docker.internal:55432/company_systems",
+ username "<COMPANY_DB_USER>", password "<COMPANY_DB_PASSWORD>",
+ schema "public", fetchsize "1000"
+)
+```
+
+Refresh this explicit view list on every run:
+
+```sql
+REGISTER DATASOURCE TABLES (
+ "samudra__bot_config", "samudra__chats", "swara__bot_config", "swara__chats",
+ "reference__sentences", "reference__prices", "measurements__batches",
+ "measurements__token_counts", "measurements__latest_token_counts"
+) FROM company_systems
+```
+
+The views project all four schemas without copying data, working around the
+installed connector's single-schema restriction. After `SHOW LIGHTNING DATABASES`,
+create the following container if absent, and create the REST table only if a
+SELECT reports that it does not exist:
+
+```sql
+CREATE LIGHTNING DATABASE polytoken_reference OPTIONS ()
+CREATE LIGHTNING REST TABLE prices FROM polytoken_reference
+ REQUEST(endpoint "http://host.docker.internal:55433/prices.json", method "GET",
+ http_encoding "URLENCODED", response_type "JSON") HEADER() BODY()
+```
+
+Verify each registered table with `SELECT COUNT(*) AS n FROM company_systems.<view>`
+and `SELECT COUNT(*) AS n FROM polytoken_reference.prices` through
+`POST /api/proxy/query/sql/start`, body `{"select": "<SQL>", "pageLimit": 1000}`.
+The script is safe to rerun; it does not drop sources or modify the Zetaris stack.
+
+### Evidence and limits
+
+`sql/token_ratio_by_part.sql` joins the chats/configurations, latest completed
+measurement batches, grouped reference sentences, and the REST price row count.
+Reference rows are grouped before joining to avoid multiplying token counts.
+The checker independently sums every expected native/English pair and rejects
+missing pairs, duplicate rows, or mismatched SQL aggregates before saving output.
+The latest attempt supersedes older measurements even when skipped or failed.
+
+Evidence goes to `logs/measurements.jsonl`, `logs/data_setup.jsonl`,
+`logs/zetaris_admin.jsonl`, `logs/zetaris_queries.jsonl`, `logs/reference_http.jsonl`,
+and verified samples in `logs/sample/federation.jsonl` and
+`logs/sample/planted_properties.jsonl`. Database records include source queries,
+fetched times, observation windows, tokenizer specs and run IDs.
+
+`data/reference/prices.json` is deliberately empty. Its schema and loader reject
+invalid prices, and `cost_usd` refuses unverified entries or missing input/output
+prices. **Money is unavailable.** The zero REST row count is source coverage, not
+a zero price. Populating the REST list later requires refreshing its inferred
+schema before selecting price columns.
+
+The token-share check counts one system prompt per chat and each recorded turn
+once: system input share = `S/(S+U)`; output share = `A/(S+U+A)`.
+It excludes replayed history, chat templates, retries and provider billing rules.
+Token shares alone do not prove cost or latency dominance. See
+[decisions and deviations](docs/DECISIONS.md) for the assumptions fixed before
+measurement. All quality judgments remain pending native review.
+
+After seeding, registration, and `measure --company all`, run:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -q
+PYTHONDONTWRITEBYTECODE=1 HF_HOME="$PWD/.cache/huggingface" python -m pytest -q -m live
+```
+
+The live suite also checks the idempotent PostgreSQL seeder, both company schemas,
+and the independently checked federation. It requires the demo DB, Zetaris,
+price server and completed measurements, in addition to the foundation services.

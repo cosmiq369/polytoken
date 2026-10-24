@@ -1,0 +1,2 @@
+{"command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q", "passed": 86, "skipped": 6, "elapsed_s": 0.48, "ok": true, "ts": "2026-10-24T14:14:16.743440+00:00", "run_id": "2798df90-98b7-46f7-b9be-180ad9329ea7", "event": "pytest"}
+{"command": "PYTHONDONTWRITEBYTECODE=1 HF_HOME=\"$PWD/.cache/huggingface\" .venv/bin/python -m pytest -q -m live", "passed": 6, "deselected": 86, "elapsed_s": 11.31, "ok": true, "ts": "2026-10-24T14:14:16.743578+00:00", "run_id": "2798df90-98b7-46f7-b9be-180ad9329ea7", "event": "pytest"}
