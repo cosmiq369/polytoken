@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from .config import ConfigError, REQUIRED_VARIABLES, Settings, load_settings
 from .llm import NvidiaGenerator
@@ -94,7 +96,12 @@ def main(argv=None) -> int:
     command = subparsers.add_parser("measure", help="measure paired demo text through all configured tokenizers")
     command.add_argument("--company", choices=("samudra", "swara", "all"), required=True)
     command.add_argument("--env-file", default=".env")
+    command = subparsers.add_parser("engines-demo", help="demonstrate Meterless accounting and evidence storage")
+    command.add_argument("--live", action="store_true")
+    command.add_argument("--env-file", default=None)
     args = parser.parse_args(argv)
+    if args.command == "engines-demo":
+        return engines_demo(live=args.live, env_file=args.env_file)
     if args.command == "measure":
         from .measure import measure
         from .measurement_report import verify_and_save
@@ -114,3 +121,43 @@ def main(argv=None) -> int:
             print(f"Measurement failed: {logger.redact(str(exc))[:600]}")
             return 1
     return doctor(args.env_file)
+
+
+def engines_demo(*, live=False, env_file=None) -> int:
+    from .meterless.evidence import ingest_federation_sample
+    from .meterless.markovian import Markovian
+    from .meterless.world_model import WorldModel
+
+    root = Path(__file__).resolve().parents[2]
+    if live:
+        source_env = Path(env_file).resolve() if env_file else Path(__file__).resolve().parents[5] / ".env"
+        settings = load_settings(env_file=source_env)
+        logger = JsonlLogger(directory=root / "logs" / "sample", env_file=source_env, secrets=settings.secrets)
+        model_logger = JsonlLogger(directory=root / "logs", env_file=source_env, secrets=settings.secrets)
+        with NvidiaGenerator(settings, logger=model_logger, max_tokens=256) as model:
+            generator = model.generate
+            run = Markovian({"maxChunks": 3, "carryoverTokens": 128}, logger=logger,
+                            log_stream="meterless_markovian_live").run(
+                "Explain in exactly three chunks why Telugu and Hindi token counts can differ from English. "
+                "End chunks 1 and 2 with [STATE_CHECKPOINT] followed by concise state; end chunk 3 "
+                "with [TASK_COMPLETE]. State that cost requires a verified price.", generator, reflect=False)
+        if run["tokenLabel"] != "measured":
+            raise RuntimeError("live provider did not return measured usage")
+    else:
+        calls = 0
+        def fake(_prompt):
+            nonlocal calls
+            calls += 1
+            marker = "[TASK_COMPLETE]" if calls == 4 else f"[STATE_CHECKPOINT]\nCompleted {calls}; remaining {4 - calls}"
+            return {"text": f"Step {calls}: compare paired token evidence. " * 80 + marker}
+        run = Markovian({"maxChunks": 4}).run("Demonstrate bounded token accounting", fake, reflect=False)
+    print(f"Markovian: {len(run['chunks'])} chunks, {run['status']}, tokenLabel={run['tokenLabel']}")
+    print(f"Projected savings: {run['projected']['savings']} tokens ({run['projected']['efficiency'] * 100:.2f}%)")
+    print(f"Actual savings: {run['actual']['tokensSaved']} tokens ({run['actual']['efficiencyPercent']:.2f}%)")
+    with TemporaryDirectory() as directory:
+        with WorldModel(Path(directory) / "world.sqlite") as world:
+            sample = root / "logs" / "sample" / "federation.jsonl"
+            event_ids = ingest_federation_sample(world, sample)
+            counts = world.counts()
+            print(f"World Model: {counts['entities']} entities, {counts['events']} events, {counts['audit']} audit entries; {len(event_ids)} federation rows")
+    return 0
