@@ -7,7 +7,7 @@ import httpx
 import pytest
 
 from polytoken import llm
-from polytoken.llm import GenerationAborted, LLMError, NvidiaGenerator, ProtocolError, TokenBucket
+from polytoken.llm import GenerationAborted, LLMError, NvidiaGenerator, ProtocolError, SlidingWindowLimiter
 
 
 def completion(usage=True):
@@ -20,7 +20,7 @@ def completion(usage=True):
 def make_generator(settings, logger, clock, handler, **kwargs):
     return NvidiaGenerator(
         settings, logger=logger, client=httpx.Client(transport=httpx.MockTransport(handler)),
-        limiter=TokenBucket(40, clock=clock, sleep=clock.sleep),
+        limiter=SlidingWindowLimiter(40, clock=clock, sleep=clock.sleep),
         clock=clock, sleep=clock.sleep, jitter=lambda: 0, **kwargs,
     )
 
@@ -29,25 +29,42 @@ def rows(logger):
     return [json.loads(line) for line in (logger.directory / "llm_calls.jsonl").read_text().splitlines()]
 
 
-def test_41st_request_waits_with_fake_clock(clock):
-    limiter = TokenBucket(40, clock=clock, sleep=clock.sleep)
-    for _ in range(40):
-        limiter.acquire()
-    assert clock.now == 0
-    limiter.acquire()
-    assert clock.now == pytest.approx(1.5)
-    assert clock.sleeps == [pytest.approx(1.5)]
+def test_saturated_three_minutes_obeys_every_rolling_window(clock):
+    limiter = SlidingWindowLimiter(40, clock=clock, sleep=clock.sleep)
+    starts = [limiter.acquire() for _ in range(3 * limiter.limit)]
+    assert limiter.limit == 38
+    for t in starts:
+        assert sum(t - 60 < start <= t for start in starts) <= limiter.limit
+    for minute in range(3):
+        assert sum(60 * minute <= start < 60 * (minute + 1) for start in starts) >= 0.95 * limiter.limit
+    assert starts[-1] == 120
+    assert limiter.acquire() == 180
 
 
-def test_refill_is_capped_and_fractional_rpm_works(clock):
-    limiter = TokenBucket(0.5, clock=clock, sleep=clock.sleep)
-    limiter.acquire()
-    limiter.acquire()
-    assert clock.now == 120
-    clock.now += 10000
-    limiter.acquire()
-    limiter.acquire()
-    assert clock.sleeps[-1] == 120
+def test_window_boundary_and_abort(clock):
+    limiter = SlidingWindowLimiter(3, clock=clock, sleep=clock.sleep)
+    assert limiter.acquire() == 0
+    abort = threading.Event()
+    original_sleep = clock.sleep
+    def cancel(seconds):
+        original_sleep(seconds)
+        abort.set()
+    limiter._sleep = cancel
+    with pytest.raises(GenerationAborted):
+        limiter.acquire(abort)
+    assert len(limiter._starts) == 1
+    clock.now = 59.999
+    limiter._sleep = clock.sleep
+    assert limiter.acquire() == pytest.approx(60)
+
+
+def test_concurrent_callers_share_window(clock):
+    from concurrent.futures import ThreadPoolExecutor
+    limiter = SlidingWindowLimiter(40, clock=clock, sleep=clock.sleep)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        starts = sorted(pool.map(lambda _: limiter.acquire(), range(114)))
+    for t in starts:
+        assert sum(t - 60 < start <= t for start in starts) <= 38
 
 
 def test_process_wide_limiter_is_shared(settings, logger, monkeypatch):

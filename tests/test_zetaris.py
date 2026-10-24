@@ -4,7 +4,7 @@ from uuid import UUID
 import httpx
 import pytest
 
-from polytoken.zetaris import ZetarisClient, ZetarisError
+from polytoken.zetaris import ZetarisClient, ZetarisError, ZetarisTruncated
 
 
 def make_client(settings, logger, handler):
@@ -109,3 +109,22 @@ def test_transport_error_is_safe_and_logged(settings, logger):
         make_client(settings, logger, handler).query("select 1")
     assert settings.zetaris_password not in str(exc.value)
     assert len(rows(logger)) == 1
+
+
+@pytest.mark.parametrize("allow", [False, True])
+@pytest.mark.parametrize("body,limit", [
+    ({"records": [{"n": 1}, {"n": 2}]}, 2),
+    ({"records": [{"n": 1}], "pageNumber": 1, "totalPages": 2, "totalCount": 3}, 1000),
+])
+def test_truncation_is_explicit(settings, logger, allow, body, limit):
+    def handler(request):
+        return httpx.Response(200, json={"idToken": "x", "orgId": 3} if request.url.path.endswith("login") else body)
+    client = make_client(settings, logger, handler)
+    if allow:
+        assert client.query("select n", limit, allow_truncated=True) == body["records"]
+    else:
+        with pytest.raises(ZetarisTruncated):
+            client.query("select n", limit)
+    audit = rows(logger)[0]
+    assert audit["possibly_truncated"] is True
+    assert audit["ok"] is allow

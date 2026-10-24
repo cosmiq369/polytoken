@@ -15,6 +15,10 @@ class ZetarisError(RuntimeError):
     pass
 
 
+class ZetarisTruncated(ZetarisError):
+    """The result page may omit rows; callers must explicitly accept that."""
+
+
 class ZetarisClient:
     def __init__(self, settings: Settings, *, logger: JsonlLogger | None = None,
                  client: httpx.Client | None = None, timeout_s: float = 60.0):
@@ -75,11 +79,12 @@ class ZetarisClient:
         except Exception as exc:
             raise ZetarisError(f"Zetaris login failed: {type(exc).__name__}") from None
 
-    def query(self, sql: str, page_limit: int = 1000) -> list[dict]:
+    def query(self, sql: str, page_limit: int = 1000, *, allow_truncated: bool = False) -> list[dict]:
         start = time.monotonic()
         rows = []
         ok = False
         error_class = None
+        possibly_truncated = False
         try:
             if not isinstance(page_limit, int) or isinstance(page_limit, bool) or page_limit <= 0:
                 raise ZetarisError("page_limit must be a positive integer")
@@ -105,6 +110,16 @@ class ZetarisClient:
                 if not isinstance(records, list) or any(not isinstance(row, dict) for row in records):
                     raise self._failure(response, "query", "missing a valid records list")
                 rows = records
+                possibly_truncated = (
+                    len(rows) >= page_limit
+                    or int(body.get("totalPages") or 1) > int(body.get("pageNumber") or 1)
+                    or int(body.get("totalCount") or len(rows)) > len(rows)
+                )
+                if possibly_truncated and not allow_truncated:
+                    raise ZetarisTruncated(
+                        "Zetaris result may be truncated; increase page_limit, partition the query, "
+                        "or explicitly pass allow_truncated=True"
+                    )
                 ok = True
                 return rows
             raise AssertionError("unreachable")
@@ -116,4 +131,4 @@ class ZetarisClient:
         finally:
             self.logger.write("zetaris_queries", "query", sql=self.logger.redact(sql)[:500],
                               rows_returned=len(rows), latency_s=time.monotonic() - start,
-                              ok=ok, error_class=error_class)
+                              ok=ok, error_class=error_class, possibly_truncated=possibly_truncated)

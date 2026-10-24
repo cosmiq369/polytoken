@@ -55,7 +55,9 @@ tokens on reasoning and return no visible text. Success means a valid API respon
 Zetaris must already be running. The client follows the platform's `verify.sh`:
 it reads `idToken` and `orgId` from login, queries through the SQL proxy, and reads
 the returned `records` list. A 401 causes at most one re-login per query.
-`page_limit` limits this result page; the foundation does not fetch further pages.
+`page_limit` limits this result page. A full page or metadata indicating more rows raises
+`ZetarisTruncated`; `allow_truncated=True` explicitly accepts a partial result.
+Every query logs `possibly_truncated`. No pagination route is assumed.
 
 ## Generator and telemetry
 
@@ -78,10 +80,10 @@ parts. A callback enables SSE streaming. Cancellation accepts a `threading.Event
 or predicate and is checked before requests, during waits and between stream chunks;
 an in-flight blocking read is bounded by its timeout.
 
-Every production generator shares one process-wide token bucket. It starts with
-`NVIDIA_RPM` burst capacity (at least one permit) and refills at `NVIDIA_RPM / 60`
-per second. Each retry also consumes a permit. One process cannot change RPM after
-initialization. HTTP 429 and 5xx receive at most three retries with exponential
+Every production generator shares one process-wide sliding-window limiter. At most
+`NVIDIA_RPM - 2` calls may start in any rolling 60-second window (38 by default).
+RPM must be an integer of at least 3. Each retry also consumes a slot. One process
+cannot change RPM after initialization. HTTP 429 and 5xx receive at most three retries with exponential
 backoff, jitter and `Retry-After` support; other failures are raised immediately.
 The default request timeout is 60 seconds, with a ten-second connect timeout.
 

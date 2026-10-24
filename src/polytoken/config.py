@@ -67,10 +67,10 @@ def load_settings(
             raise ConfigError(f"Invalid {name}: expected an HTTP(S) URL without credentials, query or fragment")
     try:
         rpm = float(values.get("NVIDIA_RPM") or 40)
-        if not math.isfinite(rpm) or rpm <= 0:
+        if not math.isfinite(rpm) or rpm < 3 or int(rpm) != rpm:
             raise ValueError
     except (ValueError, TypeError):
-        raise ConfigError("Invalid NVIDIA_RPM: expected a positive finite number") from None
+        raise ConfigError("Invalid NVIDIA_RPM: expected an integer of at least 3") from None
     return Settings(
         nvidia_api_key=values["NVIDIA_API_KEY"],
         nvidia_base_url=values["NVIDIA_BASE_URL"].rstrip("/"),

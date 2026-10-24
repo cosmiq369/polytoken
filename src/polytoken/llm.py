@@ -8,6 +8,7 @@ import math
 import random
 import threading
 import time
+from collections import deque
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Callable
@@ -47,43 +48,43 @@ def _wait(seconds: float, sleep: Callable, abort=None) -> None:
         _check_abort(abort)
 
 
-class TokenBucket:
-    """Thread-safe request bucket, initially full with up to RPM burst capacity."""
+class SlidingWindowLimiter:
+    """At most RPM minus two starts in any half-open rolling 60-second window."""
 
     def __init__(self, rpm: float, *, clock=time.monotonic, sleep=time.sleep):
-        if not math.isfinite(rpm) or rpm <= 0:
-            raise ValueError("NVIDIA_RPM must be positive and finite")
+        if not math.isfinite(rpm) or rpm < 3 or int(rpm) != rpm:
+            raise ValueError("NVIDIA_RPM must be an integer of at least 3")
         self.rpm = rpm
-        self.capacity = max(1.0, rpm)
-        self._tokens = self.capacity
+        self.limit = int(rpm) - 2
+        self._starts = deque()
         self._clock = clock
         self._sleep = sleep
-        self._updated = clock()
         self._lock = threading.Lock()
 
-    def acquire(self, abort=None) -> None:
+    def acquire(self, abort=None) -> float:
         while True:
             _check_abort(abort)
             with self._lock:
+                _check_abort(abort)
                 now = self._clock()
-                self._tokens = min(self.capacity, self._tokens + max(0, now - self._updated) * self.rpm / 60)
-                self._updated = now
-                if self._tokens >= 1:
-                    self._tokens -= 1
-                    return
-                delay = (1 - self._tokens) * 60 / self.rpm
+                while self._starts and self._starts[0] <= now - 60.0:
+                    self._starts.popleft()
+                if len(self._starts) < self.limit:
+                    self._starts.append(now)
+                    return now
+                delay = max(0.0, self._starts[0] + 60.0 - now)
             _wait(delay, self._sleep, abort)
 
 
 _SHARED_LOCK = threading.Lock()
-_SHARED_LIMITER: TokenBucket | None = None
+_SHARED_LIMITER: SlidingWindowLimiter | None = None
 
 
-def shared_limiter(rpm: float) -> TokenBucket:
+def shared_limiter(rpm: float) -> SlidingWindowLimiter:
     global _SHARED_LIMITER
     with _SHARED_LOCK:
         if _SHARED_LIMITER is None:
-            _SHARED_LIMITER = TokenBucket(rpm)
+            _SHARED_LIMITER = SlidingWindowLimiter(rpm)
         elif _SHARED_LIMITER.rpm != rpm:
             raise ValueError("NVIDIA_RPM cannot change within a process")
         return _SHARED_LIMITER
@@ -115,7 +116,7 @@ class NvidiaGenerator:
 
     def __init__(
         self, settings: Settings, *, logger: JsonlLogger | None = None,
-        client: httpx.Client | None = None, limiter: TokenBucket | None = None,
+        client: httpx.Client | None = None, limiter: SlidingWindowLimiter | None = None,
         max_tokens: int = 512, timeout_s: float = 60.0,
         clock=time.monotonic, sleep=time.sleep, jitter=random.random,
     ) -> None:
