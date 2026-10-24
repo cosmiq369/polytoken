@@ -79,6 +79,43 @@ class ZetarisClient:
         except Exception as exc:
             raise ZetarisError(f"Zetaris login failed: {type(exc).__name__}") from None
 
+    def execute(self, sql: str) -> dict:
+        """Management SQL through the same endpoint used by the bundled UI.
+
+        Used only by source setup; workload reads continue through query().
+        SQL can contain connection credentials, so both audits and errors redact it.
+        """
+        started = time.monotonic()
+        ok = False
+        try:
+            if self._token is None:
+                self.login()
+            for attempt in range(2):
+                response = self._client.post(
+                    self.settings.zetaris_url + "/api/proxy/sql-editor/sqls/run-query",
+                    headers={"Authorization": "Bearer " + self._token,
+                             "X-Org-ID": str(self.org_id), "X-Request-ID": str(uuid4())},
+                    json={"sql": sql}, timeout=self._timeout,
+                )
+                if response.status_code == 401 and attempt == 0:
+                    self.login()
+                    continue
+                if not response.is_success:
+                    raise self._failure(response, "management SQL")
+                body = self._json(response, "management SQL")
+                if body.get("error") or not isinstance(body.get("data"), list):
+                    raise self._failure(response, "management SQL")
+                ok = True
+                return body
+            raise AssertionError("unreachable")
+        except ZetarisError:
+            raise
+        except Exception as exc:
+            raise ZetarisError(f"Zetaris management SQL failed: {type(exc).__name__}") from None
+        finally:
+            self.logger.write("zetaris_admin", "execute", sql=self.logger.redact(sql),
+                              latency_s=time.monotonic()-started, ok=ok)
+
     def query(self, sql: str, page_limit: int = 1000, *, allow_truncated: bool = False) -> list[dict]:
         start = time.monotonic()
         rows = []

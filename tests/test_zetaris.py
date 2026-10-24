@@ -128,3 +128,31 @@ def test_truncation_is_explicit(settings, logger, allow, body, limit):
     audit = rows(logger)[0]
     assert audit["possibly_truncated"] is True
     assert audit["ok"] is allow
+
+
+def test_management_sql_redacts_credentials_and_uses_org_id(settings, logger):
+    sql = f'CREATE DATASOURCE fixture OPTIONS (password "{settings.zetaris_password}")'
+    def handler(request):
+        if request.url.path.endswith('login'):
+            return httpx.Response(200,json={'idToken':'private-management-jwt','orgId':81})
+        assert request.url.path == '/api/proxy/sql-editor/sqls/run-query'
+        assert request.headers['X-Org-ID'] == '81'
+        assert json.loads(request.content) == {'sql':sql}
+        return httpx.Response(200,json={'headers':['Result'],'data':[]})
+    assert make_client(settings,logger,handler).execute(sql)['data'] == []
+    audit = (logger.directory/'zetaris_admin.jsonl').read_text()
+    assert settings.zetaris_password not in audit
+    assert 'private-management-jwt' not in audit
+    assert json.loads(audit)['ok'] is True
+
+
+def test_management_error_body_redacted(settings,logger):
+    def handler(request):
+        if request.url.path.endswith('login'):
+            return httpx.Response(200,json={'idToken':'private-management-jwt','orgId':81})
+        return httpx.Response(400,text=settings.zetaris_password+' private-management-jwt')
+    with pytest.raises(ZetarisError) as exc:
+        make_client(settings,logger,handler).execute('invalid SQL')
+    assert settings.zetaris_password not in str(exc.value)
+    assert 'private-management-jwt' not in str(exc.value)
+    assert json.loads((logger.directory/'zetaris_admin.jsonl').read_text())['ok'] is False
