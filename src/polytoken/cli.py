@@ -138,7 +138,7 @@ def main(argv=None) -> int:
             destination = stem.with_name(stem.name + '_report.json')
             if destination.exists():
                 previous = json.loads(destination.read_text())
-                (sample / ('agent_' + args.company + '_' + previous['id'] + '_report.json')).write_text(destination.read_text())
+                (sample / (stem.name + '_' + previous['id'] + '_report.json')).write_text(destination.read_text())
             destination.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
             print(f"{report['status']}: {destination}")
             return 0
