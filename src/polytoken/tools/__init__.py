@@ -188,6 +188,7 @@ class InvestigationTools:
                                    on_stream=lambda _: None, before_attempt=lambda: self.budget.consume('hosted'),
                                    remaining=self.budget.remaining, abort=self.budget.check,
                                    timeout_s=120., max_retries=2, retry_timeouts=True,
+                                   reasoning_effort=self.catalogue.get('serving_verification', {}).get(model, {}).get('generation_options', {}).get('reasoning_effort'),
                                    max_tokens=200 if self.snapshot['config']['company'] == 'samudra' else 600)
             self.budget.check()
             usage = result.get('usage') or {}
@@ -239,7 +240,8 @@ class InvestigationTools:
             for chat in sample:
                 for variant in ('original', 'changed'):
                     key = cache_key(models[variant], systems[variant], company + '/' + chat,
-                                    chats[chat]['native'], 200 if company == 'samudra' else 600)
+                                    chats[chat]['native'], 200 if company == 'samudra' else 600,
+                                    self.catalogue.get('serving_verification', {}).get(models[variant], {}).get('generation_options', {}))
                     if key in cache:
                         row, eid = cache[key]
                         # Re-tokenize cached raw text for this scenario's tokenizer.
@@ -326,7 +328,8 @@ class InvestigationTools:
                 raise ValueError('Probe model not allowed')
             config = self.snapshot['config']
             key = cache_key(model, args['system'], config['company'] + '/speed/' + args.get('chat_id', 'probe') + '/' + str(index),
-                            args['user'], 200 if config['company'] == 'samudra' else 600)
+                            args['user'], 200 if config['company'] == 'samudra' else 600,
+                            self.catalogue.get('serving_verification', {}).get(model, {}).get('generation_options', {}))
             if key in cache:
                 cached, parent = cache[key]
                 row = {**cached, 'supports': [parent], 'cache_hit': True}

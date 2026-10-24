@@ -266,3 +266,11 @@ A/B calls resume from evidence, but in-flight work is not silently auto-resumed.
 Use `polytoken investigate --company samudra --sample-suffix v2` (then Swara) to
 write `agent_samudra_v2.jsonl` and `agent_samudra_v2_report.json` without replacing
 previous samples. All raw attempts, cache hits and checker decisions remain in logs.
+
+GPT-OSS may spend its reply-token budget on reasoning before emitting content.
+The serving probe accepts `--model` and `--reasoning-effort` for an explicit
+follow-up trial, preserving earlier observations. The verified model's
+`generation_options.reasoning_effort` is sent unchanged by jobs and included in
+cache identity and raw request metadata. This follows NVIDIA's documented
+[GPT-OSS reasoning effort parameter](https://docs.api.nvidia.com/nim/reference/openai-gpt-oss-20b-infer).
+The reply-token caps remain 200/600; an empty answer is a failed observation.

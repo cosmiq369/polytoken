@@ -13,11 +13,11 @@ class JobBudget(BudgetGuard):
         self.lock = reasoning.lock
 
 
-def cache_key(model, system, chat_id, user, max_tokens):
+def cache_key(model, system, chat_id, user, max_tokens, generation_options=None):
     return hashlib.sha256(json.dumps({
         'model': model, 'system_sha256': hashlib.sha256(system.encode()).hexdigest(),
         'chat_id': chat_id, 'user': user, 'max_tokens': max_tokens, 'temperature': 0,
-        'version': 1,
+        'generation_options': generation_options or {}, 'version': 1,
     }, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 

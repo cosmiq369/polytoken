@@ -144,7 +144,7 @@ class NvidiaGenerator:
 
     def generate(self, prompt, system_prompt=None, attachments=None, on_stream=None, abort=None,
                  *, model=None, temperature=None, before_attempt=None, remaining=None,
-                 enable_thinking=None, max_tokens=None, timeout_s=None, max_retries=3, retry_timeouts=False) -> dict:
+                 enable_thinking=None, max_tokens=None, timeout_s=None, max_retries=3, retry_timeouts=False, reasoning_effort=None) -> dict:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
@@ -154,6 +154,10 @@ class NvidiaGenerator:
             "model": model or self.settings.agent_model, "messages": messages,
             "max_tokens": max_tokens or self.max_tokens, "stream": on_stream is not None,
         }
+        if reasoning_effort is not None:
+            if reasoning_effort not in ("low", "medium", "high"):
+                raise ValueError("Invalid reasoning effort")
+            body["reasoning_effort"] = reasoning_effort
         if temperature is not None:
             body["temperature"] = temperature
         if enable_thinking is not None:
@@ -166,7 +170,7 @@ class NvidiaGenerator:
             "system_prompt_length": len(system_prompt or ""),
             "attachments_count": len(attachments or []),
             "enable_thinking": enable_thinking, "max_tokens": body["max_tokens"],
-            "read_timeout_s": timeout_s or self.timeout.read, "max_retries": max_retries,
+            "reasoning_effort": reasoning_effort, "read_timeout_s": timeout_s or self.timeout.read, "max_retries": max_retries,
         }
         total_start = self._clock()
         for attempt in range(1, max_retries + 2):  # One initial request and at most three retries.

@@ -311,11 +311,12 @@ def test_physical_retry_count_and_direct_json_mode(settings, logger, clock):
     with NvidiaGenerator(settings, logger=logger, client=httpx.Client(transport=httpx.MockTransport(handle)),
                          limiter=__import__('polytoken.llm', fromlist=['SlidingWindowLimiter']).SlidingWindowLimiter(40, clock=clock, sleep=clock.sleep),
                          clock=clock, sleep=clock.sleep, jitter=lambda: 0) as generator:
-        result = generator.generate('Return JSON.', enable_thinking=False,
+        result = generator.generate('Return JSON.', enable_thinking=False, reasoning_effort='low',
                                     before_attempt=lambda: guard.consume('nemotron'), remaining=guard.remaining)
     assert result['text'] == '{}'
     assert guard.counts['nemotron'] == 2
     assert all(c['chat_template_kwargs'] == {'enable_thinking': False} for c in calls)
+    assert all(c['reasoning_effort'] == 'low' for c in calls)
     assert all(c['model'] == settings.agent_model for c in calls)
 
 
@@ -536,3 +537,18 @@ def test_job_deadline_and_speed_cache(apparatus, clock):
     assert report['jobs']['budget']['hosted'] == 0
     assert report['speed_status'].startswith('inconclusive; cached')
     assert report['dropped_claims'] == []
+
+
+def test_completed_job_rechecks_previously_verified_baseline(apparatus):
+    a = apparatus
+    agent = Investigation(a['tools'], a['memory'], background=True)
+    initial = agent.run('samudra')
+    assert initial['top_finding']
+    raw = next(e for e in a['world'].events() if e['event_id'] == a['tools'].snapshot_id)
+    raw['payload']['counts'][0]['tokens'] += 1
+    a['world'].db.execute('UPDATE events SET payload=? WHERE event_id=?', (json.dumps(raw['payload']), raw['event_id']))
+    final = agent.finish_jobs('samudra', lambda _: None)
+    assert final['top_finding'] is None
+    assert final['top_fix'] is None
+    assert any(c['id'].startswith('baseline/') for c in final['dropped_claims'])
+    assert not any(c['id'].startswith('baseline/') for c in final['claims'])

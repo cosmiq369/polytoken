@@ -2,14 +2,174 @@
   "source_url": "https://integrate.api.nvidia.com/v1/models",
   "fetched_at": "2026-10-24T15:00:00Z",
   "models_listed": 85,
-  "note": "Text models on the NVIDIA API catalogue whose tokenizer matches a measured family. Speed tests run only on these. Recheck /v1/models at startup; a model missing there is reported as not measured.",
+  "note": "Production intersects catalogue listing with successful streamed serving probes. Failed models are excluded.",
   "families": {
-    "Llama 3, 128k vocab (unsloth/Llama-3.2-3B-Instruct, HuggingFaceTB/SmolLM3-3B)": ["meta/llama-3.2-11b-vision-instruct", "meta/llama-3.2-90b-vision-instruct"],
-    "Gemma 3 (unsloth/gemma-3-4b-it)": ["google/gemma-3-4b-it", "google/gemma-3-12b-it"],
-    "OpenAI o200k (openai/gpt-oss-20b, microsoft/Phi-4-mini-instruct)": ["openai/gpt-oss-20b"],
+    "Llama 3, 128k vocab (unsloth/Llama-3.2-3B-Instruct, HuggingFaceTB/SmolLM3-3B)": [
+      "meta/llama-3.2-11b-vision-instruct",
+      "meta/llama-3.2-90b-vision-instruct"
+    ],
+    "Gemma 3 (unsloth/gemma-3-4b-it)": [
+      "google/gemma-3-4b-it",
+      "google/gemma-3-12b-it"
+    ],
+    "OpenAI o200k (openai/gpt-oss-20b, microsoft/Phi-4-mini-instruct)": [
+      "openai/gpt-oss-20b"
+    ],
     "Qwen 3 (Qwen/Qwen3-4B)": [],
     "Sarvam-1 (sarvamai/sarvam-1)": [],
     "Krutrim 2 (krutrim-ai-labs/Krutrim-2-instruct)": []
   },
-  "agent_model": "nvidia/nemotron-3.5-lightning-30b-a3b"
+  "agent_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "serving_verification": {
+    "google/gemma-3-12b-it": {
+      "serving_verified_at": "2026-10-24T17:13:18.283556+00:00",
+      "served": false,
+      "probe": {
+        "short": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        },
+        "long": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        }
+      },
+      "no_system_successes": 0,
+      "evidence": "logs/sample/hosted_probe.jsonl",
+      "probe_run_id": "a6d695df-5859-4f0b-89a7-e937f45b91ee",
+      "evidence_ids": [
+        "evt_7521169d5a85808c7c035324",
+        "evt_685f048fffced5df1e4ec09f",
+        "evt_7610f9cdfc0aca0c3fd55a26",
+        "evt_e59b8963ab0337d8c9c20577",
+        "evt_f6117ab8ee3b531483d396c4",
+        "evt_edc438e9511bfaa6312cf13c",
+        "evt_8a20172a1cbe100ad371e975",
+        "evt_b122ae6e4f3fe96f62713e5f",
+        "evt_b19cea5b53c79ee8b2b1fcd9",
+        "evt_fd670c71f36d1487b06b6463",
+        "evt_a654fd423c68d50908ff2535",
+        "evt_0c696d90bce0c50bd5049b43"
+      ]
+    },
+    "google/gemma-3-4b-it": {
+      "serving_verified_at": "2026-10-24T17:13:18.283623+00:00",
+      "served": false,
+      "probe": {
+        "short": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        },
+        "long": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        }
+      },
+      "no_system_successes": 0,
+      "evidence": "logs/sample/hosted_probe.jsonl",
+      "probe_run_id": "a6d695df-5859-4f0b-89a7-e937f45b91ee",
+      "evidence_ids": [
+        "evt_b4769f38835e33c34fb0b95e",
+        "evt_908bd475e5cb87c3e3a478d3",
+        "evt_2e978d98c36516420357cf06",
+        "evt_d05e9fa36e86d0dde3334ce5",
+        "evt_85e2e7e4ced94c4f6f3eac67",
+        "evt_097828a343fee9899a902942",
+        "evt_6ab74f6b679eb999b2d6fb52",
+        "evt_22a1ba6fc709bebdbc8383a2",
+        "evt_4c65bfe11c01ae9054ed247e",
+        "evt_032996f7ca4144b1f274279b",
+        "evt_181acb2db94794422bfd1004",
+        "evt_02c04f77c2d7c551a3409743"
+      ]
+    },
+    "meta/llama-3.2-11b-vision-instruct": {
+      "serving_verified_at": "2026-10-24T17:13:18.283635+00:00",
+      "served": false,
+      "probe": {
+        "short": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        },
+        "long": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        }
+      },
+      "no_system_successes": 0,
+      "evidence": "logs/sample/hosted_probe.jsonl",
+      "probe_run_id": "a6d695df-5859-4f0b-89a7-e937f45b91ee",
+      "evidence_ids": [
+        "evt_fd2d8bacd3d532b086f04c8c",
+        "evt_51f995a62a884a4517aa9ed0",
+        "evt_ad48de3719d0a5cad8832f8c",
+        "evt_af40981d824426c90b9028d0",
+        "evt_d6e57d95ec507b1be2f1ca36",
+        "evt_3609908a930aeeaa536a4dce"
+      ]
+    },
+    "meta/llama-3.2-90b-vision-instruct": {
+      "serving_verified_at": "2026-10-24T17:13:18.283648+00:00",
+      "served": false,
+      "probe": {
+        "short": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        },
+        "long": {
+          "ok": 0,
+          "tries": 3,
+          "ttft_median_s": null
+        }
+      },
+      "no_system_successes": 0,
+      "evidence": "logs/sample/hosted_probe.jsonl",
+      "probe_run_id": "a6d695df-5859-4f0b-89a7-e937f45b91ee",
+      "evidence_ids": [
+        "evt_ca974fb2d56523b63f8a9a56",
+        "evt_8b37bd4df14caf87c7e74004",
+        "evt_c47b0d3f29e9ac86b36f080a",
+        "evt_fd7c7e518f907ae7a984c5f9",
+        "evt_edafc3ce39233ce7e5b1fe00",
+        "evt_d4577022c34566d5c4d675d3"
+      ]
+    },
+    "openai/gpt-oss-20b": {
+      "serving_verified_at": "2026-10-24T17:15:37.417293+00:00",
+      "served": true,
+      "probe": {
+        "short": {
+          "ok": 3,
+          "tries": 3,
+          "ttft_median_s": 43.782495541032404
+        },
+        "long": {
+          "ok": 2,
+          "tries": 3,
+          "ttft_median_s": 12.33888302044943
+        }
+      },
+      "probe_run_id": "fec8ed3b-a8b7-470e-ae77-1f099d5564e9",
+      "generation_options": {
+        "reasoning_effort": "low"
+      },
+      "no_system_successes": 0,
+      "evidence": "logs/sample/hosted_probe.jsonl",
+      "evidence_ids": [
+        "evt_0e88c79de9213d7b3b1a824f",
+        "evt_bfa76281fc1f40e7f5ad204d",
+        "evt_265950b5639d66ba6153c1c7",
+        "evt_e4eacad955cfcf79e98700c4",
+        "evt_03d438469a3ac84458f9285c",
+        "evt_0c49e901dece39bb61985b1d"
+      ]
+    }
+  }
 }

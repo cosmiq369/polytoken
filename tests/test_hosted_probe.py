@@ -27,7 +27,7 @@ def test_probe_records_success_failure_and_no_system(tmp_path, monkeypatch):
             return dict(model=kwargs['model'], text='OK', usage={'completion_tokens': 1}, ttft_s=.01, latency_s=.02)
     monkeypatch.setattr(module, 'ZetarisClient', SQL)
     monkeypatch.setattr(module, 'NvidiaGenerator', Generate)
-    module.main()
+    module.main([])
     result = json.loads(path.read_text())['serving_verification']
     assert result['ok/model']['served'] is True
     assert result['ok/model']['probe']['long']['ok'] == 3
