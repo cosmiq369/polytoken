@@ -564,3 +564,34 @@ def test_reasoning_usage_does_not_become_visible_output_throughput():
     assert metrics['speed/ttft_s/original_median'] == .2
     assert metrics['speed/latency_s/original_median'] == 1.2
     assert not any('output_tokens_per_s' in key for key in metrics)
+
+
+def test_offline_throughput_recheck_keeps_raw_report_and_other_claims(apparatus, tmp_path, monkeypatch):
+    import importlib.util
+    import sys
+    from contextlib import contextmanager
+    spec = importlib.util.spec_from_file_location('recheck', Path(__file__).resolve().parents[1] / 'scripts/recheck_reasoning_speed.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    a = apparatus
+    report = Investigation(a['tools'], a['memory']).run('samudra')
+    eid = a['tools'].observe('query_result', {'serving_verification': {'fixture/hosted': {'generation_options': {'reasoning_effort': 'low'}}}}, 'fixture catalogue')
+    report['evidence_ids'].append(eid)
+    path = tmp_path / 'report.json'
+    path.write_text(json.dumps(report))
+    (tmp_path / 'logs/investigations').mkdir(parents=True)
+    @contextmanager
+    def existing_world(**kwargs):
+        yield a['world']
+    monkeypatch.setattr(module, 'WorldModel', existing_world)
+    monkeypatch.setattr(sys, 'argv', ['recheck', str(path)])
+    monkeypatch.chdir(tmp_path)
+    before_calls = len(a['generator'].calls)
+    module.main()
+    revised = json.loads(path.read_text())
+    assert revised['id'] == report['id']
+    assert len(revised['dropped_claims']) == 9
+    assert all(r['id'].startswith('speed/output_tokens_per_s/') for r in revised['dropped_claims'])
+    assert all(c['verified'] for c in revised['claims'])
+    assert json.loads((tmp_path / 'report_before_throughput_correction.json').read_text()) == report
+    assert len(a['generator'].calls) == before_calls
