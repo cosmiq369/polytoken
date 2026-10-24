@@ -33,3 +33,31 @@ Tokenizers from `../solve-it/configs/tokenizers.yaml` (the eight families measur
 
 ## Addenda
 (none yet)
+
+
+### 24 Oct 2026 — billed-token accounting (PROMPT-03A, F3)
+
+Written after the PROMPT-02 measurements and before any price or cost exists.
+Money uses billed content tokens of a stateless chat API: for reply k, input is
+the system prompt plus every earlier user and assistant turn plus user turn k;
+output is reply k. An unanswered final user turn has no completed request and is
+excluded from billed input. The corpus convention remains reported for transparency.
+Provider chat-template overhead and actual usage must be measured before claiming
+an invoice-equivalent total; these content counts exclude that overhead.
+Cached-prefix pricing is used only where a provider publishes a cache price.
+The expected findings are unchanged and are judged on cost and reply time, not
+on token share.
+
+### 24 Oct 2026 — demo v2 and chat-level uncertainty (PROMPT-03A, F4/F5)
+
+Review found repeated assistant answers, including repeats within a chat (F4),
+and a repeated three-sentence suffix in Samudra's system prompt (F5). The v2
+revision fixes realism defects, not measured results. V1 data and existing results
+are retained byte-for-byte in data/demo/v1/ and logs/sample/v1/; both versions'
+results will be reported. V2 uses a fixed seed, distinct conversations and a
+non-repeating Telugu policy with fictional support knowledge. All reviews remain
+pending. Native/English per-part ratios use 2,000 paired bootstrap resamples of
+whole chats, with a fixed seed and 95% percentile intervals; each resampled chat
+contributes its system prompt once. Repeated turns are not independent samples.
+The tokenizer configuration and corrected reference corpus are now vendored with
+hashes in data/reference/SOURCES.md; the eight tokenizer families are unchanged.

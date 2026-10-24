@@ -18,14 +18,13 @@ export PYTHONPYCACHEPREFIX="$PWD/.cache/pycache"
 export HF_HOME="$PWD/.cache/huggingface"
 ```
 
-Run the two install commands:
+Install the pinned public harness dependency with PolyToken:
 
 ```sh
 uv pip install -e '.[dev]'
-sh scripts/install-indictax.sh
 ```
 
-The second command runs `uv pip install --editable ../solve-it`. It redirects
+Optional local development override only: `sh scripts/install-indictax.sh` runs `uv pip install --editable ../solve-it`. It redirects
 setuptools metadata and build output to PolyToken's `.cache/indictax/`, keeping
 the reference repository read-only. No harness source is copied into PolyToken.
 
@@ -99,7 +98,9 @@ including .env/process secrets and login tokens returned by Zetaris.
 `polytoken.tokens.count(spec, text)` and `fragment_rate(spec, text)` reuse cached
 `indictax` adapters. Fragment rate is the share of encoded tokens whose
 `is_fragment` flag is true, with zero for empty input, matching the harness.
-All reference code stays in `../solve-it` and `~/zetaris-platform`; see
+The harness comes from its pinned Git commit. Corpus and tokenizer defaults use
+`data/reference/seed_v0_corrected.jsonl` and `configs/tokenizers.yaml`; a sibling
+checkout is not required. Run commands from the cloned PolyToken directory. See
 [the declarations](docs/DECLARATIONS.md) for provenance and licences.
 
 ## Demo company data and measurements (PROMPT-02)

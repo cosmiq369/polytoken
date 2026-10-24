@@ -14,7 +14,10 @@ from .config import Settings
 from .logs import JsonlLogger
 from .prices import load_prices
 
+# Source checkout, or a non-editable installation invoked from the cloned repo.
 ROOT = Path(__file__).resolve().parents[2]
+if not (ROOT / 'data/demo').is_dir():
+    ROOT = Path.cwd()
 COMPANIES = ('samudra', 'swara')
 CONFIG_FIELDS = ('company', 'language', 'system_prompt_native', 'system_prompt_en', 'model_in_use', 'monthly_chats', 'latency_target_s', 'review_status')
 CHAT_FIELDS = ('chat_id', 'turn', 'role', 'text_native', 'text_en', 'lang', 'review_status')
@@ -97,7 +100,7 @@ def seed_records(connection, configs, chats, references, prices):
     upsert(connection, 'reference.prices', PRICE_FIELDS, ('provider', 'model'), prices)
 
 
-def seed_company_db(settings, logger=None, reference_path=ROOT.parent / 'solve-it/data/prompts/seed_v0_corrected.jsonl'):
+def seed_company_db(settings, logger=None, reference_path=ROOT / 'data/reference/seed_v0_corrected.jsonl'):
     logger = logger or JsonlLogger(secrets=settings.secrets)
     started = datetime.now(timezone.utc)
     configs, chats = load_demo()

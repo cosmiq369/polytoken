@@ -15,7 +15,7 @@ Open Agent Hackathon 2026, Track 02 "The Agent That Can Explain Why". Hard deadl
 - A deterministic checker recomputes every number before it reaches a report. Claims without valid evidence are dropped, never shown.
 
 ## Pre-existing components (declared in docs/DECLARATIONS.md)
-- The measurement harness `indictax` at ../solve-it (github.com/mohanchelluru369-tech/indic-inference-tax, MIT). Install it editable from that path and import it. Do not copy its code into this repo, and do not edit or run git in ../solve-it.
+- The measurement harness `indictax` at ../solve-it (github.com/cosmiq369/indic-inference-tax, MIT). Install the pinned Git dependency in pyproject.toml and import it; the editable local install is an optional development override. Do not copy its code into this repo, and do not edit or run git in ../solve-it.
 - Useful entry points: `indictax.tok.load_tokenizer(spec)`, `indictax.fertility.measure(tokenizer, items)`, `indictax.corpus.load_corpus(path)`, `indictax.client.ChatClient` (OpenAI-compatible streaming), `indictax.textstats`.
 - Its conventions apply to every number we show: paired comparisons as ratios to English; never fabricate or fill in a measurement; a failed call is a row with ok=false.
 

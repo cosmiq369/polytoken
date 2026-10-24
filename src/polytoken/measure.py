@@ -24,7 +24,7 @@ def utcnow():
     return datetime.now(timezone.utc).isoformat()
 
 
-def tokenizer_specs(path=ROOT.parent / 'solve-it/configs/tokenizers.yaml'):
+def tokenizer_specs(path=ROOT / 'configs/tokenizers.yaml'):
     specs = [row['spec'] for row in yaml.safe_load(Path(path).read_text())['tokenizers']]
     if not specs or len(specs) != len(set(specs)) or any(not isinstance(s, str) or not s for s in specs):
         raise ValueError('Expected distinct nonempty tokenizer specs')
