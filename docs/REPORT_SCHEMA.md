@@ -71,9 +71,10 @@ the API as a partial report. SSE reconnect replay lasts for the server lifetime.
   "fixes": [],
   "quality_status": "automated pass; native review pending | failed or not fully judged",
   "review_status": "pending",
-  "speed_status": "not measured | inconclusive | changed faster | changed slower",
+  "speed_status": "not measured | incomplete; insufficient valid runs | inconclusive | changed faster | changed slower",
   "remembered": [],
   "remembered_fields": [],
+  "remembered_findings": [],
   "experiment": null,
   "markovian_runs": [],
   "limitations": [],
@@ -199,3 +200,8 @@ an unfinished reasoning trace. This follows NVIDIA's documented
 The first live run predates this correction and is retained in the event/report
 archive. Paired generation uses at most eight concurrent workers; every request
 still uses the shared sliding-window limiter and per-investigation budget.
+
+Failed HTTP responses have redacted status and detail in `logs/llm_errors.jsonl`.
+Call rows distinguish a physical attempt from a budget rejection before dispatch.
+Historical runs with unknown usage in failed Nemotron attempts are labelled
+estimated when included in later reports. Original run logs remain unchanged.

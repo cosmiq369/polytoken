@@ -254,3 +254,37 @@ python scripts/recompute_snapshot.py logs/sample/measurement_snapshot.jsonl
 
 See `logs/sample/revision_report.md` for both versions' shares, the complete v2
 ratio table, selected bootstrap intervals, validation commands and deviations.
+
+## Investigating agent (PROMPT-04)
+
+From the configured checkout with Zetaris and the company database running:
+
+```sh
+.venv/bin/polytoken serve
+# In another terminal, or use the API:
+HF_HOME="$PWD/.cache/huggingface" HF_HUB_OFFLINE=1 .venv/bin/polytoken investigate --company samudra
+HF_HOME="$PWD/.cache/huggingface" HF_HUB_OFFLINE=1 .venv/bin/polytoken investigate --company swara
+```
+
+`serve` starts the API on localhost:8000 and reuses or starts the price endpoint
+at localhost:55433. POST `/investigations` accepts a company and question; read
+`/investigations/{id}/events` for SSE and `/investigations/{id}/report` for checked
+claims. The complete interface and interpretation rules are in
+[docs/REPORT_SCHEMA.md](docs/REPORT_SCHEMA.md).
+
+The runtime has no access to contract expectations or demo files. It reads the
+company configuration, chats, measurements and verified price table through
+Zetaris. Missing evidence stays missing. Native reviews remain pending, and a
+hosted service failure can produce a partial report without a recommended fix.
+Per-run budgets cap planner/judge calls, hosted calls, SQL calls and wall time;
+all provider attempts share a limiter. A model-switch projection is not an
+invoice, and stand-in models cannot prove quality or speed on the deployed model.
+
+The CLI retains previous reports when rerun. After authorized live runs, the
+following commands curate all their evidence and replay every numeric claim
+without network access:
+
+```sh
+.venv/bin/python scripts/curate_agent_samples.py
+.venv/bin/python scripts/check_agent_report.py logs/sample/agent_*report.json
+```

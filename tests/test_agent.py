@@ -59,7 +59,8 @@ def apparatus(tmp_path, logger):
                 context = json.loads(prompt.split('\n', 1)[1].split('\nRepair:')[0])
                 step = context['step']
                 args = context['allowed'][step][0]
-                text = json.dumps(dict(why='Use the stored evidence for this step.', tool=step, args=args, done=step == 'report'))
+                why = 'Rank expected savings using billed counts and verified prices.' if step == 'hypothesise' else 'Use the stored evidence for this step.'
+                text = json.dumps(dict(why=why, tool=step, args=args, done=step == 'report'))
             elif 'Judge semantic equivalence' in prompt:
                 pairs = json.loads(prompt.split('\n', 1)[1])
                 text = json.dumps([dict(chat_id=p['chat_id'], same_facts=True, reason='Facts match.') for p in pairs])
@@ -316,3 +317,56 @@ def test_physical_retry_count_and_direct_json_mode(settings, logger, clock):
     assert guard.counts['nemotron'] == 2
     assert all(c['chat_template_kwargs'] == {'enable_thinking': False} for c in calls)
     assert all(c['model'] == settings.agent_model for c in calls)
+
+
+def test_budget_block_is_not_logged_as_a_physical_attempt(settings, logger, clock):
+    import httpx
+    from polytoken.llm import NvidiaGenerator, SlidingWindowLimiter
+    def should_not_send(request):
+        raise AssertionError('budget-blocked request reached the transport')
+    guard = BudgetGuard(clock=clock)
+    guard.counts['nemotron'] = 25
+    with NvidiaGenerator(settings, logger=logger, client=httpx.Client(transport=httpx.MockTransport(should_not_send)),
+                         limiter=SlidingWindowLimiter(40, clock=clock, sleep=clock.sleep)) as generator:
+        with pytest.raises(BudgetExceeded):
+            generator.generate('test', before_attempt=lambda: guard.consume('nemotron'))
+    row = json.loads((logger.directory / 'llm_calls.jsonl').read_text().splitlines()[-1])
+    assert row['attempted'] is False
+    assert guard.counts['nemotron'] == 25
+
+
+@pytest.mark.parametrize('factor,should_pass', [(1e-10, True), (1e-8, False)])
+def test_checker_ratio_tolerance(apparatus, factor, should_pass):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    result = t.measure('samudra', config, ids)
+    claims = make_claims(result['metrics'], 'baseline', dict(snapshot=t.snapshot_id, prices=t.price_id, fx=t.fx_id))
+    claim = next(c for c in claims if c['id'].endswith('/native_to_english_ratio'))
+    claim['value'] *= 1 + factor
+    accepted, dropped = Checker(t.store).check([claim])
+    assert bool(accepted) is should_pass
+    assert bool(dropped) is not should_pass
+
+
+@pytest.mark.parametrize('delta,should_pass', [(.009, True), (.011, False)])
+def test_checker_money_tolerance(apparatus, delta, should_pass):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    result = t.measure('samudra', config, ids)
+    claims = make_claims(result['metrics'], 'baseline', dict(snapshot=t.snapshot_id, prices=t.price_id, fx=t.fx_id))
+    claim = next(c for c in claims if c['id'].endswith('/monthly_inr'))
+    claim['value'] += delta
+    accepted, dropped = Checker(t.store).check([claim])
+    assert bool(accepted) is should_pass
+    assert bool(dropped) is not should_pass
+
+
+def test_persisted_cli_uuid_report_and_path_validation(tmp_path):
+    identifier = '66f0a95a-adf4-4540-b4c7-12f5a03cef2d'
+    directory = tmp_path / 'investigations'
+    directory.mkdir()
+    report = {'id': identifier, 'status': 'partial', 'claims': []}
+    (directory / (identifier + '.json')).write_text(json.dumps(report))
+    with TestClient(create_app(reference=False, log_dir=tmp_path, state_dir=tmp_path)) as client:
+        assert client.get(f'/investigations/{identifier}/report').json() == report
+        assert client.get('/investigations/invalid.name/report').status_code == 404

@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 import asyncio
 import json
+import re
 from pathlib import Path
 import threading
 from uuid import uuid4
@@ -121,7 +122,7 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
             if entry['report'] is None:
                 raise HTTPException(202, 'Investigation is running')
             return entry['report']
-        if not identifier.isalnum():
+        if not re.fullmatch(r'[A-Za-z0-9-]+', identifier):
             raise HTTPException(404, 'Investigation not found')
         path = Path(log_dir) / 'investigations' / (identifier + '.json')
         if not path.exists():

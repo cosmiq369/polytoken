@@ -34,11 +34,20 @@ def discover_hosted(settings, logger):
     return result
 
 
-def historical_runs(log_dir):
+def historical_runs(log_dir, agent_model=None):
     path = Path(log_dir) / 'agent_markovian.jsonl'
     if not path.exists():
         return []
-    return [row for line in path.read_text().splitlines() if (row := json.loads(line)).get('event') == 'run']
+    runs = [row for line in path.read_text().splitlines() if (row := json.loads(line)).get('event') == 'run']
+    calls = Path(log_dir) / 'llm_calls.jsonl'
+    if calls.exists() and agent_model:
+        unknown = {row['run_id'] for line in calls.read_text().splitlines() if (row := json.loads(line)).get('model') == agent_model
+                   and row.get('ok') is False and row.get('prompt_tokens') is None}
+        for run in runs:
+            if run['run_id'] in unknown:
+                run['tokenLabel'] = 'estimated'
+                run['usage_note'] = 'Failed Nemotron attempts have unknown usage; the counterfactual excludes that unknown usage.'
+    return runs
 
 
 def investigate(company, *, question='', monthly_chats=None, latency_target_s=None,
@@ -46,7 +55,7 @@ def investigate(company, *, question='', monthly_chats=None, latency_target_s=No
     settings = load_settings(env_file)
     logger = JsonlLogger(log_dir, run_id=run_id, secrets=settings.secrets)
     # These are composition-root startup reads, before the investigation begins.
-    history = historical_runs(log_dir)
+    history = historical_runs(log_dir, settings.agent_model)
     catalogue = catalogue if catalogue is not None else discover_hosted(settings, logger)
     with ExitStack() as stack:
         world = stack.enter_context(WorldModel(Path(state_dir) / 'world.sqlite', logger=logger))

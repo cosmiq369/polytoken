@@ -1,5 +1,6 @@
 """Structured planner with exactly one repair and a safe step-specific fallback."""
 import json
+import re
 
 from .budget import BudgetExceeded
 
@@ -15,6 +16,12 @@ def validate_plan(text, allowed):
     # Exact argument schemas are supplied by the wrapper for each step.
     if plan['args'] not in allowed[plan['tool']]:
         raise ValueError('Arguments not in the permitted step choices')
+    if plan['why'].strip().lower() in ('at most 40 words', '<= 40 words', '...', 'why'):
+        raise ValueError('Explanation must not be a schema placeholder')
+    if plan['tool'] == 'hypothesise' and not (
+            re.search(r'rank|prioriti|largest|highest', plan['why'], re.I)
+            and re.search(r'sav|bill|cost', plan['why'], re.I)):
+        raise ValueError('Hypothesis explanation must describe the billed-saving ranking')
     return plan
 
 

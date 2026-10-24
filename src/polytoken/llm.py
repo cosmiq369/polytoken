@@ -171,6 +171,7 @@ class NvidiaGenerator:
         for attempt in range(1, 5):  # One initial request and at most three retries.
             usage = {}
             first_token = None
+            attempted = False
             start = self._clock()
             try:
                 self.limiter.acquire(abort)
@@ -178,6 +179,7 @@ class NvidiaGenerator:
                 if before_attempt:
                     before_attempt()
                 start = self._clock()
+                attempted = True
                 with self._client.stream(
                     "POST", self.settings.nvidia_base_url + "/chat/completions",
                     headers={"Authorization": "Bearer " + self.settings.nvidia_api_key},
@@ -203,7 +205,7 @@ class NvidiaGenerator:
                         usage = data.get("usage") or {}
                 if not isinstance(usage, dict):
                     raise ProtocolError("Completion usage is not an object")
-                self._log(metadata, usage, start, attempt, True, None)
+                self._log(metadata, usage, start, attempt, True, None, attempted=attempted)
                 result = {"text": text, "usage": usage,
                           "latency_s": self._clock() - total_start, "model": body["model"]}
                 if on_stream is not None:
@@ -211,7 +213,17 @@ class NvidiaGenerator:
                                   ttft_s=first_token - start if first_token is not None else None)
                 return result
             except Exception as exc:
-                self._log(metadata, usage, start, attempt, False, type(exc).__name__)
+                error_detail = None
+                if isinstance(exc, httpx.HTTPStatusError):
+                    try:
+                        exc.response.read()
+                        error_detail = self.logger.redact(exc.response.text)[:500]
+                    except Exception:
+                        pass
+                    self.logger.write('llm_errors', 'http_error', **metadata,
+                                      status_code=exc.response.status_code, detail=error_detail,
+                                      attempt=attempt, attempted=attempted, ok=False)
+                self._log(metadata, usage, start, attempt, False, type(exc).__name__, attempted=attempted)
                 retryable = isinstance(exc, httpx.HTTPStatusError) and (
                     exc.response.status_code == 429 or 500 <= exc.response.status_code <= 599
                 )
@@ -229,15 +241,16 @@ class NvidiaGenerator:
                 if isinstance(exc, LLMError):
                     raise
                 status = f" HTTP {exc.response.status_code}" if isinstance(exc, httpx.HTTPStatusError) else ""
-                raise LLMError(f"NVIDIA completion failed:{status} {type(exc).__name__}") from None
+                raise LLMError(f"NVIDIA completion failed:{status} {type(exc).__name__}" +
+                               (f": {error_detail}" if error_detail else "")) from None
         raise AssertionError("unreachable")
 
-    def _log(self, metadata, usage, start, attempt, ok, error_class):
+    def _log(self, metadata, usage, start, attempt, ok, error_class, *, attempted=True):
         self.logger.write(
             "llm_calls", "completion", **metadata,
             prompt_tokens=usage.get("prompt_tokens") if isinstance(usage, dict) else None,
             completion_tokens=usage.get("completion_tokens") if isinstance(usage, dict) else None,
-            latency_s=self._clock() - start, attempt=attempt, ok=ok, error_class=error_class,
+            latency_s=self._clock() - start, attempt=attempt, attempted=attempted, ok=ok, error_class=error_class,
         )
 
     @staticmethod

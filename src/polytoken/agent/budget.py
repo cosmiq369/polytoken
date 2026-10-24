@@ -13,13 +13,15 @@ class BudgetGuard:
 
     def __init__(self, *, clock=time.monotonic, wall_s=360):
         self.clock, self.wall_s = clock, wall_s
+        # Stop external work early enough to check and serialize a partial report.
+        self.finalize_reserve_s = min(2., wall_s / 10)
         self.started = clock()
         self.counts = dict.fromkeys(self.LIMITS, 0)
         self.reason = None
         self.lock = threading.Lock()
 
     def remaining(self):
-        return max(0., self.wall_s - (self.clock() - self.started))
+        return max(0., self.wall_s - self.finalize_reserve_s - (self.clock() - self.started))
 
     def check(self):
         if self.remaining() <= 0:

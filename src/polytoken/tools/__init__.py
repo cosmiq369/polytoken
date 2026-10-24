@@ -195,7 +195,8 @@ class InvestigationTools:
                     'output_tokens': self.count(spec, result['text']), 'latency_s': result.get('request_latency_s', result['latency_s']),
                     'ttft_s': result.get('ttft_s'), 'started': started, 'fetched_at': now()}
         except Exception as exc:
-            return {'ok': False, 'error_class': type(exc).__name__, 'model': model, 'started': started, 'fetched_at': now()}
+            return {'ok': False, 'error_class': type(exc).__name__, 'reason': self.logger.redact(str(exc))[:500],
+                    'model': model, 'started': started, 'fetched_at': now()}
 
     def fix_experiment(self, company, lever, hosted_model=None):
         config = self.snapshot['config']

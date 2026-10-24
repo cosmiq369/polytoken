@@ -159,7 +159,7 @@ def main(argv=None) -> int:
                 with ZetarisClient(settings, logger=logger) as client:
                     rows, _ = verify_and_save(client, logger)
                 print(f"Federation verified: {len(rows)} company/tokenizer/part groups; evidence in logs/sample/.")
-            print("Money unavailable: no verified prices have been supplied; token shares do not establish cost or latency.")
+            print("Token measurements verified; use investigate for estimates from verified prices and live experiments.")
             return int(any(b['status'] == 'failed' for b in batches) or not any(b['status'] == 'completed' for b in batches))
         except Exception as exc:
             logger.write("measurements", "run_failed", ok=False, error_class=type(exc).__name__)

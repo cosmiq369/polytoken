@@ -36,6 +36,7 @@ class Investigation:
         self.history = historical_runs or []
         self.step, self.why = 'clarify', DEFAULT_WHY['clarify']
         self.context, self.metrics, self.candidates, self.remembered = {}, {}, [], []
+        self.remembered_findings = []
         self.experiment = self.quality = self.speed = None
         self.partial_reason = None
         self.needs_input = []
@@ -122,8 +123,12 @@ class Investigation:
     def do_step(self, step, args, company):
         t = self.tools
         if step == 'clarify':
-            recalled = [r['memory'] for r in self.memory.query(company, threshold=0., top_n=20)['memories']
+            retrieved = self.memory.query(company, threshold=0., top_n=20)['memories']
+            recalled = [r['memory'] for r in retrieved
                         if company in r['memory'].entities and r['memory'].type == 'company_profile']
+            self.remembered_findings = [{'id': r['memory'].id, 'text': r['memory'].content,
+                                        'source': r['memory'].source, 'evidence_ids': r['memory'].derivedFrom}
+                                       for r in retrieved if company in r['memory'].entities and r['memory'].type == 'finding']
             self.remembered = [{'id': m.id, 'source': m.source} for m in recalled]
             remembered = json.loads(recalled[-1].content) if recalled else {}
             config, ids = t.load_company(company, self.overrides)
@@ -145,6 +150,7 @@ class Investigation:
             self.emit('finding', text='Recalled the saved company profile and constraints.' if recalled else 'Saved the company configuration and reply-language constraint.',
                       remembered=self.remembered, evidence_ids=[eid])
             self.context.update(company=company, language=config['language'], model=config['model_in_use'], constraints=config['constraints'])
+            self.context['previous_findings'] = self.remembered_findings[:3]
         elif step == 'measure':
             result = t.measure(company, self.config, self.config_ids)
             self.metrics = result['metrics']
@@ -163,7 +169,8 @@ class Investigation:
             self.context['finding'] = self.finding
             self.emit('finding', text=self.finding, evidence_ids=list(self.baseline_inputs().values()))
         elif step == 'hypothesise':
-            self.candidates = self.hypotheses()
+            if not self.candidates:
+                self.candidates = self.hypotheses()
             self.context['ranked_hypotheses'] = [{**c, 'expected_monthly_saving_inr': self.metrics.get(c['claim_id'])} for c in self.candidates]
         elif step == 'experiment':
             self.experiment = t.fix_experiment(company, **args)
@@ -198,10 +205,17 @@ class Investigation:
             old_usage = len(self.model_usage)
             try:
                 self.guard.check()
+                if step == 'hypothesise':
+                    self.candidates = self.hypotheses()
+                    self.context['ranked_hypotheses'] = [{**c, 'expected_monthly_saving_inr': self.metrics.get(c['claim_id'])}
+                                                        for c in self.candidates]
                 choices = self.experiment_choices() if step == 'experiment' else [{}]
                 if not choices:
                     raise ValueError('No feasible hosted experiment')
                 fallback = {'why': DEFAULT_WHY[step], 'tool': step, 'args': choices[0], 'done': step == 'report'}
+                if step == 'hypothesise' and self.candidates:
+                    fallback['why'] = ('Rank ' + self.candidates[0]['lever'] + ' first because it has the largest expected saving '
+                                       'under the observed billed counts and quoted rates; every option still needs quality validation.')
                 # Markovian carryover is the actual input to the next planner, not decorative.
                 compact = {'question': self.question, **self.context}
                 compact['carryover'] = _markovian_prompt.split('CARRYOVER: ', 1)[1].split('\nEnd a nonfinal', 1)[0]
@@ -256,7 +270,7 @@ class Investigation:
         report = self.build_report(company, verified)
         if report['top_finding']:
             self.memory.add(content=report['top_finding'], source=self.run_id, layer='working',
-                            type='finding', entities=[company], derived_from=self.tools.ids[-4:])
+                            type='finding', entities=[company], derived_from=list(self.baseline_inputs().values()))
         self.emit('done', status=report['status'], report_url=f'/investigations/{self.run_id}/report')
         return report
 
@@ -275,6 +289,8 @@ class Investigation:
                 c['experiment_evidence_ids'] = self.experiment['evidence_ids']
             fixes.append(c)
         speed_status = 'not measured'
+        if self.speed:
+            speed_status = 'incomplete; insufficient valid runs'
         if verified.get('speed/completed_runs') == 8:
             low = verified.get('speed/latency_s/difference_min')
             high = verified.get('speed/latency_s/difference_max')
@@ -295,6 +311,7 @@ class Investigation:
                 'quality_status': 'automated pass; native review pending' if quality_pass else 'failed or not fully judged',
                 'review_status': 'pending', 'speed_status': speed_status,
                 'remembered': self.remembered, 'remembered_fields': ['volume', 'target', 'model', 'reply-language constraints'] if self.remembered else [],
+                'remembered_findings': self.remembered_findings,
                 'experiment': {k: self.experiment[k] for k in ('lever', 'models', 'model_label', 'accounting', 'evidence_ids')} if self.experiment else None,
                 'markovian_runs': [{'log_index': i, 'token_label': r['tokenLabel'], 'claim_prefix': f'markovian/{i}/'} for i, r in enumerate([*self.history])]
                     + [{'log_index': len(self.history), 'token_label': self.current_run['tokenLabel'], 'claim_prefix': f'markovian/{len(self.history)}/'}],
