@@ -44,7 +44,12 @@ class Investigation:
         self.model_usage = []
         original_generate = tools.generate
         def tracked_generate(prompt, **kwargs):
-            result = original_generate(prompt, **kwargs)
+            try:
+                result = original_generate(prompt, **kwargs)
+            except Exception:
+                if kwargs.get('model') is None:
+                    self.model_usage.append({})
+                raise
             if kwargs.get('model') is None:
                 self.model_usage.append(result.get('usage') or {})
             return result
@@ -61,7 +66,7 @@ class Investigation:
 
     def nemotron(self, prompt):
         return self.tools.generate(prompt, before_attempt=lambda: self.guard.consume('nemotron'),
-                                   remaining=self.guard.remaining, abort=self.guard.check)
+                                   remaining=self.guard.remaining, abort=self.guard.check, enable_thinking=False)
 
     def add_metrics(self, metrics, operation, inputs):
         self.claims.extend(make_claims(metrics, operation, inputs))

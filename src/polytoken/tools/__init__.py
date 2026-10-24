@@ -224,8 +224,9 @@ class InvestigationTools:
         systems = {'original': config['system_prompt_native'], 'changed': changed}
         models = {'original': original_model, 'changed': target}
         pairs, call_ids = [], []
-        # Four workers bound latency and concurrency; SQLite writes stay on the owner thread.
-        with ThreadPoolExecutor(max_workers=4) as pool:
+        # Eight workers bound latency and concurrency; the shared limiter still
+        # controls every physical attempt. SQLite writes stay on the owner thread.
+        with ThreadPoolExecutor(max_workers=8) as pool:
             futures = {(chat, variant): pool.submit(self._hosted_call, chats[chat]['native'], systems[variant], models[variant], spec)
                        for chat in sample for variant in ('original', 'changed')}
             for chat in sample:
@@ -262,7 +263,7 @@ class InvestigationTools:
                                   {'chat_id': p['chat_id'], 'user': p['user'], 'original': p['original']['text'], 'changed': p['changed']['text']}
                                   for p in good], ensure_ascii=False))
                     result = self.generate(prompt, before_attempt=lambda: self.budget.consume('nemotron'),
-                                           remaining=self.budget.remaining, abort=self.budget.check)
+                                           remaining=self.budget.remaining, abort=self.budget.check, enable_thinking=False)
                     rows = json.loads(result['text'])
                     if (not isinstance(rows, list) or len(rows) != len(good)
                             or {r.get('chat_id') for r in rows} != {p['chat_id'] for p in good}

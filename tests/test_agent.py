@@ -294,3 +294,25 @@ def test_checker_wrong_value_and_missing_evidence(apparatus):
     accepted, dropped = Checker(t.store).check(claims)
     assert len(dropped) == 2
     assert len(accepted) == len(claims) - 2
+
+
+def test_physical_retry_count_and_direct_json_mode(settings, logger, clock):
+    import httpx
+    from polytoken.llm import NvidiaGenerator, SlidingWindowLimiter
+    calls = []
+    def handle(request):
+        calls.append(json.loads(request.content))
+        if len(calls) == 1:
+            return httpx.Response(429, headers={'Retry-After': '1'})
+        return httpx.Response(200, json={'choices': [{'message': {'content': '{}'}}],
+                                       'usage': {'prompt_tokens': 10, 'completion_tokens': 2}})
+    guard = BudgetGuard(clock=clock)
+    with NvidiaGenerator(settings, logger=logger, client=httpx.Client(transport=httpx.MockTransport(handle)),
+                         limiter=__import__('polytoken.llm', fromlist=['SlidingWindowLimiter']).SlidingWindowLimiter(40, clock=clock, sleep=clock.sleep),
+                         clock=clock, sleep=clock.sleep, jitter=lambda: 0) as generator:
+        result = generator.generate('Return JSON.', enable_thinking=False,
+                                    before_attempt=lambda: guard.consume('nemotron'), remaining=guard.remaining)
+    assert result['text'] == '{}'
+    assert guard.counts['nemotron'] == 2
+    assert all(c['chat_template_kwargs'] == {'enable_thinking': False} for c in calls)
+    assert all(c['model'] == settings.agent_model for c in calls)

@@ -30,6 +30,7 @@ class Planner:
                   'Use done only when reporting is appropriate.\n' + json.dumps(
                       {'step': step, 'evidence_summary': context, 'allowed': allowed}, ensure_ascii=False))
         for attempt in range(2):
+            response = None
             try:
                 response = self.generate(prompt)
                 self.usage.append(response.get('usage') or {})
@@ -40,7 +41,8 @@ class Planner:
                 raise
             except Exception as exc:
                 self.logger.write('planner', 'invalid', step=step, attempt=attempt + 1,
-                                  error_class=type(exc).__name__)
+                                  error_class=type(exc).__name__,
+                                  response_text=(response or {}).get('text', '')[:2000])
                 prompt += '\nRepair: return exactly the declared JSON and a permitted argument object.'
         self.logger.write('planner', 'fallback', step=step, plan=fallback)
         return fallback

@@ -143,7 +143,8 @@ class NvidiaGenerator:
         self.close()
 
     def generate(self, prompt, system_prompt=None, attachments=None, on_stream=None, abort=None,
-                 *, model=None, temperature=None, before_attempt=None, remaining=None) -> dict:
+                 *, model=None, temperature=None, before_attempt=None, remaining=None,
+                 enable_thinking=None) -> dict:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
@@ -155,6 +156,8 @@ class NvidiaGenerator:
         }
         if temperature is not None:
             body["temperature"] = temperature
+        if enable_thinking is not None:
+            body["chat_template_kwargs"] = {"enable_thinking": bool(enable_thinking)}
         if on_stream is not None:
             body["stream_options"] = {"include_usage": True}
         metadata = {
@@ -162,6 +165,7 @@ class NvidiaGenerator:
             "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:12],
             "system_prompt_length": len(system_prompt or ""),
             "attachments_count": len(attachments or []),
+            "enable_thinking": enable_thinking,
         }
         total_start = self._clock()
         for attempt in range(1, 5):  # One initial request and at most three retries.

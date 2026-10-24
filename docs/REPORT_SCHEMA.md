@@ -191,3 +191,11 @@ FastAPI lifecycle and streaming follow the official
 documentation. The public [Zetaris SQL guide](https://kbase.zetaris.com/knowledge/sql-guide)
 describes REST registration; the exact installed `DROP LIGHTNING DATABASE TABLE`
 syntax was verified against the installed driver and the local service.
+
+Planner and judge requests explicitly set `chat_template_kwargs.enable_thinking`
+to false so the bounded output allowance is used for validated JSON rather than
+an unfinished reasoning trace. This follows NVIDIA's documented
+[direct-answer request option](https://build.nvidia.com/playbooks/nim-llm/instructions).
+The first live run predates this correction and is retained in the event/report
+archive. Paired generation uses at most eight concurrent workers; every request
+still uses the shared sliding-window limiter and per-investigation budget.
