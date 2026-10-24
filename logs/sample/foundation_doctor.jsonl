@@ -1,0 +1,1 @@
+{"source": "unsloth/gemma-3-4b-it", "query": {"operation": "count", "text": "తెలుగు భాష అందమైనది."}, "fetched_at": "2026-10-24T15:11:56.727386+00:00", "token_count": 7, "ok": true, "ts": "2026-10-24T15:11:56.727412+00:00", "run_id": "67dc2a0c-a54c-4167-9cac-710e521c5424", "event": "tokenizer_observation"}
