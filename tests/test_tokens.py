@@ -1,4 +1,3 @@
-import pytest
 from indictax.tok import TokenizerAdapter
 
 from polytoken import tokens

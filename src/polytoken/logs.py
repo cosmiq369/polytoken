@@ -17,6 +17,10 @@ _LOCK = threading.Lock()
 _SENSITIVE = re.compile(r"(?:api_?key|password|secret|authorization|credential|(?:^|_)\w*token$)", re.I)
 _JWT = re.compile(r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b")
 _BEARER = re.compile(r"\bBearer\s+[^\s\"',;]+", re.I)
+_JSON_SECRET = re.compile(
+    r'("[^"\\]*(?:token|password|secret|api_?key|authorization)[^"\\]*"\s*:\s*)"(?:\\.|[^"\\])*"',
+    re.I,
+)
 
 
 class JsonlLogger:
@@ -26,8 +30,8 @@ class JsonlLogger:
     ) -> None:
         self.directory = Path(directory)
         self.run_id = run_id or str(uuid4())
-        env = {**dotenv_values(env_file, interpolate=False), **os.environ}
-        self._secrets = set(v for k, v in env.items() if v and _SENSITIVE.search(k))
+        env_items = [*dotenv_values(env_file, interpolate=False).items(), *os.environ.items()]
+        self._secrets = set(v for k, v in env_items if v and _SENSITIVE.search(k))
         self._secrets.update(v for v in secrets if v)
 
     def add_secrets(self, *values: str) -> None:
@@ -38,6 +42,7 @@ class JsonlLogger:
         if isinstance(value, str):
             for secret in sorted(self._secrets, key=len, reverse=True):
                 value = value.replace(secret, "[REDACTED]")
+            value = _JSON_SECRET.sub(r'\1"[REDACTED]"', value)
             return _BEARER.sub("Bearer [REDACTED]", _JWT.sub("[REDACTED]", value))
         if isinstance(value, dict):
             return {

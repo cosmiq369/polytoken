@@ -1,5 +1,3 @@
-from dataclasses import replace
-
 import pytest
 
 from polytoken.config import ConfigError, REQUIRED_VARIABLES, load_settings
