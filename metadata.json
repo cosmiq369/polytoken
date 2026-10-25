@@ -49,7 +49,8 @@
   "deck_pptx_url": "PENDING FORM SUBMISSION",
   "deck_submission": "Submitted through the hackathon form; local artifacts are not distributed in the repository.",
   "demo_mode": "Checked saved-run replay on synthetic companies; no external provider calls.",
-  "uploads": "Live mode required; end-to-end integration verification pending.",
+  "uploads": "Live mode required. One bundled synthetic Telugu chat template completed via the launcher with 141 independently rechecked claims; arbitrary exports, voice and remote deployments remain unverified.",
   "setup_skill": "skills/polytoken-setup/SKILL.md",
-  "add_data_skill": "skills/polytoken-add-data/SKILL.md"
+  "add_data_skill": "skills/polytoken-add-data/SKILL.md",
+  "live_upload_verification": "docs/LIVE_UPLOAD_STATUS.md"
 }

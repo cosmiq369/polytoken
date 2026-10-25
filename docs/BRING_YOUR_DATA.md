@@ -42,8 +42,11 @@ Remote data services receive your configured data. Review this before running
 private data. The CLI's `investigate --company` command selects a bundled company;
 custom uploads use the launcher.
 
-A passing doctor only verifies service probes. Full live-upload status remains
-unverified until a completed uploaded run publishes checked claims.
+A passing doctor only verifies service probes. One bundled synthetic Telugu chat
+template completed through the live launcher with 141 independently rechecked
+claims; see [verification and scope](LIVE_UPLOAD_STATUS.md). This is not a guarantee
+for arbitrary exports, voice or remote installations. Verify your own completed
+report and checked claims.
 
 ## Read the result
 

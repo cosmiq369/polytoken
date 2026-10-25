@@ -39,5 +39,7 @@ loopback app. The app persists them in the configured source database and source
 World Model logs; live planning sends workload summaries to NVIDIA. Remote Zetaris
 means the data leaves this machine. No automatic redaction of personal information
 is promised. Uploaded datasets have generated identifiers and are never committed
-by the launcher. Full live uploaded-data integration is still unverified; offline
-fake-generator tests establish the wiring, not production availability.
+by the launcher. One bundled synthetic Telugu chat template completed through the live launcher
+with 141 independently rechecked claims; see [verification and scope](LIVE_UPLOAD_STATUS.md).
+This verifies that bounded local-stack case, not arbitrary exports, voice uploads
+or remote deployments. Quality and native review remain pending.

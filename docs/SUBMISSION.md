@@ -31,7 +31,7 @@ PolyToken advises teams choosing models for Indian-language bots and voice agent
 
 ## Reproduce and bring your data
 
-Demo mode replays checked saved runs on synthetic companies. The [setup skill](../skills/polytoken-setup/SKILL.md) interviews the user and guides installation; the [add-data skill](../skills/polytoken-add-data/SKILL.md) maps anonymised exports locally and validates paired JSONL/CSV. Uploaded samples need live mode. Full live-upload integration is pending the final bounded end-to-end verification. Live reasoning sends workload summaries to NVIDIA; imported data goes to the configured PostgreSQL and Zetaris stack.
+Demo mode replays checked saved runs on synthetic companies. The [setup skill](../skills/polytoken-setup/SKILL.md) interviews the user and guides installation; the [add-data skill](../skills/polytoken-add-data/SKILL.md) maps anonymised exports locally and validates paired JSONL/CSV. Uploaded samples need live mode. One bundled synthetic Telugu chat template was uploaded through the live launcher and completed with 141 independently rechecked claims ([verification and limits](LIVE_UPLOAD_STATUS.md)). Arbitrary exports, voice uploads and remote deployments remain unverified. Live reasoning sends workload summaries to NVIDIA; imported data goes to the configured PostgreSQL and Zetaris stack.
 
 Candidate tokenizers run locally from cached files. The standard model-fit investigation does not call the candidate models. The controlled hosted quality experiment is separate, and its GPT-OSS stand-in does not establish candidate quality or voice latency. The app’s How it works view shows the runtime boundaries and checked Ask path.
 

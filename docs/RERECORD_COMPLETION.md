@@ -25,11 +25,11 @@ Twelve deck slides were regenerated as PPTX, PDF and PNG. Package validation pas
 
 ## Validation
 
-- `.venv/bin/python -m pytest -q`: **291 passed, 8 skipped in 211.68s**.
+- `.venv/bin/python -m pytest -q`: **291 passed, 8 skipped in 211.68s** before live verification; final run after the launcher status copy changed: **291 passed, 8 skipped in 191.37s**.
 - Three Meterless conformance files with `-k "not indic_stable_ids"`: **29 passed, 1 deselected**. All three files without that filter: **30 passed** (includes the extra Indic regression).
 - PowerPoint OpenXML validation: **All validations PASSED**; all 12 rendered slides inspected.
 - Final SRT text exactly equals normalized final spoken text, including real spellings.
-- History/worktree scan: **1,594 reachable objects; zero configured-secret or provider-prefix hits**.
+- History/worktree scan: **1,621 reachable objects; zero configured-secret or provider-prefix hits**.
 - OCR: **25 images, zero secret-pattern hits** (contact sheet, 18 ten-second frames, six dedicated key frames).
 - Fresh clone of `0075d28`: `uv venv .venv`, `uv pip install --offline --python .venv/bin/python '.[dev]'`, then `.venv/bin/python -m pytest -q`: **291 passed, 8 skipped in 197.26s**. No `.env` or presentation assets were copied.
 
@@ -39,4 +39,4 @@ Untracking retains historical uncompressed unique blobs: video **41,584,294 byte
 
 Human review remains: pronunciations, scene cut points, caption timing and architecture legibility. Public video upload, repository visibility and hackathon form submission remain Mohan’s actions. Public video URL stays PENDING UPLOAD; the deck is supplied through the form.
 
-Bounded live-upload verification is pending and will be performed only after Steps 0–6 are committed and pushed.
+After Steps 0–6 were committed and pushed (`8768240`), the bounded synthetic-template live upload completed: **141 claims independently rechecked, zero dropped, identical model-fit replay**. No application fixes or retries were needed. See [live-upload status](LIVE_UPLOAD_STATUS.md) for the exact scope and audit.
