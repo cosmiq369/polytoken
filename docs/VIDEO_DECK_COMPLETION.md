@@ -1,15 +1,15 @@
 # PROMPT-09 completion — 25 October 2026
 
-The final submission deck and narrated app demo are ready for Mohan’s review. Video upload, repository visibility and form submission remain manual steps in [SUBMIT_CHECKLIST.md](SUBMIT_CHECKLIST.md).
+The final submission deck and narrated app demo are ready for Mohan’s review. Video upload, repository visibility and form submission remain manual steps in SUBMIT_CHECKLIST.md (local submission material).
 
 ## Deliverables
 
-- [1080p narrated MP4](video/PolyToken_demo.mp4) — **2:49.28**, H.264 + AAC, 25 fps; approximately 14 MB.
-- [SRT captions](video/PolyToken_demo.srt) — 45 aligned cues, also burned into the video.
-- [Video contact sheet](video/contact_sheet.png) — final frames every ten seconds.
-- [Ten-slide PDF](deck/PolyToken_deck.pdf) and [editable PowerPoint](deck/PolyToken_deck.pptx).
-- [Slide PNG exports](deck/slides/) and [deck contact sheet](deck/contact_sheet.png).
-- [Technical manifest](video/manifest.json), [scene/audio files](video/), and [checked deck values](deck/evidence.json).
+- 1080p narrated MP4 (local submission material) — **2:49.28**, H.264 + AAC, 25 fps; approximately 14 MB.
+- SRT captions (local submission material) — 45 aligned cues, also burned into the video.
+- Video contact sheet (local submission material) — final frames every ten seconds.
+- Ten-slide PDF (local submission material) and editable PowerPoint (local submission material).
+- Slide PNG exports (local submission material) and deck contact sheet (local submission material).
+- Technical manifest (local submission material), scene/audio files (local submission material), and checked deck values (local submission material).
 
 The video has a two-second opening card and 0.25-second crossfades. At least **86.7%** is the real local app; deck overlays occur only in the hook and close. The app is dark, uses INR and replays recorded investigations at **2×**. Final measured integrated loudness is **−16.01 LUFS**, with **−3.54 dBTP** true peak.
 

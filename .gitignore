@@ -16,3 +16,13 @@ logs/*
 # Unedited recording takes; publish the trimmed per-scene MP4s instead.
 docs/video/screen/*-raw.webm
 docs/video/screen/page@*.webm
+
+# Local only: pitch deck, presentation video, voice-over and their sources.
+# Submitted through the hackathon form / an unlisted video link, not through this repo.
+docs/video/
+docs/deck/
+assets/
+
+# Local only: internal development prompts and editor settings.
+docs/prompts/
+.vscode/

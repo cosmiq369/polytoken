@@ -1,6 +1,6 @@
 # PolyToken — final model-fit deck
 
-[Deck PDF](deck/PolyToken_deck.pdf) · [Editable PowerPoint](deck/PolyToken_deck.pptx) · [Recomputed values and claim IDs](deck/evidence.json)
+Deck PDF (local submission material) · Editable PowerPoint (local submission material) · Recomputed values and claim IDs (local submission material)
 
 ## 1. PolyToken
 
@@ -24,7 +24,7 @@ Understand the workload; measure paired token counts; compare dated quotes; chec
 
 ## 5. One reasoning loop, evidence at every boundary
 
-Console → Nemotron loop → deterministic checker → checked report. Zetaris supplies configuration, chats, token measurements, reference sentences and prices. Independently implemented World Model, H-MEM and Markovian engines preserve sourced state. Audit and provenance records go to `logs/` as JSONL. [Diagram](deck/slides/slide-05.png) · [Federation query](../sql/token_ratio_by_part.sql).
+Console → Nemotron loop → deterministic checker → checked report. Zetaris supplies configuration, chats, token measurements, reference sentences and prices. Independently implemented World Model, H-MEM and Markovian engines preserve sourced state. Audit and provenance records go to `logs/` as JSONL. Diagram (local submission material) · [Federation query](../sql/token_ratio_by_part.sql).
 
 ## 6. Raitu Mitra: the lowest unit price costs 2.61×
 

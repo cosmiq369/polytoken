@@ -1,6 +1,6 @@
 # PolyToken submission
 
-[Watch the narrated demo](video/PolyToken_demo.mp4) · [Deck PDF](deck/PolyToken_deck.pdf) · [PowerPoint](deck/PolyToken_deck.pptx) · [Submit checklist](SUBMIT_CHECKLIST.md)
+**Public video URL: PENDING UPLOAD**. The deck is submitted through the hackathon form.
 
 Public video URL: **PENDING UPLOAD**. Mohan reviews and submits; no upload or visibility change has been performed.
 
@@ -23,7 +23,7 @@ The deterministic checker recomputes every numeric claim from authenticated evid
 | [Raitu Mitra](../logs/sample/agent_raitu_model_fit_report.json) / 80,000 | Gemma 3 4B: ₹139 | Llama 3.1 8B: ₹363 | 2.61× |
 | [Paisa Saathi](../logs/sample/agent_paisa_model_fit_report.json) / 300,000 | Llama 3.1 8B: ₹154 | Llama 3.1 8B: ₹154 | 1.00× |
 
-Monthly = checked USD per 1,000 × checked company volume / 1,000 × the [dated INR/USD rate](../data/reference/fx.json). Multiples use unrounded costs. These are content estimates, not invoices; templates, retries, taxes and unpublished cache discounts are excluded. Both voice candidates lack matched latency evidence, and all quality remains to verify. [Exact claims and recomputation](deck/evidence.json).
+Monthly = checked USD per 1,000 × checked company volume / 1,000 × the [dated INR/USD rate](../data/reference/fx.json). Multiples use unrounded costs. These are content estimates, not invoices; templates, retries, taxes and unpublished cache discounts are excluded. Both voice candidates lack matched latency evidence, and all quality remains to verify. Exact claims and recomputation (local submission material).
 
 **Cursor was not used.** Codex and Claude assisted development. The pre-existing measurement harness and Experiment 01 are disclosed in [DECLARATIONS.md](DECLARATIONS.md).
 

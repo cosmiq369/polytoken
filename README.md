@@ -6,9 +6,9 @@ Built by **Mohan Chelluru** for Open Agent Hackathon 2026, **Track 02: The Agent
 
 ![Four workload profiles and their model-fit candidates](docs/images/model_fit_companies_desktop_dark.png)
 
-**Narrated demo:** [PolyToken_demo.mp4](docs/video/PolyToken_demo.mp4) · **Public video URL: PENDING UPLOAD**
+**Public video URL: PENDING UPLOAD**
 
-[Deck PDF](docs/deck/PolyToken_deck.pdf) · [Editable PowerPoint](docs/deck/PolyToken_deck.pptx) · [Captions](docs/video/PolyToken_demo.srt) · [Submission checklist](docs/SUBMIT_CHECKLIST.md)
+The deck is submitted through the hackathon form. Video, audio, deck and internal prompts stay local.
 
 ## The users change the fit
 
