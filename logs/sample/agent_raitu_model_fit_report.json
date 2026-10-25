@@ -24,7 +24,17 @@
         "ratio_claim": "fit/cd986269fa4448c8/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 1.4663000000000002,
+        "cost_multiple": 1.0,
+        "monthly_claim_ids": [
+          "fit/cd986269fa4448c8/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/cd986269fa4448c8/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "19e9b7af283f41cb",
@@ -37,7 +47,17 @@
         "ratio_claim": "fit/19e9b7af283f41cb/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 2.3112,
+        "cost_multiple": 1.576212234876901,
+        "monthly_claim_ids": [
+          "fit/19e9b7af283f41cb/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/19e9b7af283f41cb/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "b394aa8f515ca5d0",
@@ -50,7 +70,17 @@
         "ratio_claim": "fit/b394aa8f515ca5d0/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 2.4825999999999997,
+        "cost_multiple": 1.693105094455432,
+        "monthly_claim_ids": [
+          "fit/b394aa8f515ca5d0/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/b394aa8f515ca5d0/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "45966467ede69113",
@@ -63,7 +93,17 @@
         "ratio_claim": "fit/45966467ede69113/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 3.6568,
+        "cost_multiple": 2.493896201323058,
+        "monthly_claim_ids": [
+          "fit/45966467ede69113/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/45966467ede69113/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "b5ee979f82b14ebd",
@@ -76,7 +116,17 @@
         "ratio_claim": "fit/b5ee979f82b14ebd/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 3.8272000000000004,
+        "cost_multiple": 2.610107072222601,
+        "monthly_claim_ids": [
+          "fit/b5ee979f82b14ebd/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/b5ee979f82b14ebd/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "215b47210d253f07",
@@ -89,7 +139,17 @@
         "ratio_claim": "fit/215b47210d253f07/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 22.404,
+        "cost_multiple": 15.279274364045557,
+        "monthly_claim_ids": [
+          "fit/215b47210d253f07/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/215b47210d253f07/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "bc131c9c0045f87e",
@@ -102,7 +162,17 @@
         "ratio_claim": "fit/bc131c9c0045f87e/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 24.0764,
+        "cost_multiple": 16.419832230784966,
+        "monthly_claim_ids": [
+          "fit/bc131c9c0045f87e/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/bc131c9c0045f87e/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "532a2ea34a27abb1",
@@ -115,7 +185,17 @@
         "ratio_claim": "fit/532a2ea34a27abb1/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 26.7056,
+        "cost_multiple": 18.21291686558003,
+        "monthly_claim_ids": [
+          "fit/532a2ea34a27abb1/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/532a2ea34a27abb1/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       }
     ],
     "provider_quotes": [
@@ -130,7 +210,17 @@
         "ratio_claim": "fit/cd986269fa4448c8/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 1.4663000000000002,
+        "cost_multiple": 1.0,
+        "monthly_claim_ids": [
+          "fit/cd986269fa4448c8/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/cd986269fa4448c8/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "dcaa5262bd5a33f5",
@@ -143,7 +233,17 @@
         "ratio_claim": "fit/dcaa5262bd5a33f5/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 2.2855,
+        "cost_multiple": 1.5586851258269112,
+        "monthly_claim_ids": [
+          "fit/dcaa5262bd5a33f5/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/dcaa5262bd5a33f5/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "19e9b7af283f41cb",
@@ -156,7 +256,17 @@
         "ratio_claim": "fit/19e9b7af283f41cb/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 2.3112,
+        "cost_multiple": 1.576212234876901,
+        "monthly_claim_ids": [
+          "fit/19e9b7af283f41cb/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/19e9b7af283f41cb/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "b394aa8f515ca5d0",
@@ -169,7 +279,17 @@
         "ratio_claim": "fit/b394aa8f515ca5d0/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 2.4825999999999997,
+        "cost_multiple": 1.693105094455432,
+        "monthly_claim_ids": [
+          "fit/b394aa8f515ca5d0/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/b394aa8f515ca5d0/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "45966467ede69113",
@@ -182,7 +302,17 @@
         "ratio_claim": "fit/45966467ede69113/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 3.6568,
+        "cost_multiple": 2.493896201323058,
+        "monthly_claim_ids": [
+          "fit/45966467ede69113/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/45966467ede69113/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "b5ee979f82b14ebd",
@@ -195,7 +325,17 @@
         "ratio_claim": "fit/b5ee979f82b14ebd/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 3.8272000000000004,
+        "cost_multiple": 2.610107072222601,
+        "monthly_claim_ids": [
+          "fit/b5ee979f82b14ebd/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/b5ee979f82b14ebd/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "92c0512cd4e77700",
@@ -208,7 +348,17 @@
         "ratio_claim": "fit/92c0512cd4e77700/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 5.5605,
+        "cost_multiple": 3.792198049512378,
+        "monthly_claim_ids": [
+          "fit/92c0512cd4e77700/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/92c0512cd4e77700/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "215b47210d253f07",
@@ -221,7 +371,17 @@
         "ratio_claim": "fit/215b47210d253f07/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 22.404,
+        "cost_multiple": 15.279274364045557,
+        "monthly_claim_ids": [
+          "fit/215b47210d253f07/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/215b47210d253f07/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "bc131c9c0045f87e",
@@ -234,7 +394,17 @@
         "ratio_claim": "fit/bc131c9c0045f87e/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 24.0764,
+        "cost_multiple": 16.419832230784966,
+        "monthly_claim_ids": [
+          "fit/bc131c9c0045f87e/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/bc131c9c0045f87e/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "fc24991060fbb0a6",
@@ -247,7 +417,17 @@
         "ratio_claim": "fit/fc24991060fbb0a6/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 24.45048,
+        "cost_multiple": 16.67495055582077,
+        "monthly_claim_ids": [
+          "fit/fc24991060fbb0a6/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/fc24991060fbb0a6/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       },
       {
         "key": "532a2ea34a27abb1",
@@ -260,9 +440,52 @@
         "ratio_claim": "fit/532a2ea34a27abb1/token_ratio",
         "latency": "unverified",
         "latency_claim": null,
-        "quality": "verify on your sample"
+        "quality": "verify on your sample",
+        "monthly_usd": 26.7056,
+        "cost_multiple": 18.21291686558003,
+        "monthly_claim_ids": [
+          "fit/532a2ea34a27abb1/usd_per_1000",
+          "profile/monthly_conversations"
+        ],
+        "multiple_claim_ids": [
+          "fit/532a2ea34a27abb1/usd_per_1000",
+          "fit/cd986269fa4448c8/usd_per_1000"
+        ]
       }
     ],
+    "lowest_unit_price": {
+      "key": "b5ee979f82b14ebd",
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "provider": "DeepInfra (via OpenRouter)",
+      "tokenizer": "unsloth/Llama-3.2-3B-Instruct",
+      "source_url": "https://openrouter.ai/api/v1/models/meta-llama/llama-3.1-8b-instruct/endpoints",
+      "fetched_at": "2026-10-25T12:55:00Z",
+      "cost_claim": "fit/b5ee979f82b14ebd/usd_per_1000",
+      "ratio_claim": "fit/b5ee979f82b14ebd/token_ratio",
+      "latency": "unverified",
+      "latency_claim": null,
+      "quality": "verify on your sample",
+      "monthly_usd": 3.8272000000000004,
+      "cost_multiple": 2.610107072222601,
+      "monthly_claim_ids": [
+        "fit/b5ee979f82b14ebd/usd_per_1000",
+        "profile/monthly_conversations"
+      ],
+      "multiple_claim_ids": [
+        "fit/b5ee979f82b14ebd/usd_per_1000",
+        "fit/cd986269fa4448c8/usd_per_1000"
+      ],
+      "reason": "Workload: native script user turns; compare the checked conversation shape, answer share and per-model token ratio. Lowest quoted price for an equal input/output token basket; workload cost depends on measured token counts.",
+      "reason_claim_ids": [
+        "profile/native_script_share",
+        "profile/turns_per_conversation",
+        "profile/answer_billed_share",
+        "profile/english_terms_share",
+        "fit/b5ee979f82b14ebd/usd_per_1000",
+        "fit/b5ee979f82b14ebd/token_ratio"
+      ]
+    },
+    "cheap_rule": "Lower half of distinct models ranked by the price of an equal input/output token basket; ties by model/provider.",
     "tokenizer_fit_only": [
       {
         "tokenizer": "HuggingFaceTB/SmolLM3-3B",
@@ -298,6 +521,16 @@
       "latency": "unverified",
       "latency_claim": null,
       "quality": "verify on your sample",
+      "monthly_usd": 1.4663000000000002,
+      "cost_multiple": 1.0,
+      "monthly_claim_ids": [
+        "fit/cd986269fa4448c8/usd_per_1000",
+        "profile/monthly_conversations"
+      ],
+      "multiple_claim_ids": [
+        "fit/cd986269fa4448c8/usd_per_1000",
+        "fit/cd986269fa4448c8/usd_per_1000"
+      ],
       "reason": "Workload: native script user turns; compare the checked conversation shape, answer share and per-model token ratio. Lowest quoted content cost on this workload; verify quality before changing models.",
       "reason_claim_ids": [
         "profile/native_script_share",
@@ -320,6 +553,16 @@
       "latency": "unverified",
       "latency_claim": null,
       "quality": "verify on your sample",
+      "monthly_usd": 2.3112,
+      "cost_multiple": 1.576212234876901,
+      "monthly_claim_ids": [
+        "fit/19e9b7af283f41cb/usd_per_1000",
+        "profile/monthly_conversations"
+      ],
+      "multiple_claim_ids": [
+        "fit/19e9b7af283f41cb/usd_per_1000",
+        "fit/cd986269fa4448c8/usd_per_1000"
+      ],
       "reason": "Workload: native script user turns; compare the checked conversation shape, answer share and per-model token ratio. Next lowest quoted cost for a different model; verify quality and any unmeasured latency.",
       "reason_claim_ids": [
         "profile/native_script_share",
@@ -331,25 +574,35 @@
       ]
     },
     "avoid": {
-      "key": "532a2ea34a27abb1",
-      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "key": "b5ee979f82b14ebd",
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
       "provider": "DeepInfra (via OpenRouter)",
       "tokenizer": "unsloth/Llama-3.2-3B-Instruct",
-      "source_url": "https://openrouter.ai/api/v1/models/meta-llama/llama-3.3-70b-instruct/endpoints",
+      "source_url": "https://openrouter.ai/api/v1/models/meta-llama/llama-3.1-8b-instruct/endpoints",
       "fetched_at": "2026-10-25T12:55:00Z",
-      "cost_claim": "fit/532a2ea34a27abb1/usd_per_1000",
-      "ratio_claim": "fit/532a2ea34a27abb1/token_ratio",
+      "cost_claim": "fit/b5ee979f82b14ebd/usd_per_1000",
+      "ratio_claim": "fit/b5ee979f82b14ebd/token_ratio",
       "latency": "unverified",
       "latency_claim": null,
       "quality": "verify on your sample",
-      "reason": "Workload: native script user turns; compare the checked conversation shape, answer share and per-model token ratio. Higher content cost on the same workload; this is not a quality rejection.",
+      "monthly_usd": 3.8272000000000004,
+      "cost_multiple": 2.610107072222601,
+      "monthly_claim_ids": [
+        "fit/b5ee979f82b14ebd/usd_per_1000",
+        "profile/monthly_conversations"
+      ],
+      "multiple_claim_ids": [
+        "fit/b5ee979f82b14ebd/usd_per_1000",
+        "fit/cd986269fa4448c8/usd_per_1000"
+      ],
+      "reason": "Workload: native script user turns; compare the checked conversation shape, answer share and per-model token ratio. Highest tokens / English among the lower half of models by equal input/output unit price, above the best content cost; tokenizer penalty drives this avoid choice. This is not a quality rejection.",
       "reason_claim_ids": [
         "profile/native_script_share",
         "profile/turns_per_conversation",
         "profile/answer_billed_share",
         "profile/english_terms_share",
-        "fit/532a2ea34a27abb1/usd_per_1000",
-        "fit/532a2ea34a27abb1/token_ratio"
+        "fit/b5ee979f82b14ebd/usd_per_1000",
+        "fit/b5ee979f82b14ebd/token_ratio"
       ]
     },
     "status": "No model has verified latency for this voice workload",

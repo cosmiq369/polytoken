@@ -114,7 +114,21 @@ def calculate_fit(snapshot, prices, timings=None):
     primary=eligible[0] if eligible else None
     candidate=models[0] if models else None
     runner=next((r for r in (eligible if primary else models) if r['model'] != (primary or candidate)['model']),None) if candidate else None
-    avoid=next((r for r in reversed(models) if r['model']!=(primary or candidate)['model'] and metrics[r['cost_claim']]>metrics[(primary or candidate)['cost_claim']]),None) if candidate else None
+    # Compare a fixed equal input/output token basket, independent of workload.
+    # "Cheap" is the lower half of distinct models by that quoted unit price.
+    quotes={quote_key(p):p for p in prices}
+    unit_order=sorted(models,key=lambda r:(Decimal(str(quotes[r['key']]['input_per_mtok_usd']))+
+        Decimal(str(quotes[r['key']]['output_per_mtok_usd'])),r['model'],r['provider']))
+    cheap=unit_order[:max(1,(len(unit_order)+1)//2)]
+    cheapest=unit_order[0] if unit_order else None
+    avoid=max((r for r in cheap if r['model']!=candidate['model'] and
+        metrics[r['ratio_claim']]>1 and metrics[r['cost_claim']]>metrics[candidate['cost_claim']]),
+        key=lambda r:(metrics[r['ratio_claim']],-unit_order.index(r)),default=None) if candidate else None
+    for row in ranked:
+        row['monthly_usd']=metrics[row['cost_claim']]*metrics['profile/monthly_conversations']/1000
+        row['cost_multiple']=metrics[row['cost_claim']]/metrics[candidate['cost_claim']] if candidate and metrics[candidate['cost_claim']]>0 else None
+        row['monthly_claim_ids']=[row['cost_claim'],'profile/monthly_conversations']
+        row['multiple_claim_ids']=[row['cost_claim'],candidate['cost_claim']] if candidate else []
     unpriced=sorted(set(actual)-{p['tokenizer'] for p in ranked})
     # unpriced rows must still receive checked ratios; missing prices never become zero dollars.
     for spec in unpriced:
@@ -123,7 +137,8 @@ def calculate_fit(snapshot, prices, timings=None):
     reason_ids=[f'profile/{dominant}_share','profile/turns_per_conversation','profile/answer_billed_share','profile/english_terms_share']
     def decision(row, role):
         if row is None:return None
-        return dict(**row,reason=(f"Workload: {dominant.replace('_', ' ')} user turns; compare the checked conversation shape, answer share and per-model token ratio. " + ('Higher content cost on the same workload; this is not a quality rejection.' if role=='avoid' else
+        return dict(**row,reason=(f"Workload: {dominant.replace('_', ' ')} user turns; compare the checked conversation shape, answer share and per-model token ratio. " + ('Highest tokens / English among the lower half of models by equal input/output unit price, above the best content cost; tokenizer penalty drives this avoid choice. This is not a quality rejection.' if role=='avoid' else
+            'Lowest quoted price for an equal input/output token basket; workload cost depends on measured token counts.' if role=='unit_price' else
             'Lowest quoted content cost among latency-qualified options.' if role=='recommendation' and config.get('channel')=='voice' else
             'Next lowest quoted cost for a different model; verify quality and any unmeasured latency.' if role=='runner_up' else
             'Lowest quoted content cost on this workload; verify quality before changing models.')),
@@ -132,7 +147,8 @@ def calculate_fit(snapshot, prices, timings=None):
         current_model=config.get('current_model',config['model_in_use']),dominant_script=dominant,
         classifier='Unicode native blocks + versioned Indic Latin and English domain lexicons; unknown retained. User-turn shares; English term share over all conversation words, excluding numbers.',
         answer_share_basis='New output tokens / total billed content tokens on the current tokenizer; replayed answers remain input.',
-        review_status='pending'),models=models,provider_quotes=ranked,
+        review_status='pending'),models=models,provider_quotes=ranked,lowest_unit_price=decision(cheapest,'unit_price'),
+        cheap_rule='Lower half of distinct models ranked by the price of an equal input/output token basket; ties by model/provider.',
         tokenizer_fit_only=[dict(tokenizer=s,ratio_claim='fit-only/'+s+'/token_ratio',status='tokenizer fit only') for s in unpriced],
         recommendation=decision(primary,'recommendation'),cost_candidate=decision(candidate,'candidate'),runner_up=decision(runner,'runner_up'),avoid=decision(avoid,'avoid'),
         status='Conditional on quality verification' if primary else 'No model has verified latency for this voice workload' if candidate else 'No verified price available',

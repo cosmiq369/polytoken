@@ -41,7 +41,7 @@ def test_ranking_uses_own_tokenizer_counts_and_every_model():
     assert [metrics[r['cost_claim']] for r in fit['models']]==pytest.approx([.032,.060,.1])
     assert [metrics[r['ratio_claim']] for r in fit['models']]==pytest.approx([16/15,60/15,60/15])
     assert fit['recommendation']['model']=='B' and fit['runner_up']['model']=='A'
-    assert fit['avoid']['model']=='C'
+    assert fit['avoid']['model']=='A' # highest penalty among cheap quotes, not most expensive C
     assert metrics['profile/conversations']==1 and metrics['profile/answer_billed_share']==1/3
     assert all(r['quality']=='verify on your sample' for r in fit['models'])
 
@@ -121,3 +121,43 @@ def test_planner_cannot_skip_checker_with_early_done(logger):
     fallback=dict(why='Record missing sample',tool='judge',args={},done=False)
     assert Planner(generate,logger).plan('judge',{},fallback,{'judge':[{}]})==fallback
     assert len(calls)==2
+
+
+def test_derived_costs_have_checked_dependencies_and_missing_best_cost():
+    snap,prices=fixture();metrics,fit=calculate_fit(snap,prices)
+    assert fit['lowest_unit_price']['model']=='A'
+    best=fit['models'][0]
+    for row in fit['provider_quotes']:
+        assert row['monthly_usd']==pytest.approx(metrics[row['cost_claim']]*metrics['profile/monthly_conversations']/1000)
+        assert row['cost_multiple']==pytest.approx(metrics[row['cost_claim']]/metrics[best['cost_claim']])
+        assert row['multiple_claim_ids']==[row['cost_claim'],best['cost_claim']]
+        assert row['monthly_claim_ids']==[row['cost_claim'],'profile/monthly_conversations']
+    zero=[{**p,'input_per_mtok_usd':0,'output_per_mtok_usd':0} for p in prices]
+    assert all(r['cost_multiple'] is None for r in calculate_fit(snap,zero)[1]['models'])
+
+
+@pytest.mark.parametrize('company',['samudra','swara','raitu','paisa'])
+def test_saved_avoid_uses_highest_penalty_among_cheap_models(company):
+    from polytoken.billing_view import EventWorld,archived_events
+    root=Path(__file__).resolve().parents[1]
+    report=json.loads((root/f'logs/sample/agent_{company}_model_fit_report.json').read_text())
+    world=EventWorld(archived_events(root/'logs'))
+    fit,claims=replay_fit(report,world)
+    assert fit is not None
+    values={c['id']:c['value'] for c in claims}
+    inputs=claims[0]['recompute']['inputs']
+    prices=world.verify(inputs['prices'])['rows']
+    from polytoken.model_fit import quote_key
+    quotes={quote_key(p):p for p in prices}
+    order=sorted(fit['models'],key=lambda r:(quotes[r['key']]['input_per_mtok_usd']+quotes[r['key']]['output_per_mtok_usd'],r['model'],r['provider']))
+    cheap=order[:(len(order)+1)//2]
+    candidates=[r for r in cheap if r['model']!=fit['cost_candidate']['model'] and values[r['ratio_claim']]>1 and values[r['cost_claim']]>values[fit['cost_candidate']['cost_claim']]]
+    assert fit['avoid']['model']==max(candidates,key=lambda r:values[r['ratio_claim']])['model']
+    assert 'tokenizer penalty' in fit['avoid']['reason']
+
+
+def test_fit_fields_survive_secret_redaction(logger):
+    snap,prices=fixture()
+    _,fit=calculate_fit(snap,prices)
+    assert logger.redact(fit)['lowest_unit_price']==fit['lowest_unit_price']
+    assert logger.redact(fit)['avoid']==fit['avoid']
