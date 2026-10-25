@@ -51,6 +51,7 @@ def test_tampering_missing_and_cross_company_fail_closed(sources,tmp_path):
     world=EventWorld(copy.deepcopy(sources['events']))
     report=copy.deepcopy(sources['report']);next(c for c in report['claims'] if c['recompute']['operation']=='model_fit')['value']=-1
     assert not answer('Why this model?',report,world,JsonlLogger(tmp_path))['supported']
+    assert not answer('Compare companies',sources['report'],world,JsonlLogger(tmp_path),other=sources['report'])['supported']
     assert not answer('Why Gemma for Samudra?',sources['report'],world,JsonlLogger(tmp_path))['supported']
     assert not answer('Cost at 2.5 conversations',sources['report'],world,JsonlLogger(tmp_path))['supported']
     response=answer('Cost at 500000 conversations',sources['report'],world,JsonlLogger(tmp_path))

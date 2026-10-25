@@ -90,7 +90,7 @@ def answer(question, report, world, logger, *, other=None):
         logger.write('ask','scenario_evidence',world_event=world.records[eid],ok=True)
         text=f'What-if scenario using the recorded workload and dated quote for {model}. This scales content cost linearly; it is not a new measurement or invoice.'
     elif intent=='compare':
-        if not other:return refusal
+        if not other or other.get('id')==report.get('id'):return refusal
         other_fit,other_claims=replay_fit(other,world,logger)
         if not best or not other_fit or not other_fit.get('cost_candidate'):return refusal
         if mentioned and not mentioned <= {report['company'],other['company']}:return refusal
