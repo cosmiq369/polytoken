@@ -280,3 +280,49 @@ reasoning from visible completion tokens, `throughput_status` is unavailable and
 `speed/output_tokens_per_s/*` claims are omitted. Visible TTFT and total latency
 remain measured and checkable. Dividing all completion tokens by the time after
 visible TTFT would wrongly count reasoning generated before that timestamp.
+
+## Agent console telemetry (PROMPT-07)
+
+Events remain append-only JSONL in `logs/agent_events.jsonl`, delivered in the same
+order over SSE. All existing event types remain supported. New physical spans:
+
+- `tool_started` / `tool_finished`: `span_id`, `parent_id`, `service`, `name`,
+  redacted `input` / `output`; finish adds `duration_ms` and `status` (`ok`/`error`).
+- `sql_started` / `sql_finished`: the same span envelope, a redacted SQL query,
+  source node (`company`, `measurements`, `reference`, `prices`), row count and
+  `retry` count. The actual query still goes through Zetaris.
+- `model_call_started` / `model_call_finished`: configured `model`, `role`
+  (`planner`, `judge`, `hosted`), tokens from provider usage, latency as
+  `duration_ms`, and `retry`. Prompt content is omitted explicitly. The single
+  injected generator is unchanged; span instrumentation wraps it.
+- Error finishes add `error_class` and `next_action`. A logical span includes
+  provider retry/backoff time; `retry` counts physical attempts after the first.
+- `planner_reason`: qualitative explanation after planning. A step starts before
+  its planner call, so waiting for planning is visible. Numeric planner prose is
+  replaced with a message pointing to checked findings, including on old replays.
+- `claim_verified`: a full claim emitted only after `Checker.check` recomputes it.
+  Baseline claims can therefore arrive before experiments complete. Telemetry
+  counters and observations are never promoted to business claims by the UI.
+- `budget`: existing counters plus `ceilings` for `nemotron`, `judge`, `hosted`,
+  `sql` and `duration_s`. The background phase uses its own wall-clock ceiling
+  while sharing physical-attempt counters and cancellation.
+- `step_finished`, `price_unavailable` and `stop_requested` explain transitions.
+
+`POST /investigations/{id}/stop` returns 202 and signals cooperative cancellation.
+The current bounded call may return before the next budget check. Completed runs
+return `status: finished`; missing IDs return 404. Stop does not falsify a completed
+measurement or erase evidence. Queued cancelled runs do not invoke the runner.
+
+`GET /investigations` lists archived and in-process runs. `GET
+/investigations/{id}/replay` returns `report`, timestamped agent `events`, the
+transitive `evidence` closure and `legacy`. Reports are checked again against the
+stored evidence before release. Unrelated audit rows cannot extend the replay
+clock. `GET /console/config` reports whether the server is in offline demo mode.
+`polytoken serve --demo` skips reference registration and live company reads,
+uses archived Zetaris evidence, and rejects live POST investigations with 409.
+
+Replay schedules original timestamps at 1×, 4× or 16×. Scrubbing reconstructs
+visible events and clears future claims. Old logs without start/finish spans show
+observed tool activity with **timing unavailable**; no duration or physical call is
+invented. Their checked claims appear with the final report. Raw file imports
+retain the existing recorded-verdict behavior and can also replay their events.

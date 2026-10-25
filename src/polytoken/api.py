@@ -28,15 +28,17 @@ class InvestigationRequest(BaseModel):
 
 
 class Manager:
-    def __init__(self, run=investigate):
+    def __init__(self, run=investigate, log_dir="logs"):
         self.run = run
+        self.log_dir = log_dir
         self.runs = {}
         self.lock = threading.Lock()
         self.worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix='investigation')
 
     def start(self, payload):
         identifier = uuid4().hex
-        state = {'events': [], 'report': None, 'finished': False}
+        state = {'events': [], 'report': None, 'finished': False, 'cancel_event': threading.Event(),
+                 'company': payload['company'], 'created_at': now()}
         with self.lock:
             self.runs[identifier] = state
         def emit(row):
@@ -44,28 +46,34 @@ class Manager:
                 state['events'].append(row)
         def work():
             try:
+                if state['cancel_event'].is_set():
+                    raise RuntimeError('Stopped before execution')
                 def publish(report):
                     with self.lock:
                         state['report'] = report
                 import inspect
                 extra = {'report_sink': publish} if 'report_sink' in inspect.signature(self.run).parameters else {}
+                if 'cancel_event' in inspect.signature(self.run).parameters:
+                    extra['cancel_event'] = state['cancel_event']
                 report, _ = self.run(**payload, run_id=identifier, event_sink=emit, **extra)
                 state['report'] = report
             except Exception as exc:
-                state['report'] = {'id': identifier, 'status': 'partial', 'partial_reason': 'startup failed: ' + type(exc).__name__,
+                state['report'] = {'id': identifier, 'status': 'partial', 'partial_reason': 'Stopped by user' if state['cancel_event'].is_set() else 'startup failed: ' + type(exc).__name__,
                                    'claims': [], 'dropped_claims': []}
-                logger = JsonlLogger(run_id=identifier)
+                logger = JsonlLogger(self.log_dir, run_id=identifier)
                 logger.write('agent', 'startup_failed', ok=False, error_class=type(exc).__name__)
-                emit({'event': 'done', 'timestamp': now(), 'investigation_id': identifier, 'step': 'clarify',
-                      'why': 'Startup dependencies were unavailable.', 'status': 'partial'})
+                row = {'event': 'done', 'timestamp': now(), 'investigation_id': identifier, 'step': 'clarify',
+                       'why': 'Stopped before execution.' if state['cancel_event'].is_set() else 'Startup dependencies were unavailable.', 'status': 'partial'}
+                logger.write('agent_events', **row)
+                emit(row)
             finally:
                 state['finished'] = True
         self.worker.submit(work)
         return identifier
 
 
-def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log_dir='logs'):
-    manager = Manager(run)
+def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log_dir='logs', demo=False):
+    manager = Manager(run, log_dir)
     @asynccontextmanager
     async def lifespan(app):
         server = ensure_reference_server(JsonlLogger(log_dir)) if reference else None
@@ -93,9 +101,26 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
 
     @app.post('/investigations', status_code=202)
     def start(payload: InvestigationRequest):
+        if demo:
+            raise HTTPException(409, 'Demo mode is offline. Replay a saved run, or restart without --demo for live calls.')
         if payload.company not in ('samudra', 'swara'):
             raise HTTPException(422, 'Unknown company')
         return {'id': manager.start(payload.model_dump())}
+
+    @app.post('/investigations/{identifier}/stop', status_code=202)
+    def stop(identifier: str):
+        entry = state(identifier)
+        with manager.lock:
+            if entry['finished']:
+                return {'id': identifier, 'status': 'finished'}
+            entry['cancel_event'].set()
+        logger = JsonlLogger(log_dir, run_id=identifier)
+        row = {'event': 'stop_requested', 'timestamp': now(), 'investigation_id': identifier,
+               'step': 'stop', 'why': 'Stop requested. Waiting for the current bounded call to return.'}
+        with manager.lock:
+            entry['events'].append(row)
+        logger.write('agent_events', **row)
+        return {'id': identifier, 'status': 'stopping'}
 
     @app.get('/investigations/{identifier}/events')
     async def events(identifier: str, request: Request):
@@ -147,6 +172,9 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
 
     @app.get('/companies')
     def companies():
+        if demo:
+            from .console_api import demo_companies
+            return demo_companies(log_dir)
         from .config import load_settings
         from .zetaris import ZetarisClient
         with ZetarisClient(load_settings()) as client:
@@ -154,6 +182,8 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
                      if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s')}
                     for company in ('samudra', 'swara')]
     mount_billing_api(app, manager, state_dir, log_dir)
+    from .console_api import mount_console
+    mount_console(app, manager, log_dir, state_dir, demo)
     mount_ui(app)
     return app
 

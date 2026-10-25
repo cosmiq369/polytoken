@@ -108,6 +108,7 @@ def main(argv=None) -> int:
     command.add_argument("--sample-suffix", default="", help="suffix for archived events and report, e.g. v2")
     command = subparsers.add_parser("serve", help="start the API and registered price endpoint")
     command.add_argument("--port", type=int, default=8000)
+    command.add_argument("--demo", action="store_true", help="offline console with saved Samudra and Swara replays")
     command = subparsers.add_parser("score", help="score archived complete runs against the contract, offline")
     command.add_argument("--sample-dir", default="logs/sample")
     command.add_argument("--output", default=None)
@@ -120,7 +121,7 @@ def main(argv=None) -> int:
     if args.command == "serve":
         import uvicorn
         from .api import create_app
-        uvicorn.run(create_app(), host="127.0.0.1", port=args.port)
+        uvicorn.run(create_app(demo=args.demo, reference=not args.demo), host="127.0.0.1", port=args.port)
         return 0
     if args.command == "investigate":
         import json

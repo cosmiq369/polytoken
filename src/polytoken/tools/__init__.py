@@ -41,6 +41,8 @@ class InvestigationTools:
         self.fx = fx if fx is not None else load_fx()
         self.reference_prices = prices if prices is not None else load_prices(ROOT / 'prices.json')
         self.count, self.emit = count, emit
+        from ..agent.telemetry import Trace
+        self.trace = Trace(lambda *a, **k: self.emit(*a, **k))
         self.ids = []
         self.snapshot = self.snapshot_id = self.price_id = self.fx_id = None
         self.prices = []
@@ -49,20 +51,36 @@ class InvestigationTools:
         fetched = now()
         provenance = dict(kind=source, source=source, at=fetched, query=query,
                           time_window={'start': started or fetched, 'end': fetched}, fetched_at=fetched)
-        eid = self.store.add(kind, payload, source=provenance, evidence_id=uuid4().hex,
-                             supports=payload.get('supports', []))
+        with self.trace.span('tool', service='world', name='Store sourced observation') as span:
+            eid = self.store.add(kind, payload, source=provenance, evidence_id=uuid4().hex,
+                                 supports=payload.get('supports', []))
+            span['output'] = {'evidence_id': eid}
         self.ids.append(eid)
         self.logger.write('evidence', 'observation', evidence_id=eid, kind=kind, payload=payload, source=provenance)
         self.emit('evidence_added', evidence_id=eid, kind=kind)
         return eid
 
     def sql(self, query):
+        service = 'prices' if '.prices' in query else 'measurements' if 'measurements' in query else 'reference' if 'reference' in query else 'company'
+        with self.trace.span('sql', service=service, name='Zetaris SQL', input={'query': query}) as span:
+            result = self._sql(query, span)
+            span['output'] = {'rows': len(result['rows']), 'evidence_ids': result['evidence_ids']}
+            return result
+
+    def _sql(self, query, span):
         validate_sql(query)
         self.budget.check()
         started = now()
+        attempts = 0
+        def attempt():
+            nonlocal attempts
+            self.budget.consume('sql')
+            attempts += 1
+            span['retry'] = attempts - 1
+            self.emit('budget', **self.budget.snapshot())
         try:
             rows = self.client.query(query, page_limit=20000,
-                                     before_attempt=lambda: self.budget.consume('sql'), remaining=self.budget.remaining)
+                                     before_attempt=attempt, remaining=self.budget.remaining)
             self.budget.check()
         except Exception as exc:
             self.observe('query_result', {'ok': False, 'error_class': type(exc).__name__}, query, 'Zetaris SQL', started)
@@ -120,7 +138,16 @@ class InvestigationTools:
         self.snapshot = {'config': config, 'items': items_from_rows(company, config, chats['rows']),
                          'counts': measured['all_rows'], 'supports': config_ids + chats['evidence_ids'] + measured['evidence_ids']}
         self.snapshot_id = self.observe('measurement', self.snapshot, 'Join bot_config, chats and latest token counts', 'Zetaris SQL snapshot')
-        quoted = self.sql('SELECT * FROM polytoken_reference.prices')
+        quoted = {'rows': [], 'evidence_ids': []}
+        for attempt in range(2):
+            try:
+                quoted = self.sql('SELECT * FROM polytoken_reference.prices')
+                break
+            except BudgetExceeded:
+                raise
+            except Exception as exc:
+                self.emit('price_unavailable', error_class=type(exc).__name__, retry=attempt,
+                          next_action='Retry price read' if attempt == 0 else 'Continue with money unavailable')
         for reference in self.reference_prices:
             for row in quoted['rows']:
                 if row.get('model') == reference['model'] and row.get('provider') == reference['provider']:

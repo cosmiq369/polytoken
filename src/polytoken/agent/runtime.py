@@ -51,7 +51,9 @@ def historical_runs(log_dir, agent_model=None):
 
 
 def investigate(company, *, question='', monthly_chats=None, latency_target_s=None,
-                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None, report_sink=None):
+                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None, report_sink=None, cancel_event=None):
+    guard = BudgetGuard(cancel_event=cancel_event)
+    guard.check()
     settings = load_settings(env_file)
     logger = JsonlLogger(log_dir, run_id=run_id, secrets=settings.secrets)
     # These are composition-root startup reads, before the investigation begins.
@@ -62,7 +64,7 @@ def investigate(company, *, question='', monthly_chats=None, latency_target_s=No
         memory = stack.enter_context(HMem(path=Path(state_dir) / 'memory.sqlite', logger=logger))
         client = stack.enter_context(ZetarisClient(settings, logger=logger, timeout_s=20.))
         generator = stack.enter_context(NvidiaGenerator(settings, logger=logger, max_tokens=640, timeout_s=35.))
-        guard = BudgetGuard()
+        guard.check()
         toolset = InvestigationTools(client, generator.generate, EvidenceStore(world), guard, logger, catalogue=catalogue, agent_model=settings.agent_model)
         toolset.observe('query_result', catalogue, 'GET ' + catalogue.get('live_query', '/models'), 'NVIDIA catalogue intersected with verified allowlist')
         agent = Investigation(toolset, memory, question=question, monthly_chats=monthly_chats,

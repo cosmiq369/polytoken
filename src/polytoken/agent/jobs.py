@@ -7,7 +7,7 @@ from .budget import BudgetGuard
 
 class JobBudget(BudgetGuard):
     def __init__(self, reasoning, *, wall_s=1800):
-        super().__init__(clock=reasoning.clock, wall_s=wall_s)
+        super().__init__(clock=reasoning.clock, wall_s=wall_s, cancel_event=reasoning.cancel_event)
         # Share physical reasoning, judge, hosted and SQL attempt counters.
         self.counts = reasoning.counts
         self.lock = reasoning.lock

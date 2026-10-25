@@ -1,7 +1,9 @@
 """Nine bounded steps, one Markovian run, and a claims-only report."""
 import json
+import threading
 from uuid import uuid4
 
+from .telemetry import Trace, safe_explanation
 from .budget import BudgetExceeded
 from .jobs import JobBudget
 from .calculations import experiment_metrics, quality_metrics, speed_metrics, select_price
@@ -38,6 +40,7 @@ class Investigation:
         self.overrides = {'monthly_chats': monthly_chats, 'latency_target_s': latency_target_s}
         self.event_sink = event_sink or (lambda event: None)
         self.events, self.claims, self.dropped = [], [], []
+        self.event_lock = threading.RLock()
         self.history = historical_runs or []
         self.step, self.why = 'clarify', DEFAULT_WHY['clarify']
         self.context, self.metrics, self.candidates, self.remembered = {}, {}, [], []
@@ -47,15 +50,32 @@ class Investigation:
         self.needs_input = []
         self.checker = Checker(tools.store, self.logger)
         self.tools.emit = self.emit
+        self.trace = self.tools.trace = Trace(self.emit)
+        self.emitted_claims = set()
         self.model_usage = []
         original_generate = tools.generate
         def tracked_generate(prompt, **kwargs):
-            try:
-                result = original_generate(prompt, **kwargs)
-            except Exception:
-                if kwargs.get('model') is None:
-                    self.model_usage.append({})
-                raise
+            role = 'hosted' if kwargs.get('model') else ('judge' if 'Judge semantic equivalence' in prompt else 'planner')
+            attempts = 0
+            before = kwargs.get('before_attempt', lambda: None)
+            def attempt():
+                nonlocal attempts
+                before()
+                attempts += 1
+                self.emit('budget', **self.guard.snapshot())
+            kwargs['before_attempt'] = attempt
+            with self.trace.span('model_call', service='nvidia', name=role,
+                                 model=kwargs.get('model') or tools.agent_model, role=role,
+                                 input={'prompt': '[Content omitted: company conversation or planner context]'}) as span:
+                try:
+                    result = original_generate(prompt, **kwargs)
+                except Exception:
+                    if kwargs.get('model') is None:
+                        self.model_usage.append({})
+                    raise
+                finally:
+                    span['retry'] = max(0, attempts - 1)
+                span.update(tokens=result.get('usage'), output={'finish_reason': result.get('finish_reason')})
             if kwargs.get('model') is None:
                 self.model_usage.append(result.get('usage') or {})
             return result
@@ -63,12 +83,39 @@ class Investigation:
         self.planner = Planner(self.nemotron, self.logger)
 
     def emit(self, event, **fields):
-        row = {'event': event, 'timestamp': now(), 'investigation_id': self.run_id,
-               'step': self.step, 'why': self.why, **fields}
-        row = self.logger.redact(row)
-        self.events.append(row)
-        self.logger.write('agent_events', event, **{k: v for k, v in row.items() if k != 'event'})
-        self.event_sink(row)
+        # Hosted calls finish on parallel workers. Keep file and SSE order identical.
+        with self.event_lock:
+            row = {'event': event, 'timestamp': now(), 'investigation_id': self.run_id,
+                   'step': self.step, 'why': safe_explanation(self.why), **fields}
+            row = self.logger.redact(row)
+            self.events.append(row)
+            self.logger.write('agent_events', event, **{k: v for k, v in row.items() if k != 'event'})
+            self.event_sink(row)
+
+    def check_claims(self):
+        with self.trace.span('tool', service='checker', name='Recompute claims'):
+            claims, dropped = self.checker.check(self.claims)
+        self.claims = claims
+        self.checked_findings()
+        return claims, dropped
+
+    def checked_findings(self):
+        for claim in self.claims:
+            key = (claim['id'], claim['value'])
+            if claim.get('verified') and key not in self.emitted_claims:
+                self.emitted_claims.add(key)
+                self.emit('claim_verified', claim=claim)
+
+    def execute_tool(self, step, args, company):
+        with self.trace.span('tool', service='tools', name=step, input=args) as span:
+            previous = self.trace.tool_parent
+            from .telemetry import _PARENT
+            self.trace.tool_parent = _PARENT.get()
+            try:
+                self.do_step(step, args, company)
+                span['output'] = {'evidence_ids': self.tools.ids[-4:]}
+            finally:
+                self.trace.tool_parent = previous
 
     def nemotron(self, prompt):
         return self.tools.generate(prompt, before_attempt=lambda: self.guard.consume('nemotron'),
@@ -128,7 +175,8 @@ class Investigation:
     def do_step(self, step, args, company):
         t = self.tools
         if step == 'clarify':
-            retrieved = self.memory.query(company, threshold=0., top_n=20)['memories']
+            with self.trace.span('tool', service='hmem', name='Recall company memory'):
+                retrieved = self.memory.query(company, threshold=0., top_n=20)['memories']
             recalled = [r['memory'] for r in retrieved
                         if company in r['memory'].entities and r['memory'].type == 'company_profile']
             self.remembered_findings = [{'id': r['memory'].id, 'text': r['memory'].content,
@@ -160,6 +208,8 @@ class Investigation:
             result = t.measure(company, self.config, self.config_ids)
             self.metrics = result['metrics']
             self.add_metrics(self.metrics, 'baseline', self.baseline_inputs())
+            self.claims, dropped = self.check_claims()
+            self.dropped.extend(dropped)
             t.billed_cost(company, self.config['model_in_use'])
             prefix = 'baseline/' + self.config['model_in_use'] + '/'
             self.context['billed_evidence'] = {k[len(prefix):]: v for k, v in self.metrics.items() if k.startswith(prefix)}
@@ -207,7 +257,7 @@ class Investigation:
             self.speed = t.speed_probe(self.experiment['models']['original'], variants)
             self.add_metrics(speed_metrics(self.speed), 'speed', {'speed': self.speed['evidence_ids'][0]})
         elif step == 'check':
-            self.claims, dropped = self.checker.check(self.claims)
+            self.claims, dropped = self.check_claims()
             self.dropped.extend(dropped)
             for row in dropped:
                 self.emit('claim_dropped', **row)
@@ -221,6 +271,7 @@ class Investigation:
             nonlocal index
             step = STEPS[index]
             self.step, self.why = step, DEFAULT_WHY[step]
+            self.emit('step_started', span_id='step-' + step)
             old_usage = len(self.model_usage)
             try:
                 self.guard.check()
@@ -241,19 +292,20 @@ class Investigation:
                 if step == 'experiment':
                     compact['ranked_hypotheses'] = compact.get('ranked_hypotheses', [])[:4]
                 plan = self.planner.plan(step, compact, fallback, {step: choices})
-                self.why = plan['why']
-                self.emit('step_started')
+                self.why = safe_explanation(plan['why'])
+                self.emit('planner_reason', text=self.why)
                 if plan['done'] and step != 'report':
                     self.partial_reason = 'Planner completed before all investigation stages'
                 else:
                     self.emit('tool_called', tool=plan['tool'], args=plan['args'])
-                    self.do_step(step, plan['args'], company)
+                    self.execute_tool(step, plan['args'], company)
                 self.guard.check()
             except BudgetExceeded as exc:
                 self.partial_reason = str(exc)
             except Exception as exc:
                 self.partial_reason = f'{step} unavailable: {type(exc).__name__}'
                 self.logger.write('agent', 'step_failed', step=step, ok=False, error_class=type(exc).__name__)
+            self.emit('step_finished', span_id='step-' + step, status='error' if self.partial_reason else 'ok', next_action=self.partial_reason)
             self.emit('budget', **self.guard.snapshot())
             index += 1
             done = bool(self.partial_reason) or index == len(STEPS)
@@ -271,17 +323,19 @@ class Investigation:
             'Investigate ' + company, chunk, reflect=False)
         self.current_run = run
         eid = self.tools.observe('measurement', {'runs': [*self.history, run]}, 'Markovian run accounting including every run in the log', 'Markovian telemetry')
-        metrics = {}
-        for i, historical in enumerate([*self.history, run]):
-            actual = run_efficiency(historical['chunks'], historical['chunkConfig']) if 'chunks' in historical else historical['actual']
-            net = actual['standardCost'] - actual['markovianCost']
-            metrics[f'markovian/{i}/net_tokens'] = net
-            metrics[f'markovian/{i}/net_percent'] = net / actual['standardCost'] * 100 if actual['standardCost'] else 0.
-        self.add_metrics(metrics, 'markovian', {'runs': eid})
+        with self.trace.span('tool', service='markovian', name='Recompute compressed chunk accounting') as span:
+            metrics = {}
+            for i, historical in enumerate([*self.history, run]):
+                actual = run_efficiency(historical['chunks'], historical['chunkConfig']) if 'chunks' in historical else historical['actual']
+                net = actual['standardCost'] - actual['markovianCost']
+                metrics[f'markovian/{i}/net_tokens'] = net
+                metrics[f'markovian/{i}/net_percent'] = net / actual['standardCost'] * 100 if actual['standardCost'] else 0.
+            self.add_metrics(metrics, 'markovian', {'runs': eid})
+            span['output'] = {'chunks': len(run.get('chunks', []))}
         budget = self.guard.snapshot()
         eid = self.tools.observe('measurement', budget, 'BudgetGuard physical attempts and monotonic elapsed time', 'Runtime telemetry')
         self.add_metrics({f'budget/{k}': v for k, v in budget.items() if type(v) in (int, float)}, 'budget', {'budget': eid})
-        self.claims, dropped = self.checker.check(self.claims)
+        self.claims, dropped = self.check_claims()
         self.dropped.extend(dropped)
         for row in dropped:
             self.emit('claim_dropped', **row)
@@ -311,7 +365,9 @@ class Investigation:
             for step in ('experiment', 'judge', 'speed'):
                 self.step, self.why = step, DEFAULT_WHY[step]
                 self.emit('step_started')
-                self.do_step(step, self.pending_job if step == 'experiment' else {}, company)
+                self.guard.check()
+                self.execute_tool(step, self.pending_job if step == 'experiment' else {}, company)
+                self.emit('step_finished', status='ok')
         except Exception as exc:
             self.partial_reason = 'Background job unavailable: ' + type(exc).__name__
             self.logger.write('experiment_jobs', 'failed', ok=False, error_class=type(exc).__name__)
@@ -322,7 +378,7 @@ class Investigation:
         eid = self.tools.observe('measurement', self.job_summary, 'Background job physical attempts and monotonic deadline', 'Runtime telemetry')
         self.claims.extend(make_claims({f'jobs/{k}': v for k, v in self.job_summary.items() if type(v) in (int, float)}, 'job_budget', {'budget': eid}))
         # A new verification pass includes baseline and all newly arrived claims.
-        self.claims, dropped = self.checker.check(self.claims)
+        self.claims, dropped = self.check_claims()
         self.dropped.extend(dropped)
         for row in dropped:
             self.emit('claim_dropped', **row)
