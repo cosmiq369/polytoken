@@ -13,3 +13,6 @@ node_modules/
 # run logs: keep only curated samples for judges
 logs/*
 !logs/sample/
+# Unedited recording takes; publish the trimmed per-scene MP4s instead.
+docs/video/screen/*-raw.webm
+docs/video/screen/page@*.webm

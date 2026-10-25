@@ -420,6 +420,8 @@
   function formula(claim) {
     const id=claim.id;
     if(claim.recompute?.formula)return claim.recompute.formula;
+    if(claim.recompute?.operation==='model_fit' && id.endsWith('/usd_per_1000')) return 'USD per 1,000 conversations = ((billed input tokens × input USD per million + billed output tokens × output USD per million) ÷ 1,000,000) × 1,000 ÷ sample conversations. Billed input includes replayed history. Monthly USD = this rate × configured monthly conversations ÷ 1,000; INR display uses the dated exchange-rate receipt.';
+    if(claim.recompute?.operation==='model_fit' && id.endsWith('/token_ratio')) return 'Total billed input and output tokens for this workload ÷ total billed tokens for its paired English conversations, using the same tokenizer and history-replay convention.';
     if(id.endsWith('_cost_share')) return 'Quoted cost of this billed component ÷ quoted cost of all billed components.';
     if(id.endsWith('_share')) return 'Billed tokens in this component ÷ all billed input and output tokens.';
     if(id.endsWith('/monthly_inr')) return '((Billed input × input USD price per million + billed output × output USD price per million) ÷ 1,000,000) × monthly chats ÷ sample chats × INR per USD.';

@@ -28,7 +28,7 @@
   "repository_url": "https://github.com/cosmiq369/polytoken",
   "license": "MIT",
   "demo_video_url": "",
-  "description": "Evidence-backed model-fit advisor for Indian-language bots and voice agents.",
+  "description": "PolyToken explains which model fits an Indian-language workload and why: measured token counts, dated provider prices, Nemotron reasoning, Zetaris SQL and checked evidence receipts.",
   "demo_question": "Which model fits our users and our budget, and why?",
   "demo_companies": [
     "Samudra Telecom",
@@ -42,5 +42,10 @@
     "Quality: verify on your sample.",
     "Voice candidate latency unverified.",
     "Only GPT-OSS passed the serving probe; stand-in evidence does not transfer."
-  ]
+  ],
+  "demo_video_file": "docs/video/PolyToken_demo.mp4",
+  "demo_video_url_status": "pending_upload",
+  "demo_captions_file": "docs/video/PolyToken_demo.srt",
+  "deck_pdf": "docs/deck/PolyToken_deck.pdf",
+  "deck_pptx": "docs/deck/PolyToken_deck.pptx"
 }

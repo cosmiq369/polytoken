@@ -1,5 +1,9 @@
 # PolyToken submission
 
+[Watch the narrated demo](video/PolyToken_demo.mp4) · [Deck PDF](deck/PolyToken_deck.pdf) · [PowerPoint](deck/PolyToken_deck.pptx) · [Submit checklist](SUBMIT_CHECKLIST.md)
+
+Public video URL: **PENDING UPLOAD**. Mohan reviews and submits; no upload or visibility change has been performed.
+
 ## Sponsor technology explanation
 
 PolyToken answers: “Our bot or voice agent works in an Indian language. Which model fits our users and our budget, and why?” It profiles the company's conversation mix and shape, compares each priced model using its measured tokenizer counts, and produces a conditional recommendation, runner-up and cost-based avoidance explanation. The four demo companies are fictional; quality remains to verify on a real sample.
@@ -12,14 +16,14 @@ PolyToken answers: “Our bot or voice agent works in an Indian language. Which 
 
 The deterministic checker recomputes every numeric claim from authenticated evidence. Model-fit replay reconstructs the ranking and recommendation rather than trusting saved labels. Unknown prices remain unavailable; unknown timing never qualifies a voice model. All four pre-registered profile and cost-candidate predictions passed; none establishes production quality. [Addendum score](../logs/sample/model_fit_score.md).
 
-| Company / channel | Actual user mix | Cheapest cost candidate | USD / 1,000 conversations | Decision |
-| --- | --- | --- | ---: | --- |
-| Samudra Telecom / chat | 10.6% native, 16.0% romanized, 73.4% mixed | Llama-3.1-8B-Instruct | $0.009283 | Conditional on quality verification |
-| Swara Care / voice | 100.0% native | gemma-3-4b-it | $0.024124 | Latency unverified; no qualified voice recommendation |
-| Raitu Mitra / voice | 100.0% native | gemma-3-4b-it | $0.018329 | Latency unverified; no qualified voice recommendation |
-| Paisa Saathi / chat | 100.0% mixed | Llama-3.1-8B-Instruct | $0.005411 | Conditional on quality verification |
+| Company / monthly conversations | Best content-cost fit / month | Cheapest per token / month | × best fit |
+| --- | --- | --- | ---: |
+| [Samudra Telecom](../logs/sample/agent_samudra_model_fit_report.json) / 200,000 | Llama 3.1 8B: ₹176 | Llama 3.1 8B: ₹176 | 1.00× |
+| [Swara Care](../logs/sample/agent_swara_model_fit_report.json) / 120,000 | Gemma 3 4B: ₹275 | Llama 3.1 8B: ₹359 | 1.31× |
+| [Raitu Mitra](../logs/sample/agent_raitu_model_fit_report.json) / 80,000 | Gemma 3 4B: ₹139 | Llama 3.1 8B: ₹363 | 2.61× |
+| [Paisa Saathi](../logs/sample/agent_paisa_model_fit_report.json) / 300,000 | Llama 3.1 8B: ₹154 | Llama 3.1 8B: ₹154 | 1.00× |
 
-Table amounts are USD content estimates per thousand completed conversations, at dated provider quotes; they exclude templates, retries, taxes and unpublished cache discounts. [Evidence and top three per company](../logs/sample/model_fit_score.jsonl).
+Monthly = checked USD per 1,000 × checked company volume / 1,000 × the [dated INR/USD rate](../data/reference/fx.json). Multiples use unrounded costs. These are content estimates, not invoices; templates, retries, taxes and unpublished cache discounts are excluded. Both voice candidates lack matched latency evidence, and all quality remains to verify. [Exact claims and recomputation](deck/evidence.json).
 
 **Cursor was not used.** Codex and Claude assisted development. The pre-existing measurement harness and Experiment 01 are disclosed in [DECLARATIONS.md](DECLARATIONS.md).
 
