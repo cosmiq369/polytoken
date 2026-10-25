@@ -1,0 +1,31 @@
+{
+  "project_name": "PolyToken",
+  "track": "02 The Agent That Can Explain Why",
+  "team": [
+    {
+      "name": "Mohan Chelluru",
+      "role": "Solo builder"
+    }
+  ],
+  "sponsor_technologies": [
+    {
+      "name": "Zetaris",
+      "usage": "Federated SQL data layer for company configuration, chats, measured tokens, reference sentences and REST prices."
+    },
+    {
+      "name": "Meterless",
+      "usage": "Independent Python implementations of World Model, H-MEM and Markovian reference architectures with ported conformance checks."
+    },
+    {
+      "name": "NVIDIA",
+      "usage": "Nemotron planner and quality judge through one injected generator; hosted models for bounded experiments and speed probes."
+    },
+    {
+      "name": "Cursor",
+      "usage": "Not used in this project."
+    }
+  ],
+  "repository_url": "https://github.com/cosmiq369/polytoken",
+  "license": "MIT",
+  "demo_video_url": ""
+}

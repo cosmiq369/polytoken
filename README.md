@@ -1,290 +1,131 @@
 # PolyToken
 
-PolyToken investigates the cost and latency of AI workloads in Telugu and Hindi,
-using English as the paired baseline. This foundation provides typed configuration,
-an injectable NVIDIA generator, Zetaris SQL access, tokenizer helpers and JSONL
-telemetry. It also seeds fictional company data and measures paired token counts
-through Zetaris. The investigation loop belongs to later work.
+**Understand the bill. Keep the meaning.** PolyToken investigates why a team's Telugu or Hindi AI workload costs more than the same content in English, traces the extra tokens to their source, and tests a fix before recommending it. The motivating, pre-existing experiment counted **18 parallel sentences**: Telugu used **7.59×** English tokens on Llama 3.2 and **1.58×** on Gemma 3. Those are token ratios, not measured latency or quality improvements. [Original results](logs/sample/experiment01/fertility.md) · [Raw counts](logs/sample/experiment01/fertility.csv) · [Provenance and recomputation](logs/sample/experiment01_provenance.jsonl).
 
-## Install
+Built by **Mohan Chelluru**, solo, for **Track 02 — The Agent That Can Explain Why**. The companies, policies and customer chats in this demo are fictional. Native translation and quality reviews remain pending.
 
-Use Python 3.10+ and `uv`. From the PolyToken directory, create and activate a
-virtual environment, and keep Python bytecode inside this repository:
+![PolyToken billing report](docs/images/demo_report_summary.png)
+
+## Who it is for
+
+Product and engineering teams operating Indian-language support bots or voice assistants. The Token Ledger answers five practical questions:
+
+1. What do we pay per month, conversation and reply?
+2. What do we pay above the same content in English?
+3. How much comes from prompts and history sent again?
+4. Which fix saves money while preserving meaning, and what happens to reply time?
+5. What changes with volume, quoted price or model?
+
+The separate [pre-registered contract](docs/CONTRACT.md) groups these into four research questions. `polytoken score` evaluates the results offline; the agent never imports that evaluator or reads the planted expectations.
+
+## What happened
+
+| Fictional company | Finding reached by the agent | Tested change | Monthly quoted content cost, before → after | Quality and decision |
+| --- | --- | --- | --- | --- |
+| Samudra Telecom, Telugu support | Repeated system instructions dominate the money | English instructions; Telugu replies retained | **₹11,015.34 → ₹2,229.74** at **100,000 chats/month** | A/A **7/20**; A/B **3/20**; **inconclusive**, no recommendation |
+| Swara Care, Hindi voice assistant | New answer tokens dominate cost | Concise spoken answers / answer cap | **₹2,386.55 → ₹2,447.46** at its configured volume | A/A **3/20**; A/B **1/20**; **inconclusive**, no recommendation |
+
+Every table number comes from the checked [Samudra demo report](logs/sample/demo_samudra_report.json), [Swara v3 report](logs/sample/agent_swara_v3_report.json) and [contextual experiment summary](logs/sample/agent_v3_completion_report.md). Rupees use the dated [FX source](data/reference/fx.json); model prices have their own [provider URLs and fetch dates](data/reference/prices.json). These are content-only quoted scenarios, not invoices.
+
+The Samudra prompt substitution reduces reconstructed cost by **79.8%**, with historical replies and replay held fixed. That does **not** establish that the changed bot preserves meaning. The unchanged A/A control itself falls below the contract's **18/20** bar, so the interpretation is: **“the bar cannot be met by this judge and stand-in model; result inconclusive.”** The literal A/B contract verdict remains failed. [Checked cost and quality evidence](logs/sample/demo_samudra_report.json) · [Contract and diagnostics](logs/sample/contract_score.md).
+
+Samudra's timing is inconclusive because the run reuses cached timing evidence with its original time windows. Swara's changed stand-in reply was faster in the recorded trials: median complete-reply time **13.24 s → 2.09 s**. This is an original-versus-changed prompt comparison, not a deployed-model Telugu/Hindi-versus-English speed benchmark. Output throughput is unavailable when provider usage cannot separate hidden reasoning. [Timing observations and limits](logs/sample/agent_v3_completion_report.md).
+
+Both expected top findings pass the offline contract check. Cost coverage, speed coverage and validated fixes remain partial; neither expected fix is recommended. [Full score, claim IDs and budgets](logs/sample/contract_score.md) · [Machine-readable score](logs/sample/contract_score.jsonl).
+
+The new UI demo uses fresh Nemotron reasoning and Zetaris reads, then reuses authenticated prior generations and judgments under exact cache identities. It is not a fresh independent quality replication. [Demo events](logs/sample/demo_samudra.jsonl) · [Physical calls](logs/sample/demo_samudra_audit_llm_calls.jsonl) · [Cache audit](logs/sample/demo_samudra_audit_experiment_jobs.jsonl). [Native Telugu review sheet](logs/sample/native_review_samudra.md); a Hindi reviewer is still required.
+
+## How it works
+
+![PolyToken system architecture](docs/images/architecture.svg)
+
+The exported system diagram comes from the [architecture reference](docs/design/reference/architecture.html). The investigation proceeds through clarify, measure, locate, hypothesise, experiment, judge, speed, check and report. Long generation and judging work runs as a bounded background job; the UI streams its events and displays the final checked report. [Implementation](src/polytoken/agent/runner.py) · [Report contract](docs/REPORT_SCHEMA.md).
+
+The [deterministic checker](src/polytoken/checker.py) authenticates content-addressed evidence and its supporting records, then recomputes every reported number from source rows. Unsupported or inconsistent claims are dropped. The [billing projection](src/polytoken/billing_view.py) independently reconstructs native and English bills, supplies clickable receipts, and separates observed results from explicit price/volume what-ifs. [Billing formulas](web/BILLING_SCHEMA.md). Arithmetic and quote validation cannot establish that a model's semantic judgment is correct.
+
+### Zetaris
+
+Zetaris is the data layer for all investigation reads: company configuration and chats, measured tokens, reference sentences, and a locally served REST price source. The [federation SQL](sql/token_ratio_by_part.sql) joins across those sources; [saved SQL results](logs/sample/p04_federation.jsonl) demonstrate the query. Direct PostgreSQL access is confined to seeding and measurement writes. [Client](src/polytoken/zetaris.py) · [Tool layer](src/polytoken/tools/__init__.py).
+
+The installed JDBC connector exposes one schema per source. [Registration](scripts/register_zetaris_sources.py) uses explicit public views over the company, measurement and reference schemas. [Reference serving](src/polytoken/reference_server.py) refreshes the REST table when its earlier empty-price schema lacks current columns. This workaround is recorded, not a silent switch to local price reads. [Registration decisions](docs/DECISIONS.md) · [SQL audit](logs/sample/demo_samudra_audit_zetaris_queries.jsonl).
+
+### Meterless
+
+PolyToken independently implements the reference architectures in Python, with **29 ported conformance checks**, rather than presenting them as a hosted service. [Attribution, pinned specification and check IDs](docs/METERLESS.md).
+
+- [World Model](src/polytoken/meterless/world_model.py): observations and claims carry source, query, time window and fetch time; evidence remains replayable.
+- [H-MEM](src/polytoken/meterless/hmem.py): sourced company profiles and prior findings persist across investigations, with an audited trust ledger.
+- [Markovian](src/polytoken/meterless/markovian.py): bounded reasoning chunks compress carried state; projected and actual token accounting remain distinct. Signed savings expose cases where compression costs extra tokens. [Signed audit](logs/sample/meterless_signed_audit.jsonl).
+
+The history-replay comparison is a reference counterfactual, not an independently measured second agent run. [Scope and limitations](docs/METERLESS.md).
+
+### NVIDIA
+
+Nemotron plans the investigation and judges contextual reply pairs through **one injected generator**, configured by `.env`. [Generator](src/polytoken/llm.py) · [Composition root](src/polytoken/agent/runtime.py) · [Quality protocol](src/polytoken/agent/quality.py). Calls use a shared rate limiter, bounded retries and separate reasoning/judge/hosted budgets. [Contract limits](docs/CONTRACT.md) · [Measured budget score](logs/sample/contract_score.md).
+
+Hosted models generate paired experiments and speed trials. Catalogue membership alone is insufficient: eligibility also requires a recorded serving probe. Successful and failed probes are preserved in [probe results](logs/sample/hosted_probe.jsonl), with the [verified allowlist](data/reference/nvidia_hosted.json). The demonstrated GPT-OSS model is a stand-in, not either company's deployed model. Model names, base URL and rate limit come from configuration; the planner is not hardcoded to a deployment name.
+
+### Cursor
+
+Cursor was not used in this project. Coding assistance came from Codex and Claude, as declared in [DECLARATIONS.md](docs/DECLARATIONS.md).
+
+## Honest limits
+
+The data is synthetic, some answer openings are template-like, and translations have not passed native review. The unchanged control can vary even at temperature zero. Claim-level judging can mark added details as non-equivalent without establishing that the new answer is worse. Source-excerpt validation catches invented citations, not incorrect semantic classification. [Quality protocol, recovery history and limitations](logs/sample/agent_v3_completion_report.md).
+
+The configured Samudra model is a low-priced **3B** model, so a large percentage saving produces modest absolute money. The UI can rescale checked input and output counts at explicit hypothetical prices and volume; it does not predict quality or latency at those prices. Content accounting excludes provider chat templates, retries and unpublished cache discounts. [Independent review](docs/review/2026-10-24/REVIEW.md) · [Accounting formulas](web/BILLING_SCHEMA.md).
+
+## Run it
+
+Prerequisites: Python 3.10+, `uv`, Git, Docker, the hackathon Zetaris distribution, a configured NVIDIA account, and local Hugging Face tokenizer files (or network access for initial measurement). Node and Playwright are optional for the browser tests, not application dependencies. Run from the cloned repository root, including after a non-editable installation: the UI and reviewed reference data live in the checkout.
 
 ```sh
 uv venv .venv
 source .venv/bin/activate
-export PYTHONPYCACHEPREFIX="$PWD/.cache/pycache"
+uv pip install '.[dev]'
+cp .env.example .env
 export HF_HOME="$PWD/.cache/huggingface"
 ```
 
-Install the pinned public harness dependency with PolyToken:
+Fill `.env` locally. Names only: `NVIDIA_API_KEY`, `NVIDIA_BASE_URL`, `AGENT_MODEL`, `NVIDIA_RPM`, `HF_TOKEN`, `ZETARIS_URL`, `ZETARIS_USER`, `ZETARIS_PASSWORD`, `COMPANY_DB_USER`, `COMPANY_DB_PASSWORD`. Use an accessible Nemotron model for `AGENT_MODEL`. Never commit `.env`. [Validated settings](src/polytoken/config.py).
 
-```sh
-uv pip install -e '.[dev]'
-```
-
-Optional local development override only: `sh scripts/install-indictax.sh` runs `uv pip install --editable ../solve-it`. It redirects
-setuptools metadata and build output to PolyToken's `.cache/indictax/`, keeping
-the reference repository read-only. No harness source is copied into PolyToken.
-
-Copy `.env.example` to `.env` and fill in the required variables. Keep credentials
-in `.env`, which is gitignored. Model names, endpoints and request limits come
-from that environment file.
-
-Required variables are `NVIDIA_API_KEY`, `NVIDIA_BASE_URL`, `AGENT_MODEL`,
-`ZETARIS_URL`, `ZETARIS_USER` and `ZETARIS_PASSWORD`. `NVIDIA_RPM` defaults
-to 40 when unset or empty. `HF_TOKEN` is optional for the ungated doctor tokenizer.
-Use the NVIDIA account's model catalog to choose an accessible Nemotron chat model;
-a model appearing in the catalog does not guarantee that account can invoke it.
-
-## Verify
-
-```sh
-python -m pytest -q
-python -m pytest -q -m live
-polytoken doctor
-```
-
-The default test run blocks network connections and skips all `live` tests.
-`-m live` explicitly selects the Zetaris, NVIDIA and tokenizer probes. Doctor prints
-one environment check and those three probes, then exits non-zero on any failure.
-Its NVIDIA probe caps output at eight tokens; a reasoning model can spend those
-tokens on reasoning and return no visible text. Success means a valid API response.
-
-Zetaris must already be running. The client follows the platform's `verify.sh`:
-it reads `idToken` and `orgId` from login, queries through the SQL proxy, and reads
-the returned `records` list. A 401 causes at most one re-login per query.
-`page_limit` limits this result page. A full page or metadata indicating more rows raises
-`ZetarisTruncated`; `allow_truncated=True` explicitly accepts a partial result.
-Every query logs `possibly_truncated`. No pagination route is assumed.
-
-## Generator and telemetry
-
-```python
-from polytoken.config import load_settings
-from polytoken.llm import NvidiaGenerator
-from polytoken.logs import JsonlLogger
-
-settings = load_settings()
-logger = JsonlLogger(secrets=settings.secrets)
-with NvidiaGenerator(settings, logger=logger) as generator:
-    generate = generator.generate  # the single callable to inject into later engines
-    result = generate("Reply with OK.")
-```
-
-`generate(prompt, system_prompt=None, attachments=None, on_stream=None, abort=None)`
-returns `text`, provider `usage`, total `latency_s` and the configured `model`.
-Missing usage remains missing. Attachments are OpenAI-compatible message content
-parts. A callback enables SSE streaming. Cancellation accepts a `threading.Event`
-or predicate and is checked before requests, during waits and between stream chunks;
-an in-flight blocking read is bounded by its timeout.
-
-Every production generator shares one process-wide sliding-window limiter. At most
-`NVIDIA_RPM - 2` calls may start in any rolling 60-second window (38 by default).
-RPM must be an integer of at least 3. Each retry also consumes a slot. One process
-cannot change RPM after initialization. HTTP 429 and 5xx receive at most three retries with exponential
-backoff, jitter and `Retry-After` support; other failures are raised immediately.
-The default request timeout is 60 seconds, with a ten-second connect timeout.
-
-Append-only records go to `logs/llm_calls.jsonl`, `logs/zetaris_queries.jsonl` and
-`logs/doctor.jsonl`. Each HTTP completion attempt has its own row, including failed
-attempts. A query has one row covering login and any re-login. Shared loggers keep
-the same `run_id` across clients. Prompt and system text, attachments and responses
-are excluded from LLM telemetry; only lengths, a short SHA-256 prompt hash, usage
-counts and request metadata are recorded. Secrets are redacted recursively,
-including .env/process secrets and login tokens returned by Zetaris.
-
-`polytoken.tokens.count(spec, text)` and `fragment_rate(spec, text)` reuse cached
-`indictax` adapters. Fragment rate is the share of encoded tokens whose
-`is_fragment` flag is true, with zero for empty input, matching the harness.
-The harness comes from its pinned Git commit. Corpus and tokenizer defaults use
-`data/reference/seed_v0_corrected.jsonl` and `configs/tokenizers.yaml`; a sibling
-checkout is not required. Run commands from the cloned PolyToken directory. See
-[the declarations](docs/DECLARATIONS.md) for provenance and licences.
-
-## Demo company data and measurements (v2)
-
-Add `COMPANY_DB_USER` and `COMPANY_DB_PASSWORD` to `.env`. Use a new password for
-this isolated fictional database. From PolyToken, with its virtualenv active:
+Start the sponsor's Zetaris stack using its supplied instructions, then run `./verify.sh` in that distribution (locally, `~/zetaris-platform`). Back in PolyToken:
 
 ```sh
 docker compose --env-file .env -f infra/docker-compose.yml up -d --wait
-PYTHONDONTWRITEBYTECODE=1 python scripts/seed_company_db.py
+python scripts/seed_company_db.py
+# Separate terminal; keep the REST price source running:
+python scripts/serve_reference.py
+# Back in the first terminal:
+python scripts/register_zetaris_sources.py
+polytoken measure --company all
+polytoken doctor
+polytoken serve
 ```
 
-The seeder upserts checked-in JSONL for 50 chats / 223 turns per company, two bot
-configurations, and 118 parallel reference variants imported from the declared
-vendored corpus. Running it twice keeps the same counts. All generated rows remain
-`pending`; no translation has been approved. The reference `review` field retains
-its original JSON value. `scripts/generate_demo_data.py` reproduces the fixtures;
-the fixed-seed v2 realism revision is disclosed in the contract addenda. V1 and
-its original results remain in `data/demo/v1/` and `logs/sample/v1/`.
-
-Start the tiny price server in a separate terminal and leave it running:
+Open [the local UI](http://127.0.0.1:8000), select a fictional company and click **Investigate**. `serve` reuses or starts the price endpoint and checks its registration. The client reads the returned Zetaris organization ID rather than assuming one. Existing archived reports can be opened without rerunning model calls.
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 python scripts/serve_reference.py
+python -m pytest -q                  # offline; live checks skipped
+python -m pytest -q -m live          # explicitly contacts configured services
+polytoken score                     # offline contract evaluation
+UI_SCREENSHOTS=1 python -m pytest -q tests/test_ui_static.py
 ```
 
-Then register and measure:
+The harness is installed from its pinned public Git dependency. A sibling checkout is unnecessary. [Pin and pre-existing work](docs/DECLARATIONS.md) · [Browser-test setup](web/README.md) · [Shipping validation](logs/sample/ship_checkpoint.jsonl).
 
-```sh
-PYTHONDONTWRITEBYTECODE=1 python scripts/register_zetaris_sources.py
-PYTHONDONTWRITEBYTECODE=1 HF_HOME="$PWD/.cache/huggingface" polytoken measure --company all
-```
+## Evidence and submission
 
-`--company samudra` or `--company swara` measures just that company. `all` also
-runs and independently verifies the federation SQL. Every configured tokenizer is
-attempted; load failures are explicit skipped batches with reasons and no count
-rows. A failed batch is discarded in full. Direct PostgreSQL access is limited to
-schema creation, seeding and measurement writes. All workload reads, reference
-reads and the final proof use Zetaris SQL.
+All audit and provenance records go to `logs/`; curated judge-facing samples are committed under [`logs/sample/`](logs/sample/). The live demo's new World Model archive is [gzip-compressed](logs/sample/demo_samudra_world_events.jsonl.gz) and includes the transitive evidence closure, including reused observations. The offline scorer and billing loader read compressed archives directly.
 
-### Exact registration procedure
+The reviewer accepted these existing evidence files above the release size threshold; their bytes and Git history are preserved:
 
-No manual UI operation is needed. The script logs in with `POST /api/auth/login`,
-uses the returned JWT and `orgId`, and supplies `Authorization: Bearer …`,
-`X-Org-ID` and a fresh `X-Request-ID` UUID. Management statements go to
-`POST /api/proxy/sql-editor/sqls/run-query` as `{"sql": "<statement>"}`.
-After `SHOW DATASOURCES`, create `company_systems` if absent (the placeholders
-below are injected from `.env`, never written into documentation or logs):
+| Existing archive | Bytes | Decimal MB |
+| --- | ---: | ---: |
+| [Original agent evidence](logs/sample/agent_world_events.jsonl) | 15,921,942 | 15.92 |
+| [v2 evidence](logs/sample/agent_v2_world_events.jsonl) | 15,536,266 | 15.54 |
+| [v3 evidence](logs/sample/agent_v3_world_events.jsonl) | 40,470,818 | 40.47 |
 
-```sql
-CREATE DATASOURCE company_systems OPTIONS (
- jdbcdriver "org.postgresql.Driver",
- jdbcurl "jdbc:postgresql://host.docker.internal:55432/company_systems",
- username "<COMPANY_DB_USER>", password "<COMPANY_DB_PASSWORD>",
- schema "public", fetchsize "1000"
-)
-```
+[Size and history audit](logs/sample/ship_secret_scan.jsonl). New archives exceeding 5 MB are gzipped. `.cache/`, `.venv/` and runtime logs outside the curated sample directory remain ignored.
 
-Refresh this explicit view list on every run:
-
-```sql
-REGISTER DATASOURCE TABLES (
- "samudra__bot_config", "samudra__chats", "swara__bot_config", "swara__chats",
- "reference__sentences", "reference__prices", "measurements__batches",
- "measurements__token_counts", "measurements__latest_token_counts"
-) FROM company_systems
-```
-
-The views project all four schemas without copying data, working around the
-installed connector's single-schema restriction. After `SHOW LIGHTNING DATABASES`,
-create the following container if absent, and create the REST table only if a
-SELECT reports that it does not exist:
-
-```sql
-CREATE LIGHTNING DATABASE polytoken_reference OPTIONS ()
-CREATE LIGHTNING REST TABLE prices FROM polytoken_reference
- REQUEST(endpoint "http://host.docker.internal:55433/prices.json", method "GET",
- http_encoding "URLENCODED", response_type "JSON") HEADER() BODY()
-```
-
-Verify each registered table with `SELECT COUNT(*) AS n FROM company_systems.<view>`
-and `SELECT COUNT(*) AS n FROM polytoken_reference.prices` through
-`POST /api/proxy/query/sql/start`, body `{"select": "<SQL>", "pageLimit": 1000}`.
-The script is safe to rerun; it does not drop sources or modify the Zetaris stack.
-
-### Evidence and limits
-
-`sql/token_ratio_by_part.sql` joins the chats/configurations, latest completed
-measurement batches, grouped reference sentences, and the REST price row count.
-Reference rows are grouped before joining to avoid multiplying token counts.
-The checker independently sums every expected native/English pair and rejects
-missing pairs, duplicate rows, or mismatched SQL aggregates before saving output.
-The latest attempt supersedes older measurements even when skipped or failed.
-
-Evidence goes to `logs/measurements.jsonl`, `logs/data_setup.jsonl`,
-`logs/zetaris_admin.jsonl`, `logs/zetaris_queries.jsonl`, `logs/reference_http.jsonl`,
-and verified samples in `logs/sample/federation.jsonl` and
-`logs/sample/planted_properties.jsonl`. Database records include source queries,
-fetched times, observation windows, tokenizer specs and run IDs.
-
-`data/reference/prices.json` is deliberately empty. Its schema and loader reject
-invalid prices, and `cost_usd` refuses unverified entries or missing input/output
-prices. **Money is unavailable.** The zero REST row count is source coverage, not
-a zero price. Populating the REST list later requires refreshing its inferred
-schema before selecting price columns.
-
-The token-share check reports two conventions, for both native and English.
-Billed content tokens replay the system prompt and all earlier turns for each
-completed assistant reply; a final unanswered user turn incurs no request.
-Corpus counts include one system prompt per chat and each turn once. Any money
-calculation must use the billed convention. Both exclude chat-template overhead
-and retries; cache discounts need published provider prices. Per-part paired
-ratios have 95% chat-cluster bootstrap intervals (2,000 resamples, seed 20261024).
-Token shares alone do not prove cost or latency dominance. See
-[decisions and deviations](docs/DECISIONS.md) for the assumptions fixed before
-measurement. All quality judgments remain pending native review.
-
-After seeding, registration, and `measure --company all`, run:
-
-```sh
-PYTHONDONTWRITEBYTECODE=1 python -m pytest -q
-PYTHONDONTWRITEBYTECODE=1 HF_HOME="$PWD/.cache/huggingface" python -m pytest -q -m live
-```
-
-The live suite also checks the idempotent PostgreSQL seeder, both company schemas,
-and the independently checked federation. It requires the demo DB, Zetaris,
-price server and completed measurements, in addition to the foundation services.
-
-
-## Verify the dependency pin and archived evidence
-
-The default dependency is public Git commit
-`0f61ec90ae49082d0fef7a21774e746fe17ed1cf`. No sibling checkout is needed.
-From the clone, use a fresh, non-editable install:
-
-```sh
-uv venv .cache/pin-check
-uv pip install --python .cache/pin-check/bin/python '.[dev]'
-PYTHONDONTWRITEBYTECODE=1 HF_HOME="$PWD/.cache/huggingface" .cache/pin-check/bin/python scripts/check_pin.py
-```
-
-The check runs the offline suite, verifies installed Git provenance, then recounts
-five stored v1 measurement texts and writes `logs/sample/pin_check.jsonl`.
-The tokenizer recount needs cached tokenizers or Hugging Face access. It is separate
-from the network-blocked pytest suite. To recompute archived accounting/intervals:
-
-```sh
-python scripts/recompute_snapshot.py logs/sample/v1_recomputed/measurement_snapshot.jsonl
-python scripts/recompute_snapshot.py logs/sample/measurement_snapshot.jsonl
-```
-
-See `logs/sample/revision_report.md` for both versions' shares, the complete v2
-ratio table, selected bootstrap intervals, validation commands and deviations.
-
-## Investigating agent (PROMPT-04)
-
-From the configured checkout with Zetaris and the company database running:
-
-```sh
-.venv/bin/polytoken serve
-# In another terminal, or use the API:
-HF_HOME="$PWD/.cache/huggingface" HF_HUB_OFFLINE=1 .venv/bin/polytoken investigate --company samudra
-HF_HOME="$PWD/.cache/huggingface" HF_HUB_OFFLINE=1 .venv/bin/polytoken investigate --company swara
-```
-
-`serve` starts the API on localhost:8000 and reuses or starts the price endpoint
-at localhost:55433. POST `/investigations` accepts a company and question; read
-`/investigations/{id}/events` for SSE and `/investigations/{id}/report` for checked
-claims. The complete interface and interpretation rules are in
-[docs/REPORT_SCHEMA.md](docs/REPORT_SCHEMA.md).
-
-The runtime has no access to contract expectations or demo files. It reads the
-company configuration, chats, measurements and verified price table through
-Zetaris. Missing evidence stays missing. Native reviews remain pending, and a
-hosted service failure can produce a partial report without a recommended fix.
-Per-run budgets cap planner/judge calls, hosted calls, SQL calls and wall time;
-all provider attempts share a limiter. A model-switch projection is not an
-invoice, and stand-in models cannot prove quality or speed on the deployed model.
-
-The CLI retains previous reports when rerun. After authorized live runs, the
-following commands curate all their evidence and replay every numeric claim
-without network access:
-
-```sh
-.venv/bin/python scripts/curate_agent_samples.py
-.venv/bin/python scripts/check_agent_report.py logs/sample/agent_*report.json
-```
+[Submission explanation and summary](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Declarations](docs/DECLARATIONS.md) · [Independent review](docs/review/2026-10-24/REVIEW.md). The demo video URL is intentionally empty for Mohan to fill. Repository publication is Mohan's step.

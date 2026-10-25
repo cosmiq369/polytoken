@@ -20,3 +20,7 @@ Everything else in this repository was written during the build window, with AI 
 | `configs/tokenizers.yaml` | `../solve-it/configs/tokenizers.yaml`, byte-identical to https://github.com/cosmiq369/indic-inference-tax/blob/0f61ec90ae49082d0fef7a21774e746fe17ed1cf/configs/tokenizers.yaml | MIT | `1678b1de0327de50adc481a7c3ba384be06dfb05a2d1ceefbace383620b08424` |
 
 Original review metadata is preserved; vendoring is not translation approval.
+
+## Pre-existing experiment 01 results
+
+`logs/sample/experiment01/fertility.csv` and `fertility.md` are unchanged result files from the author's `indic-inference-tax/results/20260918-095750-fertility` (18 September 2026, MIT). They measure the original `seed_v0` corpus, not the corrected corpus used in PolyToken. They are background evidence, not a hackathon result. Source hashes and count-ratio recomputation are in `logs/sample/experiment01_provenance.jsonl`. No harness code was copied.
