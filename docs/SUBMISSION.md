@@ -1,7 +1,5 @@
 # PolyToken submission
 
-**Public video URL: PENDING UPLOAD**. The deck is submitted through the hackathon form.
-
 Public video URL: **PENDING UPLOAD**. Mohan reviews and submits; no upload or visibility change has been performed.
 
 ## Sponsor technology explanation
@@ -10,7 +8,7 @@ PolyToken answers: “Our bot or voice agent works in an Indian language. Which 
 
 **Zetaris** is the data layer for company configuration, chats, token measurements, reference sentences and verified prices. The federation joins company and measurement views with reference coverage and a REST price table. Direct PostgreSQL access is limited to setup and measurement writes. The installed connector exposes public projections to handle its schema restriction. All four companies and eight tokenizers were remeasured; the federation verified 96 company/tokenizer/part groups. [SQL evidence](../logs/sample/model_fit_measurements/federation.jsonl).
 
-**Meterless** provides the reference architectures, independently implemented in Python. World Model stores observations with source, query, time window and fetch time. H-MEM retains sourced profiles and findings, separating the replacement dataset from old findings. Markovian compresses carried state across bounded reasoning chunks and logs projected versus actual token accounting. The history-replay comparison is a counterfactual, not a second measured run. [Attribution and conformance](METERLESS.md).
+**Meterless** provides the pinned reference specification; PolyToken implements its engines as in-repo Python running in-process. It is not an installed Meterless library. World Model stores observations with source, query, time window and fetch time. H-MEM retains sourced profiles and findings, separating the replacement dataset from old findings. Markovian compresses carried state across bounded reasoning chunks and logs projected versus actual token accounting. The history-replay comparison is a counterfactual, not a second measured run. [Attribution and conformance](METERLESS.md).
 
 **NVIDIA** provides the API. Nemotron plans and judges through one injected generator, configured by environment. Shared rate limiting, physical-attempt budgets and bounded retries constrain execution. Only GPT-OSS passed the recorded serving probe. The retained A/A-controlled quality protocol can test a stand-in, but cannot validate another model/provider. These new investigations collect fresh reasoning and service timings; candidate voice latency remains unverified. [Call audit](../logs/sample/model_fit_v1_audit_llm_calls.jsonl).
 
@@ -30,3 +28,11 @@ Monthly = checked USD per 1,000 × checked company volume / 1,000 × the [dated 
 ## Project summary
 
 PolyToken advises teams choosing models for Indian-language bots and voice agents. The same language can arrive as native-script speech transcripts, romanized chat or mixed-language product messages. Nemotron investigates fictional companies through Zetaris SQL, reconstructs conversation billing with each model's measured tokenizer, and compares verified provider quotes. Independently implemented Meterless architectures preserve sourced evidence, company memory and compressed reasoning state. A deterministic checker recomputes every number before the Model fit and Companies screens display it with source receipts. Samudra Telecom and Paisa Saathi favor the low-price Llama quote on their Latin-script mixtures; Swara Care and Raitu Mitra favor Gemma on native-script voice workloads. Voice latency remains unverified, so those are cost candidates rather than qualified deployment recommendations. Quality must be verified on a real sample. The agent explains both the recommendation and the evidence still missing.
+
+## Reproduce and bring your data
+
+Demo mode replays checked saved runs on synthetic companies. The [setup skill](../skills/polytoken-setup/SKILL.md) interviews the user and guides installation; the [add-data skill](../skills/polytoken-add-data/SKILL.md) maps anonymised exports locally and validates paired JSONL/CSV. Uploaded samples need live mode. Full live-upload integration is pending the final bounded end-to-end verification. Live reasoning sends workload summaries to NVIDIA; imported data goes to the configured PostgreSQL and Zetaris stack.
+
+Candidate tokenizers run locally from cached files. The standard model-fit investigation does not call the candidate models. The controlled hosted quality experiment is separate, and its GPT-OSS stand-in does not establish candidate quality or voice latency. The app’s How it works view shows the runtime boundaries and checked Ask path.
+
+The deck is submitted through the hackathon form. Presentation artifacts stay local.

@@ -1,5 +1,5 @@
 """Recheck saved reports and derive all presentation figures before authoring."""
-import csv, hashlib, json
+import copy, csv, hashlib, json
 from datetime import datetime, timezone
 from pathlib import Path
 from polytoken.billing_view import archived_events
@@ -12,7 +12,11 @@ fx=json.loads((root/'data/reference/fx.json').read_text())['rates'][0]
 companies=[]
 for company in ['samudra','swara','raitu','paisa']:
  p=root/f'logs/sample/agent_{company}_model_fit_report.json';r=json.loads(p.read_text())
- score=evaluate(r,records,logger)
+ # Historical reports predate the additive display-name field. Preserve the archive,
+ # migrate only this label in the evaluation copy, and still require exact replay.
+ checked_report=copy.deepcopy(r)
+ checked_report['model_fit']['profile'].setdefault('display_name', company)
+ score=evaluate(checked_report,records,logger)
  assert all(score[k]['status']=='pass' for k in ['top_finding','expected_model','constraints'])
  claims={c['id']:c['value'] for c in r['claims']};fit=r['model_fit'];best=fit['cost_candidate'];cheap=fit['lowest_unit_price'];volume=claims['profile/monthly_conversations']
  def row(m):

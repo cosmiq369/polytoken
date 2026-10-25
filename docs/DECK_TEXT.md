@@ -43,7 +43,7 @@ Monthly INR = checked USD per 1,000 × checked monthly volume / 1,000 × [dated 
 
 ## 8. A claim earns its place
 
-29 pinned Meterless conformance checks; 241 tests passed, eight live tests skipped; 12/12 pre-registered model-fit addendum checks passed. These are distinct validation measures, not model accuracy scores. Receipts expose formula, inputs, query, source and fetch time. Unsupported claims are dropped. [Conformance](METERLESS.md) · [Validation](../logs/sample/video_deck_validation.jsonl) · [Addendum score](../logs/sample/model_fit_score.jsonl).
+29 pinned Meterless conformance checks; 291 tests passed, eight live tests skipped; 12/12 pre-registered model-fit addendum checks passed. These are distinct validation measures, not model accuracy scores. Receipts expose formula, inputs, query, source and fetch time. Unsupported claims are dropped. [Conformance](METERLESS.md) · [Validation](../logs/sample/video_deck_validation.jsonl) · [Addendum score](../logs/sample/model_fit_score.jsonl).
 
 ## 9. Sponsors and their jobs
 
@@ -52,3 +52,11 @@ Zetaris: the federated SQL data layer. Meterless: reference architectures, indep
 ## 10. Next evidence to earn
 
 Review native-language data, replace fictional templates with consented samples, measure exact-model/provider/workload serving latency, and run controlled quality comparisons before switching models. These are proposed next steps, not completed results. Only GPT-OSS passed the recorded serving probe; its stand-in evidence does not transfer to other models. PolyToken: every token accounted for.
+
+## 11 · Get started with your coding agent
+
+Clone, then ask the coding agent to run the [setup skill](../skills/polytoken-setup/SKILL.md). Demo replays saved synthetic runs; live needs the configured data stack. The [add-data skill](../skills/polytoken-add-data/SKILL.md) maps and validates paired samples and preserves pending native review. Meterless is in-repo Python against a pinned reference specification.
+
+## 12 · Close
+
+Which model fits your conversations — and why? What it costs. What supports it. What to verify. Built on Zetaris, Meterless and NVIDIA.

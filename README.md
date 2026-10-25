@@ -99,7 +99,7 @@ Script detection is a Unicode/lexicon heuristic with an unclassified bucket; Eng
 
 All audit and provenance records go to `logs/`, with curated evidence committed in [logs/sample](logs/sample/). [Complete model-fit evidence closure](logs/sample/model_fit_v1_world_events.jsonl.gz) includes the first partial run as well as all four completed runs. Previous datasets and logs remain archived. Model-fit scoring is offline; the agent never reads the contract or scorer.
 
-Cursor was not used. Codex and Claude assisted development. [Submission](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Deck text](docs/DECK_TEXT.md). The submission video URL remains empty until a public upload is available.
+Cursor was not used. Codex and Claude assisted development. [Submission](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Deck text](docs/DECK_TEXT.md). The submission video URL remains PENDING UPLOAD until a public upload is available.
 
 ## Set up with your coding agent
 

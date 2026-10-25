@@ -14,7 +14,7 @@
     },
     {
       "name": "Meterless",
-      "usage": "Independent Python implementations of World Model, H-MEM and Markovian reference architectures with ported conformance checks."
+      "usage": "In-repo Python implementations of World Model, H-MEM and Markovian against a pinned Meterless reference specification; not an installed Meterless library."
     },
     {
       "name": "NVIDIA",
@@ -47,5 +47,9 @@
   "demo_captions_url": "PENDING UPLOAD",
   "deck_pdf_url": "PENDING FORM SUBMISSION",
   "deck_pptx_url": "PENDING FORM SUBMISSION",
-  "deck_submission": "Submitted through the hackathon form; local artifacts are not distributed in the repository."
+  "deck_submission": "Submitted through the hackathon form; local artifacts are not distributed in the repository.",
+  "demo_mode": "Checked saved-run replay on synthetic companies; no external provider calls.",
+  "uploads": "Live mode required; end-to-end integration verification pending.",
+  "setup_skill": "skills/polytoken-setup/SKILL.md",
+  "add_data_skill": "skills/polytoken-add-data/SKILL.md"
 }

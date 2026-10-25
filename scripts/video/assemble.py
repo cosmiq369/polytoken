@@ -1,5 +1,5 @@
 """Trim synchronized recordings, assemble crossfades and burn aligned captions."""
-import hashlib,json,math,re,subprocess,textwrap
+import difflib,hashlib,json,math,re,subprocess,textwrap
 from datetime import datetime,timezone
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
@@ -22,19 +22,27 @@ for s in scenes:
  assert abs((end-start)-s['duration'])<.45,(s['id'],start,end,s['duration'])
  run(['-ss',start,'-i',raw,'-t',s['duration'],'-vf','fps=25,format=yuv420p','-c:v','libx264','-preset','fast','-crf','20','-an',target]);audit('scene_trimmed',scene=s['id'],start=start,end=end,duration=s['duration'],ok=True)
  print('Trimmed',s['id'],flush=True)
-# Title card. Deck images only occur in scenes 1 and 7.
-im=Image.new('RGB',(1920,1080),'#15171c');draw=ImageDraw.Draw(im)
-draw.text((150,340),'PolyToken',font=ImageFont.truetype(bold,112),fill='#f1f2f5')
-draw.text((155,510),'Open Agent Hackathon 2026 · Track 02',font=ImageFont.truetype(font,44),fill='#a5bbff')
-draw.text((155,625),'Every token accounted for.',font=ImageFont.truetype(font,34),fill='#b5bdc9');im.save(OUT/'title_card.png')
-run(['-loop','1','-i',OUT/'title_card.png','-f','lavfi','-i','anullsrc=r=48000:cl=stereo','-t','2','-r',FPS,'-c:v','libx264','-preset','fast','-crf','20','-pix_fmt','yuv420p','-c:a','aac',TMP/'s00.mp4'])
-segments=[TMP/'s00.mp4'];durations=[2.0];cursor=2-FADE;captions=[]
+# Source audio is unchanged speech: scene-boundary trims and silence margins only.
+clips={c['scene']:c for c in json.loads((OUT/'scene_boundaries.json').read_text())['clips']}
+segments=[];durations=[];cursor=0;captions=[]
 for s in scenes:
- audio=OUT/'audio'/f"{s['id']}.mp3";dest=TMP/f"{s['id']}.mp4";duration=s['duration'];offset=s['audio_offset']
+ audio=OUT/'assets/voice'/f"{s['scene']}.wav";dest=TMP/f"{s['id']}.mp4";duration=s['duration'];offset=s['audio_offset']
  run(['-i',OUT/'screen'/f"{s['id']}.mp4",'-i',audio,'-filter_complex',f'[1:a]adelay={round(offset*1000)}:all=1,apad,atrim=duration={duration},aresample=48000[a]','-map','0:v','-map','[a]','-t',duration,'-c:v','copy','-c:a','aac','-b:a','192k',dest])
  segments.append(dest);durations.append(duration);s['timeline_start']=cursor
- d=json.loads(audio.with_suffix('.json').read_text());align=d['alignment'];chars=''.join(align['characters']);words=[]
- for m in re.finditer(r'\S+',chars):words.append((m.group(),align['character_start_times_seconds'][m.start()],align['character_end_times_seconds'][m.end()-1]))
+ c=clips[s['scene']];heard=c['words'];canonical=c['caption_text'].split()
+ clean=lambda w: re.sub(r'[^a-z0-9]', '',w.lower())
+ aligned=[None]*len(canonical)
+ matcher=difflib.SequenceMatcher(None,[clean(w['word']) for w in heard],[clean(w) for w in canonical],autojunk=False)
+ for op,i,j,k,l in matcher.get_opcodes():
+  if k==l:continue
+  if op=='equal':
+   for source,target in zip(range(i,j),range(k,l)):aligned[target]=(heard[source]['start'],heard[source]['end'])
+  else:
+   start=heard[i]['start'] if i<len(heard) else heard[-1]['end']
+   end=heard[j-1]['end'] if j>i else start+.12
+   width=max(.04,end-start)/(l-k)
+   for target in range(k,l):aligned[target]=(start+(target-k)*width,start+(target-k+1)*width)
+ words=[(w,max(0,t[0]-c['file_start_s']),min(s['audio_duration'],t[1]-c['file_start_s'])) for w,t in zip(canonical,aligned)]
  group=[]
  def emit(g):
   if g:captions.append(dict(start=cursor+offset+g[0][1],end=cursor+offset+g[-1][2]+.12,text=' '.join(w[0] for w in g)))
@@ -74,9 +82,9 @@ for i in range(1,len(segments)):
 # Single intermediate keeps the render memory bounded and allows measured loudness normalization.
 run([*args,'-filter_complex_threads','1','-filter_complex',';'.join(filters),'-map',f'[{v}]','-map',f'[{a}]','-c:v','libx264','-preset','fast','-crf','20','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k',TMP/'joined.mp4'])
 print('Crossfades assembled',flush=True)
-measure=subprocess.run(['ffmpeg','-hide_banner','-i',str(TMP/'joined.mp4'),'-af','loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json','-f','null','-'],capture_output=True,text=True,check=True)
+measure=subprocess.run(['ffmpeg','-hide_banner','-i',str(TMP/'joined.mp4'),'-af','highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json','-f','null','-'],capture_output=True,text=True,check=True)
 levels=json.loads(re.findall(r'\{[^{}]+\}',measure.stderr)[-1]);norm=f"loudnorm=I=-16:TP=-1.5:LRA=11:measured_I={levels['input_i']}:measured_TP={levels['input_tp']}:measured_LRA={levels['input_lra']}:measured_thresh={levels['input_thresh']}:offset={levels['target_offset']}:linear=true"
-run(['-i',TMP/'joined.mp4','-i',TMP/'caption-band.mp4','-filter_complex_threads','1','-filter_complex',f'[0:v][1:v]overlay=0:950:shortest=1[v];[0:a]{norm},aresample=48000[a]','-map','[v]','-map','[a]','-c:v','libx264','-preset','fast','-crf','21','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','-movflags','+faststart',OUT/'PolyToken_demo.mp4'])
+run(['-i',TMP/'joined.mp4','-i',TMP/'caption-band.mp4','-filter_complex_threads','1','-filter_complex',f'[0:v][1:v]overlay=0:950:shortest=1[v];[0:a]highpass=f=80,{norm},aresample=48000[a]','-map','[v]','-map','[a]','-c:v','libx264','-preset','fast','-crf','21','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','-movflags','+faststart',OUT/'PolyToken_demo.mp4'])
 final=probe(OUT/'PolyToken_demo.mp4');length=float(final['format']['duration']);assert 165<=length<=210
 # Contact sheet every ten seconds; full-size frames are retained for OCR checks.
 frames=OUT/'review_frames';frames.mkdir(exist_ok=True);images=[]
@@ -86,6 +94,11 @@ cols=3;cw=640;ch=390;sheet=Image.new('RGB',(cols*cw,math.ceil(len(images)/cols)*
 for i,(t,dest) in enumerate(images):
  im=Image.open(dest).resize((640,360));x=(i%cols)*cw;y=(i//cols)*ch;sheet.paste(im,(x,y+30));draw.text((x+12,y+5),f'{t//60:02}:{t%60:02}',font=ImageFont.truetype(font,21),fill='white')
 sheet.save(OUT/'contact_sheet.png')
+# Six dedicated full-size review frames: architecture, Raitu costs/quality, both ratios,
+# checked Q&A and a recompute recipe, in addition to the 10-second contact sheet.
+for scene_id,offset,name in [('s03',17,'architecture'),('s04',23,'raitu-cost-quality'),('s05',9,'native-6x'),('s05',15,'tenglish-1.12x'),('s06',12,'checked-answer'),('s07',2,'recompute')]:
+ t=next(s['timeline_start'] for s in scenes if s['id']==scene_id)+offset
+ run(['-ss',t,'-i',OUT/'PolyToken_demo.mp4','-frames:v','1',frames/f'key-{name}.png'])
 (OUT/'scenes.json').write_text(json.dumps(scenes,indent=2,ensure_ascii=False)+'\n')
-manifest=dict(duration=length,scene_durations={s['id']:s['duration'] for s in scenes},audio_durations={s['id']:s['audio_duration'] for s in scenes},title_duration=2,crossfade=.25,width=1920,height=1080,video_codec=final['streams'][0]['codec_name'],audio_codec=next(s['codec_name'] for s in final['streams'] if s['codec_type']=='audio'),caption_count=len(captions),live_app_fraction_min=1-(2+4+scenes[-1]['duration'])/length,sha256=hashlib.sha256((OUT/'PolyToken_demo.mp4').read_bytes()).hexdigest(),loudness_input=levels)
+manifest=dict(duration=length,scene_durations={s['id']:s['duration'] for s in scenes},audio_durations={s['id']:s['audio_duration'] for s in scenes},title_duration=0,crossfade=.25,width=1920,height=1080,video_codec=final['streams'][0]['codec_name'],audio_codec=next(s['codec_name'] for s in final['streams'] if s['codec_type']=='audio'),caption_count=len(captions),live_app_fraction_min=1-(8.4+scenes[-1]['duration'])/length,sha256=hashlib.sha256((OUT/'PolyToken_demo.mp4').read_bytes()).hexdigest(),loudness_input=levels)
 (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');audit('video_assembled',ok=True,**manifest);print(json.dumps(manifest,indent=2))
