@@ -30,11 +30,17 @@ def validate_claims(row, pair):
             raise ValueError('Missing claim inventory')
         allowed = {'present', 'contradicted', 'missing' if variant == 'original' else 'added'}
         for claim in rows:
-            if (not isinstance(claim, dict) or not isinstance(claim.get('claim'), str)
-                    or not claim['claim'].strip() or type(claim.get('material')) is not bool
-                    or claim.get('status') not in allowed
-                    or claim.get('grounding') not in ('supported', 'unsupported', 'uncertain')
-                    or not isinstance(claim.get('quote'), str) or not claim['quote'].strip()
+            if not isinstance(claim, dict):
+                raise ValueError('Each claim must be an object')
+            if not isinstance(claim.get('claim'), str) or not claim['claim'].strip():
+                raise ValueError('Each claim needs a nonempty English description')
+            if type(claim.get('material')) is not bool:
+                raise ValueError('material must be a JSON boolean')
+            if claim.get('status') not in allowed:
+                raise ValueError(f'{variant}_claims status must be one of {sorted(allowed)}; got {claim.get("status")!r}')
+            if claim.get('grounding') not in ('supported', 'unsupported', 'uncertain'):
+                raise ValueError('grounding must be supported, unsupported or uncertain')
+            if (not isinstance(claim.get('quote'), str) or not claim['quote'].strip()
                     or claim['quote'] not in pair[variant]['text']):
                 raise ValueError('Invalid or ungrounded claim quote')
             if 'quote_id' in claim and {q['id']: q['text'] for q in catalog[variant]}.get(claim['quote_id']) != claim['quote']:

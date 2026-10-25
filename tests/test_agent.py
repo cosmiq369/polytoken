@@ -765,7 +765,8 @@ def test_judge_cache_preserves_valid_outcomes_and_requires_exact_context(apparat
     assert t.budget.counts['judge'] == 20
 
 
-def test_judge_repair_explains_wrong_reply_excerpt(apparatus):
+@pytest.mark.parametrize('mistake', ['reference', 'status'])
+def test_judge_repair_explains_wrong_reply_excerpt(apparatus, mistake):
     t = apparatus['tools']
     config, ids = t.load_company('samudra')
     t.measure('samudra', config, ids)
@@ -778,7 +779,10 @@ def test_judge_repair_explains_wrong_reply_excerpt(apparatus):
         if not bad:
             bad.append(True)
             row = json.loads(result['text'])
-            row['original_claims'][0]['quote_id'] = 'changed:1'
+            if mistake == 'reference':
+                row['original_claims'][0]['quote_id'] = 'changed:1'
+            else:
+                row['changed_claims'][0]['status'] = 'changed'
             result['text'] = json.dumps(row)
         elif 'Validation error:' in prompt:
             repaired.append(prompt)
@@ -786,6 +790,6 @@ def test_judge_repair_explains_wrong_reply_excerpt(apparatus):
     t.generate = mistaken_reference
     quality = t.quality_judge(experiment['pairs'])
     assert len(repaired) == 1
-    assert 'original_claims: quote_id must be one of' in repaired[0]
+    assert ('original_claims: quote_id must be one of' if mistake == 'reference' else 'changed_claims status must be one of') in repaired[0]
     assert all(r['same_facts'] is True for r in quality['pairs'])
     assert t.budget.counts['judge'] == 21

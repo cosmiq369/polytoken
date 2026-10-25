@@ -28,6 +28,13 @@ def main():
         world.db.commit()
         events = {e['event_id']: e['payload'] for e in world.events()}
         checker = Checker(EvidenceStore(world), JsonlLogger(run_id='prompt04c-summary'))
+        history = {}
+        for path in sorted(SAMPLE.glob('agent_*v3*report.json')):
+            retained = json.loads(path.read_text())
+            checked, dropped = checker.check(retained['claims'])
+            if dropped:
+                raise ValueError(f'{path}: {dropped}')
+            history[retained['id']] = (path, retained, {c['id']: c['value'] for c in checked})
         lines = ['# PROMPT-04C completion report — 25 October 2026', '',
                  'Contextual A/A and A/B experiments on the declared fictional companies. The contract threshold remains 18/20; native review remains pending. Every previous run and score is retained.', '',
                  '## Company outcomes', '',
@@ -70,22 +77,30 @@ def main():
                         return 'unavailable'
                     return f'{v[keys[0]]:.2f} [{v[keys[1]]:.2f}, {v[keys[2]]:.2f}]'
                 lines.append(f'| {metric} | {interval("original")} | {interval("changed")} | {interval("difference")} |')
-            lines += ['', f"Physical attempts: reasoning {v.get('jobs/nemotron', v.get('budget/nemotron'))}; judge {v.get('jobs/judge', 0)}; hosted {v.get('jobs/hosted', 0)}; SQL {v.get('jobs/sql', v.get('budget/sql'))}. Job time {v.get('jobs/duration_s', 0):.2f} s."]
+            lines += ['', f"Latest investigation physical attempts: reasoning {v.get('jobs/nemotron', v.get('budget/nemotron'))}; judge {v.get('jobs/judge', 0)}; hosted {v.get('jobs/hosted', 0)}; SQL {v.get('jobs/sql', v.get('budget/sql'))}. Job time {v.get('jobs/duration_s', 0):.2f} s."]
+            prior = [values for _, r, values in history.values() if r['company'] == company]
+            total = {kind: sum(values.get('jobs/' + kind, values.get('budget/' + kind, 0)) for values in prior)
+                     for kind in ('nemotron', 'judge', 'hosted', 'sql')}
+            lines += ['', f"Across all {len(prior)} retained {company} investigations: reasoning {total['nemotron']}, judge {total['judge']}, hosted {total['hosted']}, SQL {total['sql']} physical attempts. Limits apply per investigation; recovery totals are not hidden behind the latest run's cache hits."]
             if experiment and experiment['excluded_pairs']:
                 lines += ['', 'Excluded chats: ' + ', '.join(p['chat_id'] for p in experiment['excluded_pairs']) + '. Full failure rows and retry attempts remain in the World Model archive.']
         lines += ['', '## Prior scores and run history', '',
                   'V2 remains Samudra **1/20** and Swara **0/20**, with the original failed-quality verdicts and diagnosis unchanged. These used the earlier protocol and are not a controlled trend comparison with v3. See [v2 report](agent_v2_completion_report.md) and [quality diagnosis](agent_v2_quality_diagnosis.md).', '',
-                  '| Company / retained v3 attempt | Status | A/A | A/B |', '| --- | --- | --- | --- |']
-        for path in sorted(SAMPLE.glob('agent_*v3*report.json')):
-            r = json.loads(path.read_text())
-            values = {c['id']: c['value'] for c in r['claims']}
+                  '| Company / retained v3 attempt | Status | A/A | A/B | Reasoning / judge / hosted / SQL attempts |', '| --- | --- | --- | --- | --- |']
+        for path, r, values in history.values():
             score = lambda prefix: f"{values.get(prefix + '/passed', 0)}/{values.get(prefix + '/judged', 0)}"
-            lines.append(f"| [{r['company']} / {r['id']}]({path.name}) | {r['status']} | {score('quality/aa')} | {score('quality')} |")
+            counts = ' / '.join(str(values.get('jobs/' + k, values.get('budget/' + k, 0))) for k in ('nemotron', 'judge', 'hosted', 'sql'))
+            lines.append(f"| [{r['company']} / {r['id']}]({path.name}) | {r['status']} | {score('quality/aa')} | {score('quality')} | {counts} |")
         lines += ['', '## Validation', '']
+        validation = {}
         for line in (SAMPLE / 'agent_v3_validation.jsonl').read_text().splitlines():
             entry = json.loads(line)
             if entry.get('event') in ('tests', 'final_tests', 'replay', 'commit'):
-                lines.append(f"- `{entry.get('command', entry.get('commit', ''))}` — {entry.get('summary', entry.get('result', 'recorded')).strip()}")
+                key = entry.get('command', entry.get('commit', ''))
+                validation[key] = entry
+        for key, entry in validation.items():
+            summary = entry.get('summary') or entry.get('result', 'recorded').strip().splitlines()[-1]
+            lines.append(f"- `{key}` — {summary}")
         lines += ['', '## Interpretation, deviations and limitations', '',
                   '- Full history and policy now reach the generator/judge; GPT-OSS uses low reasoning effort and a 1024-token generation allowance. Completed answers require finish_reason=stop. One regeneration is allowed for length truncation. Selection is a fixed permutation, with exclusions before any judgments.',
                   '- A1 is shared across A/A and A/B, while A2 is independently generated. Separate replicate cache keys prevent copying the baseline into its control. Successful calls can be reused only under the same contextual protocol and settings.',
