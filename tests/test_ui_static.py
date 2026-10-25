@@ -56,6 +56,10 @@ def test_ui_saved_reports_and_browser_flows(tmp_path):
                             capture_output=True, text=True, timeout=240)
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'UI checks passed' in result.stdout
+    console = subprocess.run([node, str(ROOT / 'web/check-console.cjs')], cwd=ROOT, env=env,
+                             capture_output=True, text=True, timeout=120)
+    assert console.returncode == 0, console.stdout + console.stderr
+    assert 'Console checks passed' in console.stdout
 
 
 def test_currency_reference_list_and_legacy_accounting(tmp_path):

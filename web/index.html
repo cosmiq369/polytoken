@@ -4,30 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>PolyToken · The Token Ledger</title>
+  <title>PolyToken · Agent console</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/console.css">
   <script src="/app.js" defer></script>
+  <script src="/console.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="header"><div class="header-inner">
     <a class="brand" href="#ask" aria-label="PolyToken home"><svg width="29" height="29" viewBox="0 0 29 29" aria-hidden="true"><rect x="2" y="5" width="25" height="4" rx="2" class="logo-amber"/><rect x="2" y="13" width="17" height="4" rx="2"/><rect x="2" y="21" width="9" height="4" rx="2"/></svg>PolyToken</a>
-    <nav aria-label="Investigation views">
-      <button type="button" data-screen="ask" aria-current="page">1 Ask</button>
-      <button type="button" data-screen="investigation" disabled>2 Investigate</button>
-      <button type="button" data-screen="report" disabled>3 Report</button>
-      <button type="button" data-screen="tokens" disabled>4 Token strip</button>
-    </nav>
     <div class="header-controls"><span class="connection" id="connection" role="status">Loading company configuration…</span><label class="currency-label" for="currency">Currency <select id="currency"><option value="USD">USD</option></select></label><button type="button" id="currency-source" class="rate-note" title="Open currency source receipt"></button></div>
   </div></header>
   <div class="notice" id="notice" role="alert" hidden></div>
+  <aside class="rail" aria-label="Workspace navigation">
+    <p class="eyebrow">WORKSPACE</p>
+    <nav aria-label="Workspace"><button data-screen="history">Investigations</button><button data-screen="ask">Companies</button><button data-screen="tokens">Token strip</button><button data-screen="settings">Settings</button></nav>
+    <div class="rail-heading">RECENT RUNS <button id="refresh-history" aria-label="Refresh history">↻</button></div><div id="run-history"></div>
+    <p class="rail-foot">Zetaris · NVIDIA · Meterless<br>Evidence before advice.</p>
+  </aside>
+  <div id="run-shell" hidden>
+    <div class="run-bar"><div><strong id="run-company"></strong><code id="console-run-id"></code></div><span id="run-status" role="status" class="tag">Queued</span><span id="elapsed" aria-label="Elapsed run time">00:00</span><button id="stop-run">Stop</button><button id="rerun">Re-run</button></div>
+    <nav class="run-tabs" aria-label="Run views"><button data-console-tab="activity">Activity</button><button data-console-tab="trace">Trace</button><button data-console-tab="overview" data-screen="report">Overview</button><button data-console-tab="billing">Billing</button><button data-console-tab="quality">Quality</button><button data-console-tab="evidence">Evidence</button><button data-console-tab="tokens" data-screen="tokens">Token strip</button><button id="toggle-events" aria-expanded="false">Events</button></nav>
+    <div class="replay-controls" id="replay-controls" hidden><span class="tag">REPLAY</span><button id="replay-play">Pause</button><label>Speed <select id="replay-speed"><option value="1">1×</option><option value="4" selected>4×</option><option value="16">16×</option></select></label><input id="replay-position" aria-label="Replay position" type="range" step="any" min="0" max="1000" value="0"><output id="replay-time">00:00 / 00:00</output></div>
+  </div>
   <main id="main" tabindex="-1">
     <section id="ask" class="screen" aria-labelledby="ask-title">
+      <div class="empty-actions"><button class="primary" id="demo-run">Run a demo investigation</button><button id="replay-saved">Replay a saved run</button><span class="hint">Offline playback from recorded evidence</span></div>
       <div class="ask-grid">
         <div>
-          <p class="eyebrow">The Token Ledger / new case</p>
-          <h1 id="ask-title">Understand the bill.<br><span class="amber">Keep the meaning.</span></h1>
+          <p class="eyebrow">New investigation</p>
+          <h1 id="ask-title">Investigate a workload</h1>
           <p class="intro">What do we pay? What is the language tax? Follow the cost through every resent prompt, test a fix, and open the receipt behind the result.</p>
           <form id="ask-form">
             <fieldset><legend>Which product?</legend><div id="companies" class="company-grid"><p class="muted">Loading from Zetaris…</p></div></fieldset>
@@ -41,17 +49,19 @@
           </form>
         </div>
         <aside class="ask-aside">
-          <section class="panel source-panel"><p class="eyebrow">Five questions for the bill owner</p><h2>Account for every reply.</h2><ol class="questions"><li>What do we pay per month, conversation and reply?</li><li>What do we pay above the same content in English?</li><li>How much comes from prompts and history sent again?</li><li>Which fix saves money and preserves meaning?</li><li>What changes with volume, price or the model?</li></ol><p class="hint">Company chats, measured tokens and quoted prices are sourced through Zetaris.</p></section>
+          <section class="panel source-panel"><p class="eyebrow">Evidence-backed investigation</p><h2>Account for every reply.</h2><ol class="questions"><li>What do we pay per month, conversation and reply?</li><li>What do we pay above the same content in English?</li><li>How much comes from prompts and history sent again?</li><li>Which fix saves money and preserves meaning?</li><li>What changes with volume, price or the model?</li></ol><p class="hint">Company chats, measured tokens and quoted prices are sourced through Zetaris.</p></section>
           <section class="panel archive-panel"><h2>Open a saved investigation</h2><p>Choose a report JSON. Add its event and World Model JSONL or JSONL.gz files to inspect the recorded steps and raw evidence.</p><label class="file-label" for="saved-files">Report and supporting files</label><input id="saved-files" type="file" accept=".json,.jsonl,.gz" multiple><p class="hint">Files stay in this browser. Saved reports retain their recorded checker verdicts.</p></section>
         </aside>
       </div>
     </section>
     <section id="investigation" class="screen" aria-labelledby="investigation-title" hidden>
-      <div class="section-heading"><div><p class="eyebrow" id="run-context">Investigation</p><h1 id="investigation-title">The investigation case file.</h1></div><button type="button" data-screen="report" id="view-report" disabled>Open report →</button></div>
+      <div class="activity-heading"><div><p class="eyebrow" id="run-context">INVESTIGATION</p><h1 id="investigation-title">Follow the evidence.</h1></div><button type="button" data-screen="report" id="view-report" disabled>Open report →</button></div>
       <p id="stream-status" class="muted" role="status"></p>
       <div id="budgets" class="budgets"></div>
-      <p id="experiment-progress" class="progress-note" role="status">Background experiment: not measured — no progress event received.</p>
-      <div class="investigation-grid"><section class="panel"><h2>The reasoning trail</h2><ol id="timeline" class="timeline"></ol></section><aside class="panel"><h2>Evidence as it arrives</h2><p class="hint">Recorded observations; report claims are checked separately.</p><div id="evidence-cards" class="evidence-cards"></div></aside></div>
+      <section class="panel circuit-panel"><div class="toolbar"><h2>Service map</h2><span class="hint" id="map-caption">Waiting for recorded activity</span></div><div id="service-map"></div></section>
+      <p id="experiment-progress" class="progress-note" role="status"></p>
+      <div class="console-columns"><section class="panel trace-panel"><div class="toolbar"><h2>Execution trace</h2><span class="hint">Step / tool / service call</span></div><div id="trace-tree"></div></section><aside class="panel findings-panel"><h2>Checked findings</h2><p class="hint">Only claims accepted by the deterministic checker.</p><div id="live-findings"></div></aside></div>
+      <details class="legacy-observations"><summary>Recorded observations</summary><ol id="timeline" class="timeline"></ol><div id="evidence-cards"></div></details>
     </section>
     <section id="report" class="screen" aria-labelledby="report-title" hidden>
       <div id="report-content"></div>
@@ -67,7 +77,11 @@
       <div class="section-heading"><div><p class="eyebrow">Receipt / source and recomputation</p><h1 id="evidence-title">The receipt</h1></div></div>
       <div id="evidence-content"></div>
     </section>
+    <section id="history" class="screen" hidden><p class="eyebrow">Investigation history</p><h1>Your investigations</h1><p>Replay a saved run through the same service map and trace. No live provider call is required.</p><div id="history-list"></div></section>
+    <section id="settings" class="screen" hidden><p class="eyebrow">Workspace preferences</p><h1>Settings</h1><section class="panel"><label for="theme">Appearance</label><select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select><h2>Keyboard shortcuts</h2><p><kbd>Alt R</kbd> Run or re-run · <kbd>Alt S</kbd> Stop · <kbd>Alt 1–7</kbd> Run tabs · <kbd>Alt 8</kbd> Event console</p><p id="mode-note"></p></section></section>
+    <section id="evidence-index" class="screen" hidden><h1>Evidence ledger</h1><div id="evidence-ledger"></div></section>
   </main>
+  <section id="event-console" hidden aria-label="Raw event console"><div class="toolbar"><h2>Event console</h2><span>Recorded telemetry · not business claims</span></div><div id="event-tail"></div></section>
   <footer><strong>PolyToken / The Token Ledger</strong><span>Every token accounted for.</span><span lang="te">ప్రతి టోకెన్‌కు లెక్క.</span><span lang="hi">हर टोकन का हिसाब।</span></footer>
 </body>
 </html>

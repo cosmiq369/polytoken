@@ -43,12 +43,14 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
    }
    if(url.pathname.endsWith('/report'))return respond(finishReport?samudra:{...samudra,status:'running',jobs:{...samudra.jobs,status:'running'}},finishReport?200:202);
    if(url.pathname.startsWith('/evidence/')){const e=world.get(decodeURIComponent(url.pathname.slice(10)));return respond(e || {detail:'Evidence not found'},e?200:404);}
-   const filename={'/':'index.html','/app.js':'app.js','/styles.css':'styles.css'}[url.pathname];
+   const filename={'/':'index.html','/app.js':'app.js','/styles.css':'styles.css','/console.css':'console.css','/console.js':'console.js'}[url.pathname];
    return filename?route.fulfill({path:path.join(__dirname,filename),contentType:filename.endsWith('.js')?'application/javascript':filename.endsWith('.css')?'text/css':'text/html'}):route.fulfill({status:404,body:'Not found'});
   });
   await page.goto('http://polytoken.test/');await page.locator('.company-card').first().waitFor();
+  const tab=async name=>page.locator(`[data-console-tab="${name}"]`).click();
+  const bill=async name=>{await tab('billing');await page.locator(`[data-bill-tab="${name}"]`).click();};
   const importReport=async(file,id)=>{
-   await page.getByRole('button',{name:'1 Ask',exact:true}).click();await page.locator('#saved-files').setInputFiles(file);
+   await page.locator('.rail [data-screen=ask]').click();await page.locator('#saved-files').setInputFiles(file);
    await page.locator('#report:not([hidden]) #report-title').waitFor();
    if(id)await page.waitForFunction(id=>document.querySelector('#report').dataset.reportId===id && document.querySelector('#report').dataset.billingStatus!=='loading',id,{timeout:20000});
   };
@@ -67,15 +69,15 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   for(const file of fixtures){
    const report=readJSON(file);await importReport(file,report.id);
    assert.ok(!/\b(?:undefined|NaN|Infinity)\b/.test(await page.locator('#report').innerText()),file);
-   await page.locator('#ratio-part').selectOption('system_prompt');
+   await tab('quality');await page.locator('#ratio-part').selectOption('system_prompt');
    assert.equal(await page.locator('.interval').count(),0,'Degenerate system-prompt intervals must be suppressed');
    assert.match(await page.locator('.ratio-section').innerText(),/One system prompt per company/);
    await page.locator('#ratio-part').selectOption('user');
    const relevant=report.claims.filter(c=>/^ratios\/.+\/user\/ci_low$/.test(c.id));
    const nonzero=relevant.filter(c=>report.claims.find(h=>h.id===c.id.replace('/ci_low','/ci_high'))?.value>c.value);
    assert.equal(await page.locator('.interval').count(),nonzero.length);
-   await page.locator('#ratio-part').selectOption('system_prompt');
-   await page.getByRole('button',{name:'Transcript',exact:true}).click();
+   await tab('quality');await page.locator('#ratio-part').selectOption('system_prompt');
+   await bill('composition');await page.getByRole('button',{name:'Transcript',exact:true}).click();
    if(index[report.id] && readJSON(index[report.id]).status==='checked')assert.match(await page.locator('#report').innerText(),/No history replay/);
    await page.getByRole('button',{name:'Billed',exact:true}).click();await noOverflow();
    // Every negative checked fix belongs in the cost-increase group, never the saving group.
@@ -95,7 +97,7 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   assert.match(await page.locator('.speed-row').first().innerText(),/stand-in/);
   assert.ok(!(await page.locator('.trust-line').innerText()).includes('speed/output_tokens_per_s/'));
   const legacyPath=path.join(samples,'agent_samudra_v2_report.json');await importReport(legacyPath,readJSON(legacyPath).id);
-  await page.locator('[data-dropped]').first().click();assert.match(await page.locator('#evidence').innerText(),/speed\/output_tokens_per_s/);
+  await tab('evidence');await page.locator('#evidence-ledger [data-dropped]').first().click();assert.match(await page.locator('#evidence').innerText(),/speed\/output_tokens_per_s/);
   await page.locator('#back-evidence').click();
   await importReport(samudraPath,samudra.id);
   // Currency conversion is explicit, precise, and remembered after reload.
@@ -110,14 +112,15 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   await page.locator('#currency').selectOption('USD');
   // Only the explicitly labelled what-if panel changes when inputs change.
   const recorded=await page.locator('.headline-cell').first().innerText();
+  await bill('scenario');
   const scenarioBefore=await page.locator('#what-if-result').innerText();
   await page.locator('#what-if-input').evaluate(el=>{el.value='2';el.dispatchEvent(new Event('input',{bubbles:true}));});
   assert.notEqual(await page.locator('#what-if-result').innerText(),scenarioBefore);
-  assert.equal(await page.locator('.headline-cell').first().innerText(),recorded);
+  assert.equal((await page.locator('.headline-cell').first().innerText()).replace(/\s/g,''),recorded.replace(/\s/g,''));
   await page.locator('[data-scenario-record]').click();assert.match(await page.locator('#evidence').innerText(),/Scenario, not a measurement/);assert.match(await page.locator('#evidence').innerText(),/assumed_input_price_usd/);await page.locator('#back-evidence').click();
   await page.locator('#reset-what-if').click();assert.equal(await page.locator('#what-if-result').innerText(),scenarioBefore);
-  assert.match(await page.locator('.quality-line').innerText(),/A\/A floor 7 \/ 20 judged/);
-  assert.match(await page.locator('.quality-line').innerText(),/A\/B change 3 \/ 20 judged/);
+  await tab('quality');assert.match(await page.locator('.quality-line').innerText(),/A\/A floor 7 \/ 20 judged/);
+  await tab('quality');assert.match(await page.locator('.quality-line').innerText(),/A\/B change 3 \/ 20 judged/);
   assert.match(await page.locator('.fix.tested .fix-heading').innerText(),/Inconclusive/i);
   assert.match(await page.locator('.interpretation').innerText(),/the bar cannot be met by this judge and stand-in model/);
   assert.match(await page.locator('#report-title').innerText(),/of the money/);
@@ -137,12 +140,12 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   await importObject({id:'test-partial',status:'partial',partial_reason:'Test budget exhausted',claims:[{...source,id:'unverified',value:987654321,verified:false},{...source,id:'dropped',value:987654321}],dropped_claims:[{id:'dropped',reason:'Test checker rejection'}],top_finding:'<img src=x onerror="window.injected=true">',unknown_future_field:{anything:true}});
   assert.ok(!(await page.locator('#report').innerText()).includes('987654321'));assert.equal(await page.locator('#report img').count(),0);assert.equal(await page.evaluate(()=>window.injected),undefined);
   billingUnavailable=true;await importReport(samudraPath,samudra.id);await page.locator('#report-title .metric').click();await page.getByText('Raw evidence not loaded.',{exact:false}).first().waitFor();
-  await page.getByRole('button',{name:'1 Ask',exact:true}).click();await page.locator('#saved-files').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{')});await page.locator('#notice:not([hidden])').waitFor();
+  await page.locator('.rail [data-screen=ask]').click();await page.locator('#saved-files').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{')});await page.locator('#notice:not([hidden])').waitFor();
   billingUnavailable=false;
   await page.locator('#currency').selectOption('INR');
   // Screenshots use the saved Samudra report and actual cached tokenizer outputs.
   await importReport([samudraPath,path.join(samples,'agent_samudra_v3.jsonl'),path.join(samples,'agent_world_events.jsonl'),path.join(samples,'agent_v2_world_events.jsonl'),path.join(samples,'agent_v3_world_events.jsonl')],samudra.id);
-  await page.getByRole('button',{name:'4 Token strip',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#token-status').textContent.startsWith('Local inspection complete'));
+  await page.locator('[data-console-tab=tokens]').click();await page.waitForFunction(()=>document.querySelector('#token-status').textContent.startsWith('Local inspection complete'));
   assert.equal(await page.locator('.token-row').count(),8);
   const successful=Object.values(tokenFixtures).filter(r=>r.ok);
   successful.forEach(row=>assert.equal(row.pieces.map(p=>p.text).join(''),row.text));
@@ -156,8 +159,8 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
    for(const theme of ['light','dark']){
     await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});
     for(const [screen,name] of [['ask','1 Ask'],['investigation','2 Investigate'],['report','3 Report'],['tokens','4 Token strip'],['evidence',null]]){
-     if(name)await page.getByRole('button',{name,exact:true}).click();
-     else{await page.getByRole('button',{name:'3 Report',exact:true}).click();await page.locator('#report-title .metric').click();await page.locator('#raw-evidence article').first().waitFor();await page.locator('#raw-evidence').getByText('Raw rows or call record',{exact:true}).first().click();}
+     if(name)await page.locator({'1 Ask':'.rail [data-screen=ask]','2 Investigate':'[data-console-tab=activity]','3 Report':'[data-console-tab=overview]','4 Token strip':'[data-console-tab=tokens]'}[name]).click();
+     else{await page.locator('[data-console-tab=overview]').click();await page.locator('#report-title .metric').click();await page.locator('#raw-evidence article').first().waitFor();await page.locator('#raw-evidence').getByText('Raw rows or call record',{exact:true}).first().click();}
      await noOverflow();await contrast();
      if(process.argv.includes('--screenshots')) {await page.screenshot({path:path.join(samples,`ui_5b_${screen}_${size}_${theme}.png`),fullPage:true});if(screen==='report' && size==='desktop' && theme==='light')await page.screenshot({path:path.join(samples,'ui_5b_report_summary.png'),fullPage:false});}
     }
@@ -165,8 +168,8 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   }
   await page.emulateMedia({colorScheme:'light'});
   // Live EventSource replay, duplicate protection, POST and final report polling.
-  await page.getByRole('button',{name:'1 Ask',exact:true}).click();await page.locator('#monthly-chats').fill('120000');await page.locator('#latency-target').fill('2.5');await page.locator('#investigate').click();
-  await page.locator('#investigation:not([hidden]) .timeline .running').waitFor();await page.waitForFunction(()=>document.querySelector('#experiment-progress').textContent.includes('done ·'));
+  await page.locator('.rail [data-screen=ask]').click();await page.locator('#monthly-chats').fill('120000');await page.locator('#latency-target').fill('2.5');await page.locator('#investigate').click();
+  await page.locator('#investigation:not([hidden]) .timeline .running').waitFor({state:'attached'});await page.waitForFunction(()=>document.querySelector('#experiment-progress').textContent.includes('done ·'));
   assert.deepEqual({company:posted.company,monthly_chats:posted.monthly_chats,latency_target_s:posted.latency_target_s},{company:'samudra',monthly_chats:120000,latency_target_s:2.5});
   const evidenceCount=await page.locator('.evidence-card').count();finishReport=true;
   await page.waitForFunction(()=>document.querySelector('#stream-status').textContent.includes('Investigation complete'),{},{timeout:20000});assert.equal(await page.locator('.evidence-card').count(),evidenceCount);

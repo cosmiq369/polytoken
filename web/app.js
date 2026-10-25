@@ -42,6 +42,7 @@
     if (screen==='investigation' && !state.runId) return;
     if(screen==='tokens' && !state.report)return;
     state.screen=screen;
+    window.dispatchEvent(new CustomEvent('polytoken:screen',{detail:screen}));
     document.querySelectorAll('.screen').forEach(el=>el.hidden=el.id!==screen);
     document.querySelectorAll('nav [data-screen]').forEach(el=>{
       if(el.dataset.screen===screen) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
@@ -62,7 +63,7 @@
   }
   function renderCompanies() {
     $('#companies').innerHTML=state.companies.map(c=>`<button type="button" class="company-card" data-company="${escape(c.company)}" aria-pressed="${state.company===c.company}"><strong>${escape(names[c.company] || c.company)}</strong><span class="language">${escape(({te:'Telugu · తెలుగు',hi:'Hindi · हिन्दी'})[c.language] || c.language || 'Language not supplied')}</span><small>${escape(c.model_in_use || 'Model not supplied')}</small><small class="company-volume">${finite(c.monthly_chats)?number(c.monthly_chats,0)+' conversations / month':'Volume not supplied'}</small></button>`).join('');
-    $('#investigate').disabled=!state.company || state.posting;
+    $('#investigate').disabled=!state.company || state.posting || state.demo;
   }
   async function loadCompanies() {
     $('#retry-companies').hidden=true;
@@ -71,7 +72,7 @@
       state.companies=list(data).filter(c=>c && ['samudra','swara'].includes(c.company));
       if(!state.companies.length) throw new Error('No supported company configuration was returned.');
       state.company=state.companies[0].company;
-      renderCompanies(); $('#connection').textContent='Company configuration loaded · Zetaris';
+      renderCompanies(); $('#connection').textContent=state.demo?'Offline demo · recorded Zetaris evidence':'Company configuration loaded · Zetaris';
     } catch(error) {
       $('#companies').innerHTML='<p class="muted">Company configuration is unavailable. Retry the lookup, or open a saved investigation.</p>';
       $('#connection').textContent='Company lookup unavailable'; $('#retry-companies').hidden=false;
@@ -80,6 +81,7 @@
   function stopStream() { state.source?.close(); state.source=null; clearTimeout(state.timer); state.timer=null; }
   function resetRun(mode, id) {
     stopStream(); state.generation++; state.evidenceView++; state.mode=mode; state.runId=id;
+    window.dispatchEvent(new Event('polytoken:reset'));
     state.report=null; state.claims=new Map(); state.events=[]; state.evidence=new Map(); state.evidenceErrors=new Map(); state.pendingEvidence=new Map();
     state.tokenizer=null;state.billingData=null;state.billingKey=null;state.billingReason=null;state.scenario={volume:null,input:1,output:1};state.tokenResults=new Map();state.tokenSequence++;$('#token-text').value='';state.lastEventId=-1; state.billing='billed'; enableViews();
   }
@@ -141,12 +143,13 @@
       const stamps={clarify:'Recorded',measure:'Measured',locate:'Located',hypothesise:'Hypothesised',experiment:'Tested',judge:'Judged',speed:'Timed',check:'Checked',report:'Reported'};
       const observed=events.some(e=>e.event==='finding' || e.event==='evidence_added') || (step==='experiment' && state.report?.jobs?.status==='complete') || (step==='judge' && state.claims.has('quality/judged')) || (step==='speed' && state.claims.has('speed/completed_runs')) || (step==='check' && !!state.report) || (step==='report' && !!state.report);
       const stamp=started && active===step && !ended ? 'Running' : !started ? 'Awaiting' : observed ? stamps[step] : 'Recorded';
-      return `<li class="${started?'started':''} ${started && active===step && !ended?'running':''}"><h3>${escape(titles[step])} ${tag(stamp,stamp==='Checked'?'good':'')}</h3><span class="tool">${escape(tool?.tool || 'Tool not recorded')}</span><p class="muted">${escape(why || 'No step explanation recorded yet.')}</p>${events.filter(e=>e.event==='finding').map(e=>`<p class="finding">${escape(e.text)}</p>`).join('')}</li>`;
+      return `<li class="${started?'started':''} ${started && active===step && !ended?'running':''}"><h3>${escape(titles[step])} ${tag(stamp,stamp==='Checked'?'good':'')}</h3><span class="tool">${escape(tool?.tool || 'Tool not recorded')}</span><p class="muted">${escape(window.polySafeExplanation ? window.polySafeExplanation(why || 'No step explanation recorded yet.') : 'Explanation available in the trace.')}</p>${events.filter(e=>e.event==='finding').map(e=>`<p class="finding">${escape(e.text)}</p>`).join('')}</li>`;
     }).join('');
     const progress=[...state.events].reverse().find(e=>e.event==='experiment_progress');
     const done=[...state.events].reverse().find(e=>e.event==='experiment_done');
     $('#experiment-progress').innerHTML=progress ? `<button type="button" class="metric" data-progress-record>Background calls: ${escape(number(progress.done))} done · ${escape(number(progress.failed))} failed · ${escape(number(progress.total))} total</button>${done ? ` · Final paired experiment: ${escape(done.status)}` : ''}` : `Background experiment: ${escape(state.report?.jobs?.status || 'not measured — no progress event received.')}`;
     renderCards();
+    window.dispatchEvent(new Event('polytoken:update'));
   }
   async function getEvidence(id) {
     if(state.evidence.has(id)) return state.evidence.get(id);
@@ -187,13 +190,15 @@
       if(['complete','partial'].includes(state.report?.status)) {source.close();return;}
       $('#stream-status').textContent='Event connection interrupted. Reconnecting; the report is checked separately.';
     };
-    for(const type of ['step_started','tool_called','evidence_added','finding','budget','claim_dropped','experiment_progress','experiment_done','done']) source.addEventListener(type,event=>{
+    for(const type of ['step_started','step_finished','planner_reason','tool_called','tool_started','tool_finished','model_call_started','model_call_finished','sql_started','sql_finished','claim_verified','evidence_added','finding','budget','claim_dropped','experiment_progress','experiment_done','price_unavailable','stop_requested','done']) source.addEventListener(type,event=>{
       if(generation!==state.generation) return;
       try {
         const id=Number(event.lastEventId); if(event.lastEventId && id<=state.lastEventId) return;
         const row=JSON.parse(event.data); if(row.investigation_id!==state.runId) return;
         if(event.lastEventId) state.lastEventId=id;
-        state.events.push(row); renderInvestigation();
+        state.events.push(row);
+        if(type==='claim_verified' && row.claim?.verified===true && finite(row.claim.value) && list(row.claim.evidence_ids).length) state.claims.set(row.claim.id,row.claim);
+        renderInvestigation();
         if(type==='evidence_added') getEvidence(row.evidence_id).catch(()=>renderCards());
         if(type==='done') {source.close();$('#stream-status').textContent=`Workflow ended: ${row.status || 'report pending'}. Retrieving the final report…`;pollReport(generation);}
       } catch { $('#stream-status').textContent='An unreadable event was skipped. The checked report remains available.'; }
@@ -367,6 +372,7 @@
     const fields=[['monthly_usd','Monthly cost'],['per_1000_conversations_usd','Per 1,000 conversations'],['per_reply_usd','Per reply'],['language_tax_usd','Language tax / month']];
     $('#report-content').innerHTML=`<section class="report-hero"><div class="report-meta"><p class="eyebrow">${escape(names[r.company] || r.company || 'Billing report')} / ${escape(state.billingData?.tokenizer || state.tokenizer || 'Tokenizer not supplied')}</p>${tag(r.status || 'Status not supplied')}${tag(state.mode==='saved'?'Recorded verdicts':'Verified source view','good')}</div><h1 id="report-title">${headline}</h1><p class="hint">${escape(r.partial_reason || 'Quoted provider content-cost scenario. Native review remains pending.')}${escape(priceNote)}</p><p class="rate-note">Base quote: ${escape(r.quoted_price?.provider || 'provider not recorded')} · fetched ${escape(r.quoted_price?.fetched_at || 'not supplied')}</p><div class="headline-strip">${fields.map(([key,label])=>`<div class="headline-cell ${key==='language_tax_usd'?'tax-cell':''}"><span>${label}</span><strong>${billMetric(key)}</strong>${key==='language_tax_usd'?`<small>${billMetric('cost_multiplier','cost-ratio')} what the same content costs in English</small>`:''}</div>`).join('')}<div class="headline-cell"><span>Billed tokens / English</span><strong>${billMetric('token_multiplier','ratio')}</strong>${state.billingData?.headline?.token_multiplier?svg(`<path class="chart-tax" stroke-width="4" d="M2 6 H150"/><path class="chart-evidence" stroke-width="4" d="M2 17 H${2+148/Math.max(1,claimValue(state.billingData.headline.token_multiplier))}"/>`,'Native billed token ratio compared with English at one','0 0 160 24','multiplier-chart'):''}<small>English ×1.0 · same content</small></div></div><p class="rate-note">${escape(rateNote())}</p><div class="actions"><button type="button" id="download-report">Download report JSON</button><button type="button" data-screen="investigation">Open case file →</button></div><p class="hint">Run <code>${escape(r.id)}</code></p></section>${renderComposition()}${renderStaircase()}${renderFixes()}${renderModels()}${renderWhatIf()}<div class="report-grid">${renderSpeed()}${renderRatios()}</div><section class="panel report-wide trust-line"><p class="eyebrow">Trust and review</p><h2>What survived the check?</h2><p>Recorded claims checked ${metric('billing/trust/reported_checked')} · claims dropped ${metric('billing/trust/reported_dropped')}</p><p>${tag('Native review: '+(r.review_status || 'not supplied'))}</p><p class="hint">Each displayed figure opens its receipt. Dropped claims retain their reason and no value.</p><ul class="reason-list">${list(r.dropped_claims).map((c,i)=>`<li><button type="button" class="metric" data-dropped="${i}">${escape(readableClaim(c.id))}</button><br>${escape(droppedReason(c))}</li>`).join('') || '<li>No dropped claims listed.</li>'}</ul></section>${renderMarkovian()}<details class="limitations"><summary>Read the accounting limits</summary><ul class="reason-list">${[...list(r.limitations),...list(state.billingData?.limitations)].map(item=>`<li>${escape(item)}</li>`).join('')}</ul></details><section class="panel"><h2>Claim ledger</h2><details><summary>Browse every recorded and checked claim</summary><div class="claim-list">${[...state.claims.values()].map(c=>`<div><span>${escape(readableClaim(c.id))}</span>${metric(c.id)}</div>`).join('')}</div></details></section>`;
     updateWhatIf();
+    window.dispatchEvent(new Event('polytoken:report'));
   }
   async function inspectTokens() {
     const text=$('#token-text').value;if(!text.trim())return;
@@ -460,7 +466,7 @@
       if(row.event && row.investigation_id===report.id && !state.events.some(e=>JSON.stringify(e)===JSON.stringify(row))) state.events.push(row);
     }
     setReport(report);$('#stream-status').textContent='Saved event log · no live calls. Steps and progress retain their recorded values.';
-    notice();show('report');
+    notice();show('report');window.dispatchEvent(new Event('polytoken:import'));
   }
   document.addEventListener('click',event=>{
     const button=event.target.closest('button');
@@ -512,8 +518,9 @@
       if(typeof data.id!=='string') throw new Error('The server did not return an investigation ID.');
       resetRun('live',data.id);renderInvestigation();show('investigation');$('#stream-status').textContent='Investigation queued. Waiting for the worker…';connectEvents();
     }catch(error){notice('Could not start the investigation: '+error.message);}
-    finally{state.posting=false;$('#investigate').disabled=!state.company;}
+    finally{state.posting=false;$('#investigate').disabled=!state.company || state.demo;}
   });
   window.addEventListener('beforeunload',stopStream);
+  window.polyConsole={state,show,resetRun,setReport,renderInvestigation,renderReport,fetchJSON,metric,format,escape,notice,inspectTokens,connectEvents,stopStream,openEvidence,enableViews};
   loadCompanies();loadCurrencies();
 })();

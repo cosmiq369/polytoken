@@ -67,3 +67,29 @@ character. Saved evidence imports accept `.jsonl.gz`; decompression stays local.
 `record-demo.cjs` performs a real UI investigation against a running local server
 and archives its report/events and screen captures. It makes live model calls;
 run it only when intentionally recording a new investigation.
+
+## Agent console (PROMPT-07)
+
+Run `polytoken serve --demo` for the offline console and open
+`http://127.0.0.1:8000/`. Samudra and Swara are pinned first in the saved history.
+Choose **Run a demo investigation**, or select a saved run. Replay supports 1×,
+4×, 16×, pause, Stop, restart and scrubbing. The server rechecks archived claims
+against their World Model evidence. Live investigations require restarting without
+`--demo`; Stop signals the same cancellation guard used by provider retries and
+background jobs. Settings saves a light, dark or system theme. Alt+R runs/replays,
+Alt+S stops, Alt+1–7 switches run tabs and Alt+8 toggles raw events.
+
+`console.js` uses the same event state as live SSE; `console.css` provides a dense
+shell around the retained billing and receipt components. Billing subviews avoid
+an article-length report. New event fields and routes are in
+`docs/REPORT_SCHEMA.md`; design decisions are in `docs/design/CONSOLE.md`.
+
+The full pytest suite runs both `check-ui.cjs` (existing billing regressions) and
+`check-console.cjs` (replay and console acceptance). The latter intercepts all
+requests; its live Stop case is explicitly a fake run with nested SQL spans.
+`record-console.cjs` instead captures the **real offline server**, with no mocked
+API replies. Use the existing Playwright `NODE_PATH` described above. It writes
+64 screenshots under `docs/images/console_*.png` and `console_replay.webm`, and
+records provenance in `logs/sample/console_validation.jsonl`. The video contains
+the curated 34-second Samudra run at 4× followed by a tour of its checked results.
+Legacy archives predate physical spans, so they disclose unavailable timings.
