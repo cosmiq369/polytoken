@@ -137,3 +137,19 @@ be met by this judge and stand-in model; result inconclusive". An incomplete A/A
 also prevents interpreting A/B as a demonstrated fix. Automated pass alone never
 replaces the native spot check. Cost accounting and speed uncertainty rules remain
 unchanged; speed trials now use the same full conversation and generation settings.
+
+### 25 Oct 2026 — source-excerpt references for judge serialization (PROMPT-04C)
+
+Registered after the first v3 Samudra generation and before the recovery judging
+run or Swara v3 run. The initial contextual judge repeatedly returned malformed
+JSON or invented/mistranscribed Telugu quotations; these verdicts remain unjudged
+in the retained first-run evidence. To avoid asking the model to retranscribe the
+native script, present deterministic, numbered excerpts of each reply alongside
+the full replies, policy and history. The judge writes English claim descriptions
+and cites quote_id values; code resolves those IDs to exact source substrings.
+Unknown IDs are invalid. Store both the raw model output and the resolved claim
+lists, identifying judge_format=excerpt_ids_v1. This is a serialization repair,
+not a change to materiality, semantic equivalence, the 18/20 bar, native review,
+call/deadline limits, generation settings or fixed-seed chat selection. Existing
+completed v3 generation may be reused; prior outcomes are not overwritten. Source
+identity checks cannot verify the semantic correctness of a model's classification.

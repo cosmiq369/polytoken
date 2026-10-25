@@ -27,7 +27,7 @@ def main():
                              (e['event_id'], e['kind'], e['item_key'], json.dumps(e['payload']), json.dumps(e['provenance']), e['at']))
         world.db.commit()
         events = {e['event_id']: e['payload'] for e in world.events()}
-        checker = Checker(EvidenceStore(world), logger)
+        checker = Checker(EvidenceStore(world), JsonlLogger(run_id='prompt04c-summary'))
         lines = ['# PROMPT-04C completion report — 25 October 2026', '',
                  'Contextual A/A and A/B experiments on the declared fictional companies. The contract threshold remains 18/20; native review remains pending. Every previous run and score is retained.', '',
                  '## Company outcomes', '',
@@ -90,6 +90,7 @@ def main():
                   '- A1 is shared across A/A and A/B, while A2 is independently generated. Separate replicate cache keys prevent copying the baseline into its control. Successful calls can be reused only under the same contextual protocol and settings.',
                   '- Forty judgments require the pre-run addendum: 25 reasoning attempts plus 45 judge attempts. Hosted attempts remain capped at 70, SQL at 60, reasoning at six minutes and background work at thirty minutes per investigation. Any recovery runs are separately retained in the history table.',
                   '- Monthly amounts reconstruct the same historical whole-chat content bill, replacing measured system tokens only. Generated reply-length differences do not substitute for historical answers in the bill. These are quoted scenarios, not invoice totals.',
+                  '- The first Samudra v3 judge format failed on malformed JSON and invented Telugu quotations. That attempt remains in history. A dated serialization addendum introduced numbered source excerpts: the judge cites IDs in English JSON, and code attaches the exact native text. Generation settings, selection and the quality bar are unchanged.',
                   '- Exact quote/schema validation and deterministic recomputation catch invented excerpts and arithmetic errors; they cannot establish whether every semantic classification is correct. Native review is pending and blocks final acceptance.',
                   '- The initial sandbox live checks could not access services. After escalation, one federation test lacked its reference-price HTTP service; starting that service resolved it. Automatic review initially rejected live generation as private-data export; exact comparison of all policy/chat fields against the fictional fixtures established synthetic provenance before retrying.',
                   '- The claude-mem work_state tools are absent from this session. Validation and protocol evidence are recorded in JSONL. The prompt header did not change the chat model/effort. No subagents were used.',

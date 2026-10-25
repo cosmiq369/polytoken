@@ -63,7 +63,7 @@ def apparatus(tmp_path, logger):
                 text = json.dumps(dict(why=why, tool=step, args=args, done=step == 'report'))
             elif 'Judge semantic equivalence' in prompt:
                 pair = json.loads(prompt.split('\n', 1)[1])
-                claim = lambda v: [dict(claim='Facts match', quote=pair[v], material=True, status='present', grounding='supported')]
+                claim = lambda v: [dict(claim='Facts match', quote_id=pair['quote_catalog'][v][0]['id'], material=True, status='present', grounding='supported')]
                 text = json.dumps(dict(chat_id=pair['chat_id'], reason='Facts match.', original_claims=claim('original'), changed_claims=claim('changed')))
             else:
                 text = 'సరే same facts'
@@ -730,3 +730,16 @@ def test_quality_checker_binds_claim_quotes_to_generation(apparatus):
     accepted, dropped = Checker(t.store).check(claims)
     assert not accepted
     assert all('differs from completed generation' in r['reason'] for r in dropped)
+
+
+def test_indexed_quotes_resolve_exact_source_and_reject_wrong_reply():
+    from polytoken.agent.quality import quote_catalog, resolve_quotes, validate_claims
+    pair = {'chat_id': 'native', 'original': {'text': 'రోజువారీ 5\u202fజీబీ.'}, 'changed': {'text': 'రోజువారీ 5\u202fజీబీ.'}}
+    catalog = quote_catalog(pair)
+    row = {'chat_id': 'native', 'reason': 'same', **{v + '_claims': [dict(claim='5 GB per day', quote_id=catalog[v][0]['id'], status='present', material=True, grounding='supported')] for v in catalog}}
+    resolved = resolve_quotes(row, pair)
+    assert resolved['original_claims'][0]['quote'] == pair['original']['text']
+    assert validate_claims(resolved, pair)
+    row['changed_claims'][0]['quote_id'] = 'original:1'
+    with pytest.raises(ValueError, match='Unknown source excerpt'):
+        resolve_quotes(row, pair)

@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import random
+import re
 
 from .jobs import cache_key, cached_calls
 
@@ -20,6 +21,7 @@ def validate_claims(row, pair):
     if row.get('chat_id') != pair['chat_id'] or not isinstance(row.get('reason'), str):
         raise ValueError('Invalid judge identity or reason')
     claims = []
+    catalog = quote_catalog(pair)
     for variant in ('original', 'changed'):
         rows = row.get(variant + '_claims')
         if not isinstance(rows, list) or not rows:
@@ -33,8 +35,31 @@ def validate_claims(row, pair):
                     or not isinstance(claim.get('quote'), str) or not claim['quote'].strip()
                     or claim['quote'] not in pair[variant]['text']):
                 raise ValueError('Invalid or ungrounded claim quote')
+            if 'quote_id' in claim and {q['id']: q['text'] for q in catalog[variant]}.get(claim['quote_id']) != claim['quote']:
+                raise ValueError('Source excerpt differs from quoted evidence')
             claims.append(claim)
     return not any(c['material'] and c['status'] != 'present' for c in claims)
+
+
+def quote_catalog(pair):
+    """Stable source excerpts let the judge cite Telugu without retranscribing it."""
+    return {variant: [{'id': f'{variant}:{index}', 'text': match.group()}
+                      for index, match in enumerate(re.finditer(r'[^.!?।\n]+[.!?।]?', pair[variant]['text']), 1)
+                      if match.group().strip()]
+            for variant in ('original', 'changed')}
+
+
+def resolve_quotes(answer, pair):
+    catalog = quote_catalog(pair)
+    for variant in ('original', 'changed'):
+        sources = {q['id']: q['text'] for q in catalog[variant]}
+        if not isinstance(answer.get(variant + '_claims'), list):
+            raise ValueError('Missing claim inventory')
+        for claim in answer[variant + '_claims']:
+            if not isinstance(claim, dict) or claim.get('quote_id') not in sources:
+                raise ValueError('Unknown source excerpt')
+            claim['quote'] = sources[claim['quote_id']]
+    return answer
 
 
 def judge_prompt(policy, pair):
@@ -43,17 +68,19 @@ def judge_prompt(policy, pair):
             'claims a customer is told in EACH reply: plans, amounts, required steps, safety instructions, '
             'capabilities and requested information. Ignore greetings and stylistic changes. '
             'Return one JSON object with chat_id, reason, original_claims, changed_claims. Each claim has '
-            'claim (English description), quote (EXACT substring from that reply, in its original language), '
+            'claim (English description), quote_id (the exact ID of the supporting excerpt in quote_catalog), '
             'material (boolean), status, grounding. For original_claims status is present, missing or '
             'contradicted relative to the changed reply; for changed_claims it is present, added or '
             'contradicted relative to the original. grounding is supported, unsupported or uncertain '
             'against policy/history; annotate corrections of unsupported baseline claims in reason, '
             'but they still count as differences. Same facts requires no missing, contradicted or added '
-            'material claim. Do not invent quotes. Include at least one inventory entry per reply; '
-            'a reply with no factual content gets an explicitly nonmaterial quoted entry.\n' + json.dumps({
+            'material claim. Write all descriptions and reason in English. Do not transcribe or translate native-script quotes. '
+            'Cite only supplied excerpt IDs for that reply; the checker attaches their exact source text. '
+            'Include at least one inventory entry per reply; '
+            'a reply with no factual content gets an explicitly nonmaterial excerpt reference.\n' + json.dumps({
                 'chat_id': pair['chat_id'], 'company_policy': policy,
                 'conversation': pair['conversation'], 'original': pair['original']['text'],
-                'changed': pair['changed']['text']}, ensure_ascii=False))
+                'changed': pair['changed']['text'], 'quote_catalog': quote_catalog(pair)}, ensure_ascii=False))
 
 
 def contextual_judge(t, pairs, comparison='ab'):
@@ -77,7 +104,7 @@ def contextual_judge(t, pairs, comparison='ab'):
                                      max_retries=1, retry_timeouts=True)
                     if raw.get('finish_reason') != 'stop':
                         raise ValueError('Judge did not finish')
-                    answer = json.loads(raw['text'])
+                    answer = resolve_quotes(json.loads(raw['text']), pair)
                     same = validate_claims(answer, pair)
                     row = {**answer, 'same_facts': same}
                     ok = True
@@ -85,17 +112,17 @@ def contextual_judge(t, pairs, comparison='ab'):
                     ok = False
                     row['reason'] = 'Unjudged: ' + type(exc).__name__
                 payload = {'ok': ok, 'comparison': comparison, 'chat_id': pair['chat_id'],
-                           'attempt': attempt + 1, 'result': raw, 'prompt': prompt,
+                           'attempt': attempt + 1, 'judge_format': 'excerpt_ids_v1', 'result': raw, 'prompt': prompt,
                            'supports': [t.last_experiment_id]}
                 call_ids.append(t.observe('quality_verdict', payload, {'operation': 'contextual pair judge'}, 'NVIDIA Nemotron', started))
                 t.logger.write('quality', 'pair_judged', comparison=comparison, chat_id=pair['chat_id'], ok=ok)
                 if ok or t.budget.reason:
                     break
-                prompt += '\nYour previous output failed JSON/quote/schema validation. Return the complete required JSON with exact reply quotes.'
+                prompt += '\nYour previous output failed JSON/quote/schema validation. Return the complete required JSON in English with valid quote_id references from quote_catalog.'
         verdicts.append({**row, 'review_status': 'pending',
                          'reply_texts': {v: {'text': pair[v]['text']} for v in ('original', 'changed')} if complete else {}})
         t.emit('quality_progress', comparison=comparison, done=len(verdicts), total=len(pairs))
-    result = {'protocol_version': 3, 'comparison': comparison, 'pairs': verdicts,
+    result = {'protocol_version': 3, 'judge_format': 'excerpt_ids_v1', 'comparison': comparison, 'pairs': verdicts,
               'sample_status': 'complete' if complete else 'insufficient sample', 'review_status': 'pending',
               'supports': [t.last_experiment_id] + call_ids}
     eid = t.observe('quality_verdict', result, {'operation': 'contextual same facts', 'batch_size': 1}, 'NVIDIA Nemotron')
