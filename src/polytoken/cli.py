@@ -108,7 +108,15 @@ def main(argv=None) -> int:
     command.add_argument("--sample-suffix", default="", help="suffix for archived events and report, e.g. v2")
     command = subparsers.add_parser("serve", help="start the API and registered price endpoint")
     command.add_argument("--port", type=int, default=8000)
+    command = subparsers.add_parser("score", help="score archived complete runs against the contract, offline")
+    command.add_argument("--sample-dir", default="logs/sample")
+    command.add_argument("--output", default=None)
     args = parser.parse_args(argv)
+    if args.command == "score":
+        from .score import score
+        for row in score(args.sample_dir, args.output):
+            print(row['company'] + ': ' + row.get('top_finding', {}).get('status', row.get('status', 'unavailable')))
+        return 0
     if args.command == "serve":
         import uvicorn
         from .api import create_app
@@ -174,9 +182,10 @@ def engines_demo(*, live=False, env_file=None) -> int:
     from .meterless.markovian import Markovian
     from .meterless.world_model import WorldModel
 
-    root = Path(__file__).resolve().parents[2]
+    from .paths import ROOT
+    root = ROOT
     if live:
-        source_env = Path(env_file).resolve() if env_file else Path(__file__).resolve().parents[5] / ".env"
+        source_env = Path(env_file).resolve() if env_file else root / ".env"
         settings = load_settings(env_file=source_env)
         logger = JsonlLogger(directory=root / "logs" / "sample", env_file=source_env, secrets=settings.secrets)
         model_logger = JsonlLogger(directory=root / "logs", env_file=source_env, secrets=settings.secrets)
