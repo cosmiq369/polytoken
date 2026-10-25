@@ -5,6 +5,7 @@ from polytoken.logs import JsonlLogger
 from polytoken.zetaris import ZetarisClient, ZetarisError
 
 TABLES = ('samudra__bot_config', 'samudra__chats', 'swara__bot_config', 'swara__chats',
+          'raitu__bot_config', 'raitu__chats', 'paisa__bot_config', 'paisa__chats',
           'reference__sentences', 'reference__prices', 'measurements__batches',
           'measurements__token_counts', 'measurements__latest_token_counts')
 REST_SQL = '''CREATE LIGHTNING REST TABLE prices FROM polytoken_reference

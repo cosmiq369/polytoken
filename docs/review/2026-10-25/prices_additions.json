@@ -1,0 +1,6 @@
+[
+  {"model": "meta-llama/Llama-3.1-8B-Instruct", "provider": "DeepInfra (via OpenRouter)", "tokenizer_spec": "unsloth/Llama-3.2-3B-Instruct", "input_per_mtok_usd": 0.02, "output_per_mtok_usd": 0.04, "source_url": "https://openrouter.ai/api/v1/models/meta-llama/llama-3.1-8b-instruct/endpoints", "fetched_at": "2026-10-25T12:55:00Z", "verified": true},
+  {"model": "meta-llama/Llama-3.3-70B-Instruct", "provider": "DeepInfra (via OpenRouter)", "tokenizer_spec": "unsloth/Llama-3.2-3B-Instruct", "input_per_mtok_usd": 0.10, "output_per_mtok_usd": 0.32, "source_url": "https://openrouter.ai/api/v1/models/meta-llama/llama-3.3-70b-instruct/endpoints", "fetched_at": "2026-10-25T12:55:00Z", "verified": true},
+  {"model": "google/gemma-3-12b-it", "provider": "DeepInfra (via OpenRouter)", "tokenizer_spec": "unsloth/gemma-3-4b-it", "input_per_mtok_usd": 0.04, "output_per_mtok_usd": 0.12, "source_url": "https://openrouter.ai/api/v1/models/google/gemma-3-12b-it/endpoints", "fetched_at": "2026-10-25T12:55:00Z", "verified": true},
+  {"model": "google/gemma-3-27b-it", "provider": "DeepInfra (via OpenRouter)", "tokenizer_spec": "unsloth/gemma-3-4b-it", "input_per_mtok_usd": 0.08, "output_per_mtok_usd": 0.16, "source_url": "https://openrouter.ai/api/v1/models/google/gemma-3-27b-it/endpoints", "fetched_at": "2026-10-25T12:55:00Z", "verified": true}
+]

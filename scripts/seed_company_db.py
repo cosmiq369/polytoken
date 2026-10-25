@@ -9,7 +9,7 @@ if __name__ == '__main__':
     logger = JsonlLogger(secrets=settings.secrets)
     try:
         print(json.dumps(seed_company_db(settings, logger), indent=2))
-        print('Money unavailable: no verified prices are loaded.')
+        print('Source tables seeded; verified prices are queried and checked through Zetaris during investigation.')
     except Exception as exc:
         print('Seeding failed:', type(exc).__name__)
         raise SystemExit(1) from None

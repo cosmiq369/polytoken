@@ -74,7 +74,7 @@ def planted_shares(computed, inputs):
     return result
 
 
-def verify_and_save(client, logger, sample_dir=ROOT / 'logs/sample'):
+def verify_and_save(client, logger, sample_dir=ROOT / 'logs/sample/model_fit_measurements'):
     started = utcnow()
     inputs, records, queries = [], [], []
     for company in COMPANIES:

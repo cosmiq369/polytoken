@@ -1,11 +1,19 @@
 WITH inputs AS (
  SELECT 'samudra' AS company, chat_id, turn, role AS part, lang FROM company_systems.samudra__chats
  UNION ALL
- SELECT 'swara', chat_id, turn, role, lang FROM company_systems.swara__chats
- UNION ALL
  SELECT company, '__system__', 0, 'system_prompt', language FROM company_systems.samudra__bot_config
  UNION ALL
+ SELECT 'swara' AS company, chat_id, turn, role AS part, lang FROM company_systems.swara__chats
+ UNION ALL
  SELECT company, '__system__', 0, 'system_prompt', language FROM company_systems.swara__bot_config
+ UNION ALL
+ SELECT 'raitu' AS company, chat_id, turn, role AS part, lang FROM company_systems.raitu__chats
+ UNION ALL
+ SELECT company, '__system__', 0, 'system_prompt', language FROM company_systems.raitu__bot_config
+ UNION ALL
+ SELECT 'paisa' AS company, chat_id, turn, role AS part, lang FROM company_systems.paisa__chats
+ UNION ALL
+ SELECT company, '__system__', 0, 'system_prompt', language FROM company_systems.paisa__bot_config
 ), reference_coverage AS (
  SELECT lang_variant, COUNT(*) AS reference_sentences
  FROM company_systems.reference__sentences GROUP BY lang_variant

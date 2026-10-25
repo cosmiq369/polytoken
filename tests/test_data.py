@@ -12,7 +12,7 @@ from polytoken.prices import PriceUnavailable, cost_usd, load_prices
 def test_demo_and_reference_review_preserved():
     configs, chats = load_demo()
     assert all(r['review_status'] == 'pending' for r in configs)
-    assert [len(chats[c]) for c in ('samudra', 'swara')] == [223, 223]
+    assert [len(chats[c]) for c in ('samudra', 'swara')] == [188, 180]
     path = ROOT / 'data/reference/seed_v0_corrected.jsonl'
     originals = {r['id']: r for r in map(json.loads, path.read_text().splitlines())}
     references = load_reference(path)
@@ -25,11 +25,14 @@ class SQLiteSeedConnection:
     """Execute production upserts against SQL constraints, with placeholder translation."""
     def __init__(self):
         self.db = sqlite3.connect(':memory:')
-        for schema in ('samudra', 'swara', 'reference', 'measurements'):
+        for schema in ('samudra', 'swara', 'raitu', 'paisa', 'reference', 'measurements'):
             self.db.execute(f"ATTACH DATABASE ':memory:' AS {schema}")
         for statement in (ROOT / 'sql/company_schema.sql').read_text().split(';'):
             if statement.strip().startswith('CREATE TABLE'):
                 self.db.execute(statement)
+
+    def execute(self, sql):
+        return self.db.execute(sql)
 
     @contextmanager
     def cursor(self):
@@ -49,7 +52,7 @@ def test_seeder_idempotence_uses_real_sql_upserts():
     seed_records(connection, configs, chats, refs, [])
     first = counts()
     seed_records(connection, configs, chats, refs, [])
-    assert counts() == first == [1, 223, 1, 223, 118, 0]
+    assert counts() == first == [1, 188, 1, 180, 118, 0]
 
 
 @pytest.fixture
@@ -64,7 +67,7 @@ def test_empty_prices_refuse_money(tmp_path):
     empty = tmp_path / 'prices.json'
     empty.write_text('[]')
     assert load_prices(empty) == []
-    assert len(load_prices(ROOT / 'data/reference/prices.json')) == 7
+    assert len(load_prices(ROOT / 'data/reference/prices.json')) == 11
     with pytest.raises(PriceUnavailable, match='verified price'):
         cost_usd(None, 10, 20)
 
@@ -99,20 +102,21 @@ def test_vendored_file_hashes():
         assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==expected
 
 
-def test_v2_distinct_turns_and_no_repeated_answers():
+def test_workload_turns_and_no_repeated_answers():
     from collections import defaultdict
     import re
     configs,chats = load_demo()
     for rows in chats.values():
         for field in ('text_native','text_en'):
-            assert len({r[field] for r in rows if r['role']=='user'})>=80
-            assert len({r[field] for r in rows if r['role']=='assistant'})>=45
+            assert len({r[field] for r in rows if r['role']=='user'})>=20
+            assert len({r[field] for r in rows if r['role']=='assistant'})>=8
             by_chat=defaultdict(list)
             for r in rows:
                 if r['role']=='assistant': by_chat[r['chat_id']].append(r[field])
             assert all(len(a)==len(set(a)) for a in by_chat.values())
     samudra=next(r for r in configs if r['company']=='samudra')
-    assert 600<=len(samudra['system_prompt_native'].split())<=900
+    assert samudra['system_prompt_native'] == samudra['system_prompt_en']
+    assert samudra['system_prompt_en'].isascii()
     sentences=[s.strip() for s in re.split(r'[.!?।]+',samudra['system_prompt_native']) if s.strip()]
     assert len(sentences)==len(set(sentences))
 

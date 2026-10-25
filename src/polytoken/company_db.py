@@ -18,8 +18,8 @@ from .prices import load_prices
 from .paths import ROOT
 if not (ROOT / 'data/demo').is_dir():
     ROOT = Path.cwd()
-COMPANIES = ('samudra', 'swara')
-CONFIG_FIELDS = ('company', 'language', 'system_prompt_native', 'system_prompt_en', 'model_in_use', 'monthly_chats', 'latency_target_s', 'review_status')
+COMPANIES = ('samudra', 'swara', 'raitu', 'paisa')
+CONFIG_FIELDS = ('company', 'language', 'system_prompt_native', 'system_prompt_en', 'model_in_use', 'monthly_chats', 'latency_target_s', 'review_status', 'role', 'channel', 'current_model', 'dataset_version')
 CHAT_FIELDS = ('chat_id', 'turn', 'role', 'text_native', 'text_en', 'lang', 'review_status')
 REFERENCE_FIELDS = ('id', 'lang_variant', 'domain', 'kind', 'text', 'review')
 PRICE_FIELDS = ('model', 'provider', 'tokenizer_spec', 'input_per_mtok_usd', 'output_per_mtok_usd', 'source_url', 'fetched_at', 'verified')
@@ -39,7 +39,7 @@ def jsonl(path):
 def load_demo(directory=ROOT / 'data/demo'):
     directory = Path(directory)
     configs = jsonl(directory / 'bot_config.jsonl')
-    if sorted(row['company'] for row in configs) != list(COMPANIES):
+    if sorted(row['company'] for row in configs) != sorted(COMPANIES):
         raise ValueError('Expected one bot configuration for each demo company')
     chats = {}
     for config in configs:
@@ -54,16 +54,18 @@ def load_demo(directory=ROOT / 'data/demo'):
             if not row['text_native'].strip() or not row['text_en'].strip():
                 raise ValueError('Every turn needs a native and English pair')
             by_chat[row['chat_id']].append(row)
-        if len(by_chat) != 50:
-            raise ValueError('Expected exactly 50 fictional chats per company')
+        if len(by_chat) != 40:
+            raise ValueError('Expected exactly 40 fictional chats per company')
         for rows in by_chat.values():
             if not 3 <= len(rows) <= 6 or [r['turn'] for r in rows] != list(range(1, len(rows)+1)):
                 raise ValueError('Chat turns must be consecutive and number 3 through 6')
             if any(r['role'] != ('user' if r['turn'] % 2 else 'assistant') for r in rows):
                 raise ValueError('Chat roles must alternate, starting with user')
-    samudra = next(row for row in configs if row['company'] == 'samudra')
-    if not 600 <= len(samudra['system_prompt_native'].split()) <= 900:
-        raise ValueError('Samudra Telugu policy must contain 600–900 whitespace words')
+    for config in configs:
+        if config['system_prompt_native'] != config['system_prompt_en'] or not config['system_prompt_en'].isascii():
+            raise ValueError('All instructions must be English and identical in both paired columns')
+        if config['channel'] not in ('chat', 'voice') or not config['role']:
+            raise ValueError('Company needs a role and channel')
     return configs, chats
 
 
@@ -93,6 +95,8 @@ def upsert(connection, table, fields, keys, rows):
 
 def seed_records(connection, configs, chats, references, prices):
     for company in COMPANIES:
+        # Replace the current fictional dataset transactionally; earlier files and measurements remain archived.
+        connection.execute(f'DELETE FROM {company}.chats')
         upsert(connection, f'{company}.bot_config', CONFIG_FIELDS, ('company',),
                [r for r in configs if r['company'] == company])
         upsert(connection, f'{company}.chats', CHAT_FIELDS, ('chat_id', 'turn'), chats[company])
@@ -112,7 +116,7 @@ def seed_company_db(settings, logger=None, reference_path=ROOT / 'data/reference
             create_schema(connection)
             seed_records(connection, configs, chats, references, prices)
             counts = {table: connection.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]
-                      for table in ('samudra.bot_config', 'samudra.chats', 'swara.bot_config', 'swara.chats', 'reference.sentences', 'reference.prices')}
+                      for table in (*(f'{c}.{t}' for c in COMPANIES for t in ('bot_config', 'chats')), 'reference.sentences', 'reference.prices')}
     except Exception as exc:
         logger.write('data_setup', 'seed', ok=False, error_class=type(exc).__name__)
         raise
