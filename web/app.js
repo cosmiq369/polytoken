@@ -45,14 +45,15 @@
     window.dispatchEvent(new CustomEvent('polytoken:screen',{detail:screen}));
     document.querySelectorAll('.screen').forEach(el=>el.hidden=el.id!==screen);
     document.querySelectorAll('nav [data-screen]').forEach(el=>{
-      if(el.dataset.screen===screen) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
+      const workspaceScreen=['investigation','report','evidence-index','evidence'].includes(screen)?'history':screen;
+      if(el.dataset.screen===(el.closest('.rail')?workspaceScreen:screen)) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
     });
     document.title=`PolyToken · ${screen.charAt(0).toUpperCase()+screen.slice(1)}`;
     if(focus) { $('#main').focus(); window.scrollTo(0,0); }
   }
   function enableViews() {
     document.querySelectorAll('[data-screen="investigation"]').forEach(b=>b.disabled=!state.runId);
-    document.querySelectorAll('[data-screen="report"]').forEach(b=>b.disabled=!state.report);
+    document.querySelectorAll('[data-screen="report"],[data-console-tab="billing"],[data-console-tab="quality"]').forEach(b=>b.disabled=!state.report);
     document.querySelectorAll('[data-screen="tokens"]').forEach(b=>b.disabled=!state.report);
   }
   async function fetchJSON(url, options) {

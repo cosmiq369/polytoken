@@ -15,12 +15,12 @@
   <a class="skip" href="#main">Skip to content</a>
   <header class="header"><div class="header-inner">
     <a class="brand" href="#ask" aria-label="PolyToken home"><svg width="29" height="29" viewBox="0 0 29 29" aria-hidden="true"><rect x="2" y="5" width="25" height="4" rx="2" class="logo-amber"/><rect x="2" y="13" width="17" height="4" rx="2"/><rect x="2" y="21" width="9" height="4" rx="2"/></svg>PolyToken</a>
-    <div class="header-controls"><span class="connection" id="connection" role="status">Loading company configuration…</span><label class="currency-label" for="currency">Currency <select id="currency"><option value="USD">USD</option></select></label><button type="button" id="currency-source" class="rate-note" title="Open currency source receipt"></button></div>
+    <div class="header-controls"><span class="workspace-label">Investigation workspace</span><span class="connection" id="connection" role="status">Loading company configuration…</span><label class="currency-label" for="currency">Currency <select id="currency"><option value="USD">USD</option></select></label><button type="button" id="currency-source" class="rate-note" title="Open currency source receipt"></button></div>
   </div></header>
   <div class="notice" id="notice" role="alert" hidden></div>
   <aside class="rail" aria-label="Workspace navigation">
     <p class="eyebrow">WORKSPACE</p>
-    <nav aria-label="Workspace"><button data-screen="history">Investigations</button><button data-screen="ask">Companies</button><button data-screen="tokens">Token strip</button><button data-screen="settings">Settings</button></nav>
+    <nav aria-label="Workspace"><button data-screen="history"><span aria-hidden="true">◫</span> Investigations</button><button data-screen="ask"><span aria-hidden="true">▦</span> Companies</button><button data-screen="tokens"><span aria-hidden="true">⌗</span> Token strip</button><button data-screen="settings"><span aria-hidden="true">⚙</span> Settings</button></nav>
     <div class="rail-heading">RECENT RUNS <button id="refresh-history" aria-label="Refresh history">↻</button></div><div id="run-history"></div>
     <p class="rail-foot">Zetaris · NVIDIA · Meterless<br>Evidence before advice.</p>
   </aside>
@@ -55,13 +55,18 @@
       </div>
     </section>
     <section id="investigation" class="screen" aria-labelledby="investigation-title" hidden>
-      <div class="activity-heading"><div><p class="eyebrow" id="run-context">INVESTIGATION</p><h1 id="investigation-title">Follow the evidence.</h1></div><button type="button" data-screen="report" id="view-report" disabled>Open report →</button></div>
-      <p id="stream-status" class="muted" role="status"></p>
-      <div id="budgets" class="budgets"></div>
-      <section class="panel circuit-panel"><div class="toolbar"><h2>Service map</h2><span class="hint" id="map-caption">Waiting for recorded activity</span></div><div id="service-map"></div></section>
-      <p id="experiment-progress" class="progress-note" role="status"></p>
-      <div class="console-columns"><section class="panel trace-panel"><div class="toolbar"><h2>Execution trace</h2><span class="hint">Step / tool / service call</span></div><div id="trace-tree"></div></section><aside class="panel findings-panel"><h2>Checked findings</h2><p class="hint">Only claims accepted by the deterministic checker.</p><div id="live-findings"></div></aside></div>
-      <details class="legacy-observations"><summary>Recorded observations</summary><ol id="timeline" class="timeline"></ol><div id="evidence-cards"></div></details>
+      <div class="activity-heading"><div><p class="eyebrow" id="run-context">Investigation</p><h1 id="investigation-title">Investigation in progress</h1></div><button type="button" data-screen="report" id="view-report" disabled>View findings ↗</button></div>
+      <section id="current-work" class="current-work" aria-label="Current investigation state" aria-live="polite"></section>
+      <div class="activity-layout">
+        <aside class="journey-panel"><h2>Investigation path</h2><p class="hint">Select a stage to inspect its trace. Stages can repeat.</p><nav id="stage-path" aria-label="Investigation stages"></nav><div class="state-key"><span class="key-active">● Current</span><span class="key-done">✓ Recorded</span><span>○ Upcoming</span></div></aside>
+        <div class="activity-workspace">
+          <section class="panel findings-panel"><div class="toolbar"><div><p class="eyebrow">Evidence, not estimates</p><h2>What we know</h2></div><span class="verified-counter" id="verified-counter">Awaiting checks</span></div><div id="live-findings"></div></section>
+          <section class="panel circuit-panel"><div class="toolbar"><div><p class="eyebrow">Execution layer</p><h2>Services & calls</h2></div><span class="hint" id="map-caption"></span></div><div id="service-map"></div></section>
+          <section class="panel trace-panel"><div class="toolbar"><div><p class="eyebrow">Inspectable reasoning</p><h2>Execution trace</h2></div><span class="hint">Step → tool → source</span></div><div id="trace-tree"></div></section>
+          <details class="resource-panel panel"><summary>Resource usage <span>Calls, limits & elapsed time</span></summary><div id="budgets" class="budgets"></div><p id="experiment-progress" class="progress-note" role="status"></p></details>
+          <details class="legacy-observations"><summary>Recorded observations & connection</summary><p id="stream-status" class="muted" role="status"></p><ol id="timeline" class="timeline"></ol><div id="evidence-cards"></div></details>
+        </div>
+      </div>
     </section>
     <section id="report" class="screen" aria-labelledby="report-title" hidden>
       <div id="report-content"></div>

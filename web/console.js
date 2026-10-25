@@ -8,14 +8,45 @@
  const safe=text=>/[\p{N}%₹$€£]|\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand|million|half|double|percent)\b/iu.test(String(text))?'The planner selected this step using the available evidence. Quantities are shown only in checked findings.':String(text || 'Explanation not recorded.');
  window.polySafeExplanation=safe;
  const services=[['planner','Planner','Nemotron',20,75],['tools','Tools','Bounded execution',205,75],['company','Zetaris','Company DB',405,10],['measurements','Zetaris','Measurements',600,10],['reference','Zetaris','Reference',405,65],['prices','Zetaris','Prices',600,65],['nvidia','NVIDIA','Nemotron / hosted',405,120],['world','Meterless','World Model',205,180],['hmem','Meterless','H-MEM',405,180],['markovian','Meterless','Markovian',600,180],['checker','Checker','Recompute',800,75]];
+ const stages=[['clarify','Understand','Read the workload and constraints'],['measure','Measure','Compare paired token counts'],['locate','Locate cost','Find the largest cost component'],['hypothesise','Choose a fix','Rank evidence-backed hypotheses'],['experiment','Experiment','Compare original and changed replies'],['judge','Check quality','Check whether the facts survive'],['speed','Measure speed','Compare streamed reply timings'],['check','Verify claims','Recompute claims from their sources'],['report','Report','Publish checked findings']];
+ const phaseTitles={clarify:'Understanding the workload',measure:'Measuring the language gap',locate:'Locating the cost',hypothesise:'Choosing a change to test',experiment:'Testing the proposed change',judge:'Checking whether meaning survives',speed:'Measuring response speed',check:'Verifying the evidence',report:'Preparing the checked report'};
+ function terminal(){return [...s.events].reverse().find(e=>e.event==='done')?.status || (s.report?.status!=='running'?s.report?.status:null);}
+ function currentStage(){return [...s.events].reverse().find(e=>e.event==='step_started')?.step || null;}
  function status(){
-  const end=[...s.events].reverse().find(e=>e.event==='done');
-  if(end)return ({complete:'Complete',partial:'Partial',failed:'Failed'})[end.status] || 'Complete';
+  const end=terminal();if(end)return ({complete:'Complete',partial:'Partial',failed:'Failed'})[end] || 'Partial';
   if(c.replay && c.replay.position===0)return 'Queued';
-  if(s.report && s.report.status!=='running')return ({complete:'Complete',partial:'Partial',failed:'Failed'})[s.report.status] || 'Partial';
-  if(s.events.some(e=>e.event==='experiment_progress') || s.report?.jobs?.status==='running' || s.report?.jobs?.status==='queued')return 'Waiting on experiment';
+  if(s.events.some(e=>e.event==='stop_requested'))return 'Stopping';
+  if(currentStage()==='experiment')return 'Waiting on experiment';
   return s.events.length?'Running':'Queued';
  }
+ function stageState(step){
+  const starts=s.events.filter(e=>e.event==='step_started' && e.step===step);
+  if(!starts.length)return 'upcoming';
+  const latest=starts.at(-1),after=s.events.slice(s.events.indexOf(latest));
+  const finish=after.find(e=>e.event==='step_finished' && e.step===step);
+  if(finish?.status==='error')return 'error';
+  if(!terminal() && step===currentStage() && finish?.status!=='ok')return 'active';
+  return 'recorded';
+ }
+ function briefing(){
+  const step=currentStage(),end=terminal(),needsReview=end==='complete' && (s.report?.quality_status==='failed' || s.report?.review_status==='pending'),st=status(),phase=st==='Queued'?'queued':st==='Stopping'?'waiting':needsReview?'review':end==='complete'?'complete':end?'error':['experiment','judge','speed'].includes(step)?'testing':'active';
+  const reason=[...s.events].reverse().find(e=>e.step===step && (e.event==='planner_reason' || e.why));
+  const title=needsReview?'Investigation complete; quality needs review':end==='complete'?'Investigation complete':end?'Investigation needs attention':st==='Queued'?'Ready to begin':st==='Stopping'?'Stopping after the current call':phaseTitles[step] || 'Waiting for the agent';
+  const detail=end?s.report?.quality_interpretation || s.report?.partial_reason || 'The recorded workflow has ended. Open the checked findings for its verdict and limits.':safe(reason?.text || reason?.why || stages.find(x=>x[0]===step)?.[2] || 'The first step appears when the worker begins.');
+  const activeCalls=spans().filter(r=>!r.end && !r.legacy),latest=s.events.at(-1);
+  const activity=activeCalls.length?activeCalls.map(r=>r.name).slice(0,3).join(' · '):c.replay?'Following the recorded event timeline':'Waiting for the next event';
+  $('#current-work').dataset.phase=phase;
+  const briefingHTML=`<div class="work-signal" aria-hidden="true">${needsReview?'!':end==='complete'?'✓':end?'!':phase==='testing'?'◈':'◎'}</div><div class="work-copy"><p class="eyebrow">${end?'Outcome':c.replay?'At this point in the replay':'Happening now'} <span class="phase-label">${needsReview?'Review required':end?'Finished':step?stages.find(x=>x[0]===step)?.[1]:'Queued'}</span></p><h2>${esc(title)}</h2><p>${esc(detail)}</p><div class="work-meta"><span>${esc(activity)}</span><span id="last-event-age"></span></div></div><div class="work-next"><span>${end?'Next action':'Next checkpoint'}</span><strong>${end?'Review the findings':step==='judge'?'Quality verdict':step==='experiment'?'Paired replies':step==='speed'?'Timing evidence':step==='check'?'Checked claims':'Sourced evidence'}</strong><button ${end?'data-open-view="overview"':'data-open-view="trace"'}>${end?'Open overview ↗':'Inspect trace ↗'}</button></div>`;
+  if($('#current-work')._markup!==briefingHTML){$('#current-work').innerHTML=briefingHTML;$('#current-work')._markup=briefingHTML;}
+  $('#investigation-title').textContent=end?'From question to evidence':'An investigation you can follow';
+  const stageHTML=stages.map(([id,label,description],index)=>{const state=stageState(id);return `<button class="stage-item" data-stage="${id}" data-state="${state}" ${state==='active'?'aria-current="step"':''}><span class="stage-mark">${state==='recorded'?'✓':state==='error'?'!':String(index+1).padStart(2,'0')}</span><span><strong>${label}</strong><small>${state==='active'?'In progress':state==='recorded'?'Recorded':state==='error'?'Needs attention':'Not started'}</small></span><span class="stage-arrow" aria-hidden="true">${state==='active'?'→':''}</span></button>`;}).join('');
+  if($('#stage-path')._markup!==stageHTML){$('#stage-path').innerHTML=stageHTML;$('#stage-path')._markup=stageHTML;requestAnimationFrame(alignActiveStage);}
+  const liveStage=step && !end ? step : null;if(liveStage!==c.activeStage){c.activeStage=liveStage;if(liveStage)c.open.add('step:'+liveStage);}
+  $('#run-status').dataset.tone=end==='complete'?'complete':phase;
+  $('#main').dataset.phase=phase;
+ }
+ function alignActiveStage(){const path=$('#stage-path'),active=path.querySelector('[aria-current=step]');if(active && window.innerWidth<=900){const delta=active.getBoundingClientRect().left-path.getBoundingClientRect().left;path.scrollLeft+=delta-8;}}
+ window.addEventListener('resize',()=>requestAnimationFrame(alignActiveStage));
  function bar(){
   $('#run-shell').hidden=!s.runId;
   if(!s.runId)return;
@@ -26,10 +57,12 @@
   $('#stop-run').disabled=!c.replay && (s.mode!=='live' || ['Complete','Partial','Failed'].includes(st));
   $('#stop-run').textContent=c.replay?'Stop replay':s.events.some(e=>e.event==='stop_requested') && !['Complete','Partial','Failed'].includes(st)?'Stopping…':'Stop';
   $('#replay-controls').hidden=!c.replay;
-  const entry=c.history.find(r=>r.id===s.runId);
-  const current=s.report?.status || st.toLowerCase();
-  if(!entry){c.history.push({id:s.runId,company:s.company,status:current,saved:s.mode==='saved'});renderHistory();}
-  else if(entry.status!==current){entry.status=current;entry.saved=s.mode==='saved' || ['Complete','Partial','Failed'].includes(st);renderHistory();}
+  if(s.mode==='live'){
+   const entry=c.history.find(r=>r.id===s.runId),current=s.report?.status || st.toLowerCase();
+   if(!entry){c.history.push({id:s.runId,company:s.company,status:current,saved:false});renderHistory();}
+   else if(entry.status!==current){entry.status=current;entry.saved=!!terminal();renderHistory();}
+  }
+  document.querySelectorAll('[data-run]').forEach(el=>el.setAttribute('aria-current',el.dataset.run===s.runId?'true':'false'));
   clock();
  }
  function clock(){
@@ -37,6 +70,7 @@
   if(c.replay)elapsed=c.replay.position;
   else {const first=s.events[0],last=s.events.at(-1);elapsed=['Complete','Partial','Failed'].includes(status())?Math.max(0,stamp(last || {})-stamp(first || {})):Date.now()-(stamp(first || {}) || c.started);}
   $('#elapsed').textContent=time(elapsed);
+  const age=$('#last-event-age'),last=s.events.at(-1);if(age && last){const now=c.replay?c.replay.start+c.replay.position:Date.now();age.textContent=`Last event ${time(Math.max(0,now-stamp(last)))} ago${c.replay?' · recorded time':''}`;}
   if(c.replay){$('#replay-position').value=c.replay.duration?c.replay.position/c.replay.duration*1000:0;$('#replay-time').textContent=`${time(c.replay.position)} / ${time(c.replay.duration)}`;$('#replay-play').textContent=c.replay.playing?'Pause':'Play';}
  }
  function spans(){
@@ -49,20 +83,16 @@
   return out;
  }
  function map(rows){
-  const nodes=new Map(services.map(([id])=>[id,{count:0,active:0,error:false,duration:null,legacy:false}]));
-  for(const row of rows){let ids=[row.service];if(row.role==='planner')ids.push('planner');for(const id of ids){const node=nodes.get(id);if(!node)continue;node.count++;node.active+=!row.end && !row.legacy?1:0;node.error ||= row.finish?.status==='error';node.legacy ||= !!row.legacy;if(row.finish)node.duration=row.finish.duration_ms;}}
-  // Older logs only establish observations, not in-flight calls or latencies.
+  const nodes=new Map(services.map(([id])=>[id,{count:0,active:0,error:false,duration:null}]));
+  for(const row of rows){for(const id of [row.service,...(row.role==='planner'?['planner']:[])]){const n=nodes.get(id);if(!n)continue;n.count++;n.active+=!row.end && !row.legacy?1:0;n.error ||= row.finish?.status==='error';if(row.finish)n.duration=row.finish.duration_ms;}}
   const last=s.events.at(-1),observed=last?.event==='tool_called'?'tools':last?.event==='evidence_added'?'world':last?.event==='step_started'?'planner':null;
-  const legacy=!s.events.some(e=>e.span_id && e.event!=='step_started');
-  $('#map-caption').textContent=legacy?'Legacy log · observed steps; call timing unavailable':'Physical call telemetry · latency in ms';
-  const edges=services.filter(([id])=>id!=='planner').map(([id,,,x,y])=>{
-   const n=nodes.get(id),from=id==='tools'?[180,99]:[365,99];
-   return `<path data-edge="${id}" class="circuit-edge ${n.active?'active':''} ${n.error?'error':''} ${legacy && observed===id?'observed':''}" d="M${from[0]} ${from[1]} H${x-15} V${y+24} H${x}"/>`;
-  }).join('');
-  const svg=services.map(([id,label,sub,x,y])=>{const n=nodes.get(id),st=n.active?'active':n.error?'error':'idle';return `<g data-node="${id}" class="circuit-node ${st}" transform="translate(${x} ${y})"><rect width="160" height="48" rx="5"/><text x="12" y="15" class="node-title">${label}</text><text x="12" y="29">${sub}</text><text x="12" y="42" class="node-state">${legacy && !n.count?'not recorded':n.count+' calls · '+st}${n.duration!==null?' · '+Math.round(n.duration)+'ms':''}</text></g>`;}).join('');
-  $('#service-map').innerHTML=`<svg viewBox="0 0 1000 235" role="img" aria-label="Service map. ${[...nodes].map(([id,n])=>`${id}: ${n.count} calls, ${n.active?'active':n.error?'error':'idle'}`).join('; ')}">${edges}${svg}</svg><div class="mobile-services">${services.map(([id,label,sub])=>{const n=nodes.get(id);return `<div class="${n.active?'active':''}"><strong>${label} / ${sub}</strong><span>${legacy && !n.count?'not recorded':n.count+' calls · '+(n.active?'active':n.error?'error':'idle')}${n.duration!==null?' · '+Math.round(n.duration)+' ms':''}</span></div>`;}).join('')}</div><div class="tool-nodes">${['clarify','measure','locate','hypothesise','experiment','judge','speed','check','report'].map(name=>{const calls=rows.filter(r=>r.service==='tools' && r.name===name),active=calls.some(r=>!r.end && !r.legacy);return `<span class="tool-node ${active?'active':''}">${name}<small>${calls.length} calls · ${active?'active':calls.some(r=>r.finish?.status==='error')?'error':'idle'}</small></span>`;}).join('')}</div>`;
+  const legacy=!rows.some(r=>!r.legacy);
+  $('#map-caption').textContent=legacy?'Archive: individual call timings unavailable':'Live spans · measured call latency';
+  const groups=[['reason','Orchestrate',['planner','tools']],['data','Read sources',['company','measurements','reference','prices']],['model','Generate',['nvidia']],['memory','Remember',['world','hmem','markovian']],['verify','Verify',['checker']]];
+  $('#service-map').innerHTML='<div class="service-lanes">'+groups.map(([kind,label,ids],index)=>`<section class="service-lane" data-kind="${kind}"><h3><span class="lane-symbol" aria-hidden="true">${['◇','▤','✳','▧','✓'][index]}</span>${label}</h3>${ids.map(id=>{const [,brand,label]=services.find(row=>row[0]===id),n=nodes.get(id),state=n.active?'active':n.error?'error':n.count?'recorded':'idle';return `<div data-node="${id}" data-edge="${id}" class="service-node circuit-edge ${state} ${legacy && observed===id?'observed':''}"><strong>${esc(label)}</strong><small>${esc(brand)}</small><span class="service-state">${legacy && !n.count?'Timing unavailable':n.count+' calls · '+(state==='recorded'?'finished':state)}${n.duration!==null?' · '+Math.round(n.duration)+' ms':''}</span></div>`;}).join('')}</section>`).join('')+'</div>';
  }
  function trace(rows){
+  const focused=document.activeElement,focusedSpan=focused?.closest('#trace-tree [data-span]'),focusKey=focusedSpan?.dataset.span,focusIndex=focusedSpan?[...focusedSpan.querySelectorAll('summary')].indexOf(focused):-1;
   const seen=new Set();
   const starts=s.events.filter(e=>e.event==='step_started');
   const steps=[...new Set([...starts.map(e=>e.step),...rows.map(e=>e.step)])];
@@ -75,8 +105,9 @@
   }
   $('#trace-tree').innerHTML=steps.map(step=>{
    const key='step:'+step,items=rows.filter(r=>r.step===step),why=[...s.events].reverse().find(e=>e.step===step && (e.event==='planner_reason' || e.why));
-   return `<details class="trace-step" data-trace-step="${esc(step)}" data-span="${key}" ${c.open.has(key)?'open':''}><summary><strong>${esc(step)}</strong><span>${items.length} ${items.some(r=>r.legacy)?'recorded tools':'recorded calls'}</span></summary><p class="planner-why">${esc(safe(why?.text || why?.why))}</p>${items.filter(r=>!items.some(p=>p.key===r.parent_id)).map(r=>render(r)).join('')}</details>`;
+   return `<details class="trace-step" data-state="${stageState(step)}" data-trace-step="${esc(step)}" data-span="${key}" ${c.open.has(key)?'open':''}><summary><strong>${esc(stages.find(x=>x[0]===step)?.[1] || step)}</strong><span>${items.length} ${items.some(r=>r.legacy)?'recorded tools':'recorded calls'}</span></summary><p class="planner-why">${esc(safe(why?.text || why?.why))}</p>${items.filter(r=>!items.some(p=>p.key===r.parent_id)).map(r=>render(r)).join('')}</details>`;
   }).join('') || '<p class="empty">Queued. The first step will appear when the worker begins.</p>';
+  if(focusKey && focusIndex>=0)$(`#trace-tree [data-span="${CSS.escape(focusKey)}"]`)?.querySelectorAll('summary')[focusIndex]?.focus({preventScroll:true});
  }
  function findings(){
   const claims=[...s.claims.values()].filter(cl=>cl.verified===true && Number.isFinite(cl.value) && cl.evidence_ids?.length);
@@ -84,7 +115,14 @@
   const configured=s.tokenizer || s.companies.find(row=>row.company===s.company)?.model_in_use;
   const rank=cl=>preferred.has(cl.id)?0:cl.id.includes(configured || '__none__') && /monthly_inr|saving_inr|cost_share|ratio/.test(cl.id)?1:cl.id.startsWith('quality/')?2:3;
   const selected=claims.filter(cl=>!/^markovian|^budget|^jobs/.test(cl.id)).sort((a,b)=>rank(a)-rank(b));
-  $('#live-findings').innerHTML=selected.slice(0,12).map(cl=>`<article class="finding-card" data-verified="true"><span class="tag good">VERIFIED</span><small>${esc(cl.id)}</small><strong>${a.metric(cl.id)}</strong><span>${esc(cl.unit)}</span><button data-claim="${esc(cl.id)}">Open receipt ↗</button></article>`).join('') || '<p class="empty">No checked claims yet. Observations are visible in the trace.</p>';
+  const labels={monthly_usd:'Monthly content cost',language_tax_usd:'Extra cost vs English',token_multiplier:'Tokens vs English',resend_factor:'History resend factor',system_cost_share:'System prompt cost share'};
+  const labelFor=cl=>Object.entries(s.billingData?.headline || {}).find(([key,id])=>id===cl.id && labels[key])?.[0];
+  const preferredOrder=['monthly_usd','language_tax_usd','token_multiplier','resend_factor','system_cost_share'];
+  selected.sort((a,b)=>{const rank=cl=>{const key=labelFor(cl);return key?preferredOrder.indexOf(key):10;};return rank(a)-rank(b);});
+  $('#verified-counter').dataset.verified=String(!!claims.length);
+  $('#verified-counter').textContent=claims.length?`${claims.length} checked claims`:'Not yet verified';
+  $('#live-findings').innerHTML=selected.slice(0,3).map(cl=>`<article class="finding-card" data-verified="true"><span class="tag good">✓ VERIFIED</span><h3>${esc(labels[labelFor(cl)] || cl.id.split('/').at(-1).replaceAll('_',' '))}</h3><strong>${a.metric(cl.id,cl.unit==='ratio'?'ratio':undefined)}</strong><span class="finding-unit">${esc(cl.unit==='USD'?s.currency:cl.unit==='INR'?'Sourced currency amount':cl.unit==='ratio'?'relative to the paired baseline':cl.unit)}</span><button data-claim="${esc(cl.id)}">Inspect evidence ↗</button></article>`).join('') || `<div class="finding-empty"><span aria-hidden="true">▱</span><div><strong>${terminal()?'No verified findings published':'Evidence is being collected'}</strong><p>${terminal()?'Review the run outcome and recorded trace for its limitations.':'Findings appear here only after the checker verifies them.'+(c.replay?' This archive publishes its checked claims at the end.':'')}</p></div><span class="tag">${terminal()?'No checked claims':'Awaiting verification'}</span></div>`;
+
  }
  function budgets(){
   const e=[...s.events].reverse().find(e=>e.event==='budget');
@@ -93,7 +131,7 @@
  function tail(){
   $('#event-tail').innerHTML=s.events.slice(-100).map(e=>`<div><time>${esc((e.timestamp || '').slice(11,23))}</time><b>${esc(e.event)}</b><span>${esc(e.step)}</span><span>${esc(e.error_class || e.name || e.tool || e.status || safe(e.text || e.why || ''))}</span></div>`).join('');
  }
- function update(){bar();const rows=spans();map(rows);trace(rows);findings();budgets();if(!$('#event-console').hidden)tail();}
+ function update(){bar();briefing();const rows=spans();map(rows);trace(rows);findings();budgets();if(!$('#event-console').hidden)tail();}
  function reportTabs(){
   const children=[...$('#report-content').children];
   const groups=['overview','composition','replay','quality','models','scenario','timing','evidence','compression','evidence','evidence'];
@@ -112,7 +150,7 @@
   c.tab=tab;
   const screen=tab==='tokens'?'tokens':tab==='evidence'?'evidence-index':['overview','billing','quality'].includes(tab)?'report':'investigation';
   if(screen==='report' && !s.report){a.notice('The checked result will be available when the run publishes its report.');return;}
-  a.notice();a.show(screen);$('#investigation').dataset.view=tab;
+  a.notice();a.show(screen);$('#main').scrollTop=0;$('#investigation').dataset.view=tab;
   document.querySelectorAll('[data-console-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.consoleTab===tab?'page':'false'));
   reportTabs();if(tab==='tokens' && !s.tokenResults.size)a.inspectTokens();
  }
@@ -121,7 +159,7 @@
   renderHistory();
  }
  function renderHistory(){
-  const html=c.history.slice().reverse().sort((a,b)=>Number(b.demo || false)-Number(a.demo || false)).map(r=>`<button class="history-run" data-run="${esc(r.id)}"><strong>${esc(r.company || 'Investigation')}</strong><span class="tag">${esc(r.status)}</span><code>${esc(r.id)}</code><small>${r.saved?'Replay saved run':'Open live run'}</small></button>`).join('');
+  const html=c.history.slice().reverse().sort((a,b)=>Number(b.demo || false)-Number(a.demo || false)).map(r=>`<button class="history-run" data-status="${esc(r.status)}" data-run="${esc(r.id)}"><strong>${esc(({samudra:'Samudra Telecom',swara:'Swara Care'})[r.company] || r.company || 'Investigation')}</strong><span class="tag">${esc(r.status)}</span><code>${esc(r.id)}</code><small>${r.saved?'Replay saved run':'Open live run'}</small></button>`).join('');
   $('#run-history').innerHTML=html || '<p class="hint">No saved runs yet.</p>';$('#history-list').innerHTML=html || '<p>No saved runs found. Import a report and its event log from Companies.</p>';
  }
  async function openRun(id){
@@ -153,6 +191,8 @@
  document.addEventListener('click',async event=>{
   const b=event.target.closest('button');if(!b || b.disabled)return;
   if(b.dataset.consoleTab)select(b.dataset.consoleTab);
+  if(b.dataset.openView)select(b.dataset.openView);
+  if(b.dataset.stage){c.open.add('step:'+b.dataset.stage);select('trace');trace(spans());const target=$(`[data-trace-step="${b.dataset.stage}"]`);if(target){target.open=true;target.scrollIntoView({block:'nearest',behavior:'instant'});target.querySelector('summary')?.focus();}else a.notice('This stage has not started yet.');}
   if(b.dataset.billTab){c.billing=b.dataset.billTab;reportTabs();}
   if(b.dataset.run)openRun(b.dataset.run);
   if(b.id==='refresh-history')history();
@@ -166,9 +206,9 @@
  $('#replay-position').addEventListener('input',()=>{if(c.replay){c.replay.playing=false;applyReplay(Number($('#replay-position').value)/1000*c.replay.duration);}});
  $('#theme').addEventListener('change',()=>{const t=$('#theme').value;document.documentElement.dataset.theme=t;try{localStorage.setItem('polytoken.theme',t);}catch{}});
  try{$('#theme').value=localStorage.getItem('polytoken.theme') || 'system';document.documentElement.dataset.theme=$('#theme').value;}catch{}
- window.addEventListener('polytoken:reset',()=>{if(s.mode==='live'){c.replay=null;c.loaded=null;}});
+ window.addEventListener('polytoken:reset',()=>{c.open.clear();c.activeStage=null;if(s.mode==='live'){c.replay=null;c.loaded=null;}});
  window.addEventListener('polytoken:update',update);window.addEventListener('polytoken:report',reportTabs);window.addEventListener('polytoken:import',imported);
- window.addEventListener('polytoken:screen',event=>{if(event.detail==='report' && !['overview','billing','quality'].includes(c.tab))c.tab='overview';if(event.detail==='history')history();reportTabs();});
+ window.addEventListener('polytoken:screen',event=>{$('#main').scrollTop=0;if(event.detail==='report' && !['overview','billing','quality'].includes(c.tab))c.tab='overview';if(event.detail==='history')history();reportTabs();});
  document.addEventListener('keydown',event=>{if(!event.altKey || event.ctrlKey || event.metaKey)return;const key=event.key.toLowerCase();if(key==='r'){event.preventDefault();if(s.runId)$('#rerun').click();else $('#ask-form').requestSubmit();}if(key==='s'){event.preventDefault();$('#stop-run').click();}if(/^[1-8]$/.test(key)){event.preventDefault();if(key==='8')$('#toggle-events').click();else select(['activity','trace','overview','billing','quality','evidence','tokens'][Number(key)-1]);}});
  setInterval(()=>{const r=c.replay;if(r?.playing){const now=performance.now(),delta=now-r.last;r.last=now;applyReplay(r.position+delta*Number($('#replay-speed').value));}else if(r)r.last=performance.now();clock();},100);
  a.fetchJSON('/console/config').then(({data})=>{c.demo=s.demo=data.demo;$('#mode-note').textContent=c.demo?'Offline demo. Saved runs are ready; live provider calls are disabled.':'Live mode. Start a configured investigation or replay a saved run.';if(c.demo){$('#connection').textContent='Offline demo · recorded Zetaris evidence';$('#investigate').textContent='Live calls disabled in demo';$('#investigate').disabled=true;}}).catch(()=>{});

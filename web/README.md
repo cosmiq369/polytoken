@@ -79,9 +79,10 @@ against their World Model evidence. Live investigations require restarting witho
 background jobs. Settings saves a light, dark or system theme. Alt+R runs/replays,
 Alt+S stops, Alt+1–7 switches run tabs and Alt+8 toggles raw events.
 
-`console.js` uses the same event state as live SSE; `console.css` provides a dense
-shell around the retained billing and receipt components. Billing subviews avoid
-an article-length report. New event fields and routes are in
+`console.js` uses the same event state as live SSE. The investigation desk shows
+current work, a highlighted stage path, verified findings and grouped services.
+Navigation stays in place while content scrolls. A neutral palette distinguishes
+activity, testing, verification and failures. Billing keeps its focused subviews. New event fields and routes are in
 `docs/REPORT_SCHEMA.md`; design decisions are in `docs/design/CONSOLE.md`.
 
 The full pytest suite runs both `check-ui.cjs` (existing billing regressions) and
@@ -89,7 +90,13 @@ The full pytest suite runs both `check-ui.cjs` (existing billing regressions) an
 requests; its live Stop case is explicitly a fake run with nested SQL spans.
 `record-console.cjs` instead captures the **real offline server**, with no mocked
 API replies. Use the existing Playwright `NODE_PATH` described above. It writes
-64 screenshots under `docs/images/console_*.png` and `console_replay.webm`, and
+72 screenshots under `docs/images/console_*.png` and `console_replay.webm`, and
 records provenance in `logs/sample/console_validation.jsonl`. The video contains
 the curated 34-second Samudra run at 4× followed by a tour of its checked results.
 Legacy archives predate physical spans, so they disclose unavailable timings.
+
+The console regression checks also cover the Swara quality-review stage, fixed
+navigation at 320–1280px, mobile stage visibility, trace keyboard focus through
+event updates, currency captions, review-required outcomes, reduced motion and
+640×475 zoom-equivalent reflow. Screenshot proof includes Swara in progress and
+scrolled navigation in both themes and viewport sizes.
