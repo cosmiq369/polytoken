@@ -150,6 +150,7 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
             return [{k: v for k, v in client.query(f'SELECT * FROM company_systems.{company}__bot_config')[0].items()
                      if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s')}
                     for company in ('samudra', 'swara')]
+    mount_billing_api(app, manager, state_dir, log_dir)
     mount_ui(app)
     return app
 
@@ -159,3 +160,88 @@ def mount_ui(app):
     from fastapi.staticfiles import StaticFiles
 
     app.mount('/', StaticFiles(directory=Path(__file__).resolve().parents[2] / 'web', html=True), name='ui')
+
+
+def mount_billing_api(app, manager, state_dir, log_dir):
+    """Register billing/display routes independently of the investigation worker."""
+    from fastapi import Query
+    from .billing_view import archived_events, build_billing, find_report, BillingUnavailable
+    from .currencies import load_currencies
+    from .tokens import token_pieces
+    billing_cache = {}
+    billing_lock = threading.Lock()
+
+    @app.get('/currencies')
+    def currencies():
+        try:
+            result = load_currencies()
+            JsonlLogger(log_dir).write('currencies', 'reference_loaded', ok=True, base=result['base'], rates=result['rates'], source='data/reference/fx.json')
+            return result
+        except (ValueError, KeyError, OSError):
+            raise HTTPException(503, 'Verified display currencies are unavailable') from None
+
+    @app.get('/investigations/{identifier}/billing')
+    def billing(identifier: str):
+        try:
+            report = find_report(identifier, manager, log_dir)
+        except FileNotFoundError:
+            raise HTTPException(404, 'Investigation not found') from None
+        if report is None:
+            return JSONResponse({'id': identifier, 'status': 'running', 'reason': 'No checked billing snapshot yet.'}, status_code=202)
+        logger = JsonlLogger(log_dir, run_id=identifier)
+        records = {e['event_id']: e for e in archived_events(log_dir)}
+        path = Path(state_dir) / 'world.sqlite'
+        if path.is_file():
+            with WorldModel(path, logger=logger) as world:
+                # Runtime rows take precedence so an archive cannot mask tampering.
+                records.update({e['event_id']: e for e in world.events()})
+        try:
+            import hashlib
+            wanted = set(report.get('evidence_ids', []))
+            for claim in report.get('claims', []):
+                wanted.update(claim.get('evidence_ids', []))
+            pending = list(wanted)
+            while pending:
+                row = records.get(pending.pop())
+                for parent in (row or {}).get('payload', {}).get('supports', []):
+                    if parent not in wanted:
+                        wanted.add(parent)
+                        pending.append(parent)
+            # Include actual content, not only its declared ID, in cache identity.
+            fingerprint = hashlib.sha256(json.dumps([report, [records.get(k) for k in sorted(wanted)]], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+            with billing_lock:
+                if fingerprint in billing_cache:
+                    logger.write('billing', 'checked_view_reused', ok=True, fingerprint=fingerprint)
+                    return billing_cache[fingerprint]
+            result = build_billing(report, list(records.values()), logger=logger)
+            with billing_lock:
+                if len(billing_cache) >= 8:
+                    billing_cache.pop(next(iter(billing_cache)))
+                billing_cache[fingerprint] = result
+            return result
+        except (BillingUnavailable, ValueError, KeyError, TypeError, ZeroDivisionError) as exc:
+            reason = logger.redact(str(exc))
+            logger.write('billing', 'unavailable', ok=False, reason=reason)
+            return {'id': identifier, 'status': 'not measured', 'reason': reason, 'claims': []}
+
+    @app.get('/tokens')
+    def tokens(text: str = Query(min_length=1, max_length=2000), tokenizer: str = Query(min_length=1, max_length=200)):
+        logger = JsonlLogger(log_dir)
+        try:
+            result = token_pieces(tokenizer, text)
+        except ValueError as exc:
+            logger.write('token_strip', 'measurement_failed', ok=False, tokenizer=tokenizer, reason=logger.redact(str(exc)))
+            raise HTTPException(422, logger.redact(str(exc))) from None
+        except Exception as exc:
+            logger.write('token_strip', 'measurement_failed', ok=False, tokenizer=tokenizer, error_class=type(exc).__name__)
+            return {'ok': False, 'tokenizer': tokenizer, 'reason': 'Local tokenizer could not be read; no download attempted.'}
+        import hashlib
+        source = dict(kind='Local tokenizer measurement', source=result.get('source', 'Local tokenizer cache'),
+                      at=now(), fetched_at=now(), query='GET /tokens; UTF-8 text SHA-256 '+hashlib.sha256(text.encode()).hexdigest(),
+                      time_window={'start': now(), 'end': now()}, run_id=logger.run_id)
+        if result['ok']:
+            with WorldModel(Path(state_dir) / 'world.sqlite', logger=logger) as world:
+                identifier = world.evidence_event('measurement', source['query']+' '+tokenizer, result, source)
+            result = {**result, 'evidence_id': identifier, 'provenance': source}
+        logger.write('token_strip', 'measured', **{**result, 'provenance': source})
+        return result
