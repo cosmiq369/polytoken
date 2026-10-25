@@ -34,9 +34,10 @@ def validate_sql(query):
 
 class InvestigationTools:
     def __init__(self, client, generate, store, budget, logger, *, catalogue,
-                 fx=None, prices=None, count=tokens.count, emit=lambda *a, **k: None):
+                 fx=None, prices=None, count=tokens.count, emit=lambda *a, **k: None, agent_model=None):
         self.client, self.generate, self.store, self.budget, self.logger = client, generate, store, budget, logger
         self.catalogue = catalogue
+        self.agent_model = agent_model
         self.fx = fx if fx is not None else load_fx()
         self.reference_prices = prices if prices is not None else load_prices(ROOT / 'prices.json')
         self.count, self.emit = count, emit

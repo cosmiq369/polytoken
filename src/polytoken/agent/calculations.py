@@ -134,6 +134,7 @@ def quality_metrics(verdict):
                prefix + '/judged': sum(type(r.get('same_facts')) is bool for r in rows),
                prefix + '/queued_for_review': len(rows)}
     if verdict.get('protocol_version') == 3:
+        metrics[prefix + '/cache_hits'] = sum(r.get('cache_hit') is True for r in rows)
         for status in ('missing', 'contradicted', 'added'):
             metrics[prefix + '/' + status] = sum(
                 c['material'] and c['status'] == status for r in rows if r.get('same_facts') is not None

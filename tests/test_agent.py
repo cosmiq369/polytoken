@@ -68,14 +68,14 @@ def apparatus(tmp_path, logger):
             else:
                 text = 'సరే same facts'
                 kwargs['on_stream'](text)
-            return dict(text=text, finish_reason='stop', usage={'prompt_tokens': 100, 'completion_tokens': 25},
+            return dict(text=text, model='fixture/nemotron', finish_reason='stop', usage={'prompt_tokens': 100, 'completion_tokens': 25},
                         latency_s=1.5, ttft_s=.2, request_latency_s=1.4)
     world = WorldModel(storage='memory', logger=logger)
     memory = HMem(logger=logger)
     gen, sql, budget = Generate(), SQL(), BudgetGuard()
     tools = InvestigationTools(sql, gen, EvidenceStore(world), budget, logger,
         catalogue={'families': {'fixture/model': ['fixture/hosted'], 'other/model': ['other/hosted']}},
-        prices=[price], fx=load_fx(), count=lambda spec, text: len(text.split()))
+        prices=[price], fx=load_fx(), count=lambda spec, text: len(text.split()), agent_model='fixture/nemotron')
     yield dict(tools=tools, memory=memory, generator=gen, sql=sql, world=world, config=config)
     world.close()
 
@@ -743,3 +743,23 @@ def test_indexed_quotes_resolve_exact_source_and_reject_wrong_reply():
     row['changed_claims'][0]['quote_id'] = 'original:1'
     with pytest.raises(ValueError, match='Unknown source excerpt'):
         resolve_quotes(row, pair)
+
+
+def test_judge_cache_preserves_valid_outcomes_and_requires_exact_context(apparatus):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    t.measure('samudra', config, ids)
+    experiment = t.fix_experiment('samudra', 'english_system')
+    first = t.quality_judge(experiment['pairs'])
+    t.budget = BudgetGuard()
+    second = t.quality_judge(experiment['pairs'])
+    assert t.budget.counts['judge'] == 0
+    assert all(r['cache_hit'] for r in second['pairs'])
+    assert [r['same_facts'] for r in first['pairs']] == [r['same_facts'] for r in second['pairs']]
+    experiment['pairs'][0]['conversation'][0]['content'] += ' changed history'
+    t.quality_judge(experiment['pairs'])
+    assert t.budget.counts['judge'] == 1
+    t.budget = BudgetGuard()
+    t.agent_model = 'different/nemotron'
+    t.quality_judge(experiment['pairs'])
+    assert t.budget.counts['judge'] == 20

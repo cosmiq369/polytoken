@@ -1,11 +1,13 @@
 """Version-three contextual, paired quality protocol and deterministic validation."""
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+import hashlib
 import random
 import re
 
 from .jobs import cache_key, cached_calls
 
+REPAIR = '\nYour previous output failed JSON/quote/schema validation. Return the complete required JSON in English with valid quote_id references from quote_catalog.'
 SEED = 20261024
 INCONCLUSIVE = 'the bar cannot be met by this judge and stand-in model; result inconclusive'
 
@@ -83,18 +85,55 @@ def judge_prompt(policy, pair):
                 'changed': pair['changed']['text'], 'quote_catalog': quote_catalog(pair)}, ensure_ascii=False))
 
 
+def cached_judgments(t):
+    """Reuse the first validated call for the exact model, arm and full prompt.
+
+    This preserves valid outcomes when a bounded recovery fills missing judgments.
+    Raw calls remain content-addressed parents of the new aggregate verdict.
+    """
+    found = {}
+    if not t.agent_model:
+        return found
+    canonical = lambda v: json.dumps(v, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+    for event in t.store.world.events():
+        p = event['payload']
+        raw = p.get('result') or {}
+        if (not p.get('ok') or p.get('judge_format') != 'excerpt_ids_v1'
+                or raw.get('model') != t.agent_model or not p.get('prompt')):
+            continue
+        digest = hashlib.sha256(f"{event['kind']}|{event['item_key']}|{canonical(p)}|{canonical(event['provenance'])}".encode()).hexdigest()[:24]
+        if event['event_id'] != 'evt_' + digest:
+            continue
+        prompt = p.get('base_prompt', p['prompt'].removesuffix(REPAIR))
+        found.setdefault((p['comparison'], prompt), (raw, event['event_id']))
+    return found
+
+
 def contextual_judge(t, pairs, comparison='ab'):
     complete = len(pairs) == 20 and len({p['chat_id'] for p in pairs}) == 20 and all(
         p[v]['ok'] and p[v].get('finish_reason') == 'stop' for p in pairs for v in ('original', 'changed'))
     from ..tools import now
     verdicts, call_ids = [], []
+    cache = cached_judgments(t)
     for pair in pairs:
         row = {'chat_id': pair['chat_id'], 'same_facts': None, 'reason': 'Unjudged: incomplete sample or judge failure'}
         if complete:
             prompt = judge_prompt(t.snapshot['config']['system_prompt_native'], pair)
+            base_prompt = prompt
+            hit = cache.get((comparison, prompt))
+            if hit:
+                try:
+                    raw, parent = hit
+                    answer = resolve_quotes(json.loads(raw['text']), pair)
+                    row = {**answer, 'same_facts': validate_claims(answer, pair), 'cache_hit': True}
+                    call_ids.append(parent)
+                    t.ids.append(parent)
+                    t.logger.write('quality', 'cache_hit', comparison=comparison, chat_id=pair['chat_id'], ok=True, evidence_id=parent)
+                except (KeyError, ValueError, TypeError):
+                    hit = None
             # A bounded repair only when the output cannot be validated. The shared
             # 45-attempt counter includes HTTP retries and these repairs.
-            for attempt in range(2):
+            for attempt in range(0 if hit else 2):
                 raw = None
                 started = now()
                 try:
@@ -112,13 +151,13 @@ def contextual_judge(t, pairs, comparison='ab'):
                     ok = False
                     row['reason'] = 'Unjudged: ' + type(exc).__name__
                 payload = {'ok': ok, 'comparison': comparison, 'chat_id': pair['chat_id'],
-                           'attempt': attempt + 1, 'judge_format': 'excerpt_ids_v1', 'result': raw, 'prompt': prompt,
+                           'attempt': attempt + 1, 'judge_format': 'excerpt_ids_v1', 'result': raw, 'prompt': prompt, 'base_prompt': base_prompt,
                            'supports': [t.last_experiment_id]}
                 call_ids.append(t.observe('quality_verdict', payload, {'operation': 'contextual pair judge'}, 'NVIDIA Nemotron', started))
                 t.logger.write('quality', 'pair_judged', comparison=comparison, chat_id=pair['chat_id'], ok=ok)
                 if ok or t.budget.reason:
                     break
-                prompt += '\nYour previous output failed JSON/quote/schema validation. Return the complete required JSON in English with valid quote_id references from quote_catalog.'
+                prompt += REPAIR
         verdicts.append({**row, 'review_status': 'pending',
                          'reply_texts': {v: {'text': pair[v]['text']} for v in ('original', 'changed')} if complete else {}})
         t.emit('quality_progress', comparison=comparison, done=len(verdicts), total=len(pairs))

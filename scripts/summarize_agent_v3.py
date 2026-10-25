@@ -52,6 +52,7 @@ def main():
                       f"- Top finding: {report['top_finding']}",
                       f"- Model: {(experiment or {}).get('models', {})}; {(experiment or {}).get('model_label', '')}.",
                       f"- Throughput: {report['throughput_status']}.",
+                      f"- Reused validated judgments: A/A {v.get('quality/aa/cache_hits', 0)}, A/B {v.get('quality/cache_hits', 0)}. Exact model, comparison, full policy/history/replies and judge format must match; accepted judgments are not resampled.",
                       f"- [Checked report](agent_{company}_v3_report.json) · [Events](agent_{company}_v3.jsonl)", '',
                       '| Comparison | Missing material claims | Contradicted material claims | Added material claims |',
                       '| --- | ---: | ---: | ---: |']
@@ -88,6 +89,7 @@ def main():
         lines += ['', '## Interpretation, deviations and limitations', '',
                   '- Full history and policy now reach the generator/judge; GPT-OSS uses low reasoning effort and a 1024-token generation allowance. Completed answers require finish_reason=stop. One regeneration is allowed for length truncation. Selection is a fixed permutation, with exclusions before any judgments.',
                   '- A1 is shared across A/A and A/B, while A2 is independently generated. Separate replicate cache keys prevent copying the baseline into its control. Successful calls can be reused only under the same contextual protocol and settings.',
+                  '- When a partial run exhausts its judge allowance, a bounded recovery reuses the first valid judgment for an exact model/comparison/full-prompt match and requests only missing verdicts. Cached raw calls remain evidence parents; all attempts and partial scores stay in history.',
                   '- Forty judgments require the pre-run addendum: 25 reasoning attempts plus 45 judge attempts. Hosted attempts remain capped at 70, SQL at 60, reasoning at six minutes and background work at thirty minutes per investigation. Any recovery runs are separately retained in the history table.',
                   '- Monthly amounts reconstruct the same historical whole-chat content bill, replacing measured system tokens only. Generated reply-length differences do not substitute for historical answers in the bill. These are quoted scenarios, not invoice totals.',
                   '- The first Samudra v3 judge format failed on malformed JSON and invented Telugu quotations. That attempt remains in history. A dated serialization addendum introduced numbered source excerpts: the judge cites IDs in English JSON, and code attaches the exact native text. Generation settings, selection and the quality bar are unchanged.',

@@ -63,7 +63,7 @@ def investigate(company, *, question='', monthly_chats=None, latency_target_s=No
         client = stack.enter_context(ZetarisClient(settings, logger=logger, timeout_s=20.))
         generator = stack.enter_context(NvidiaGenerator(settings, logger=logger, max_tokens=640, timeout_s=35.))
         guard = BudgetGuard()
-        toolset = InvestigationTools(client, generator.generate, EvidenceStore(world), guard, logger, catalogue=catalogue)
+        toolset = InvestigationTools(client, generator.generate, EvidenceStore(world), guard, logger, catalogue=catalogue, agent_model=settings.agent_model)
         toolset.observe('query_result', catalogue, 'GET ' + catalogue.get('live_query', '/models'), 'NVIDIA catalogue intersected with verified allowlist')
         agent = Investigation(toolset, memory, question=question, monthly_chats=monthly_chats,
                               latency_target_s=latency_target_s, event_sink=event_sink, historical_runs=history, background=True)
