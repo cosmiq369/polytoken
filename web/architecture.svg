@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 370" role="img" aria-labelledby="architecture-title architecture-desc">
+<title id="architecture-title">How PolyToken turns a workload into checked advice</title>
+<desc id="architecture-desc">A workload brief goes to the Nemotron agent, then tools which query Zetaris and use in-process Meterless memory. The deterministic checker recomputes claims before the report. Ask the evidence reads checked saved claims.</desc>
+<style>
+.arch-box{fill:var(--surface,#202329);stroke:var(--line,#424852);stroke-width:2}.arch-text{fill:var(--ink,#f1f2f5);font:600 22px Arial,sans-serif}.arch-sub{fill:var(--muted,#b5bdc9);font:18px Arial,sans-serif}.arch-flow{fill:none;stroke:var(--muted,#b5bdc9);stroke-width:2;marker-end:url(#arch-arrow)}.arch-agent{stroke:var(--model,#cdb2fa)}.arch-data{stroke:var(--active,#a5bbff)}.arch-check{stroke:var(--verified,#91dbaf)}
+</style>
+<defs><marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--muted,#b5bdc9)"/></marker></defs>
+<path class="arch-flow" d="M180 172H210M420 172H450M600 172H625V77H650M625 172V259H650M930 77H950V172H980M930 259H950V172M1210 172H1240M1310 220V291H1220"/>
+<rect class="arch-box" x="10" y="124" width="170" height="96" rx="10"/><text class="arch-text" x="28" y="160" style="font-size:19px">Your workload</text><text class="arch-sub" x="28" y="190">Brief or sample</text>
+<rect class="arch-box arch-agent" x="210" y="114" width="210" height="116" rx="10"/><text class="arch-text" x="230" y="149">Nemotron agent</text><text class="arch-sub" x="230" y="178">Planner / judge</text><text class="arch-sub" x="230" y="208">Hosted NVIDIA API</text>
+<rect class="arch-box" x="450" y="124" width="150" height="96" rx="10"/><text class="arch-text" x="470" y="160">Tools</text><text class="arch-sub" x="470" y="190">Bounded calls</text>
+<rect class="arch-box arch-data" x="650" y="15" width="280" height="126" rx="10"/><text class="arch-text" x="672" y="49">Zetaris · federated SQL</text><text class="arch-sub" x="672" y="78">Company data · measurements</text><text class="arch-sub" x="672" y="106">Reference sentences · prices</text>
+<rect class="arch-box arch-agent" x="650" y="198" width="280" height="126" rx="10"/><text class="arch-text" x="672" y="232">Meterless · in-process</text><text class="arch-sub" x="672" y="261">World Model · H-MEM</text><text class="arch-sub" x="672" y="289">Markovian carryover</text>
+<rect class="arch-box arch-check" x="980" y="104" width="230" height="136" rx="10"/><text class="arch-text" x="1000" y="133">Deterministic</text><text class="arch-text" x="1000" y="158">checker</text><text class="arch-sub" x="1000" y="186">Claim + evidence</text><text class="arch-sub" x="1000" y="209">+ recompute recipe</text><text class="arch-sub" x="1000" y="232">Unsupported → dropped</text>
+<rect class="arch-box arch-check" x="1240" y="124" width="150" height="96" rx="10"/><text class="arch-text" x="1260" y="160">Report</text><text class="arch-sub" x="1254" y="190" style="font-size:16px">Checked claims</text>
+<rect class="arch-box arch-check" x="980" y="270" width="240" height="80" rx="10"/><text class="arch-text" x="1000" y="301">Ask the evidence</text><text class="arch-sub" x="1000" y="330">Checked saved claims only</text>
+</svg>

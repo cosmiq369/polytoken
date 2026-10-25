@@ -17,13 +17,13 @@
   <a class="skip" href="#main">Skip to content</a>
   <header class="header"><div class="header-inner">
     <a class="brand" href="#ask" aria-label="PolyToken home"><svg width="29" height="29" viewBox="0 0 29 29" aria-hidden="true"><rect x="2" y="5" width="25" height="4" rx="2" class="logo-amber"/><rect x="2" y="13" width="17" height="4" rx="2"/><rect x="2" y="21" width="9" height="4" rx="2"/></svg>PolyToken</a>
-    <div class="header-controls"><span class="workspace-label">Investigation workspace</span><span class="connection" id="connection" role="status">Loading company configuration…</span><label class="currency-label" for="currency">Currency <select id="currency"><option value="USD">USD</option></select></label><button type="button" id="currency-source" class="rate-note" title="Open currency source receipt"></button></div>
+    <div class="header-controls"><span class="workspace-label">Investigation workspace</span><span class="connection" id="connection" role="status">Loading company configuration…</span><label class="currency-label" for="currency">Currency <select id="currency"><option value="USD">USD</option></select></label><button type="button" data-screen="how-it-works" aria-label="How it works" title="How it works">ⓘ</button><button type="button" id="currency-source" class="rate-note" title="Open currency source receipt"></button></div>
   </div></header>
   <div class="notice" id="notice" role="alert" hidden></div>
   <aside class="rail" aria-label="Workspace navigation">
     <p class="eyebrow">WORKSPACE</p>
     <button class="primary new-investigation" data-screen="launcher">＋ New investigation</button>
-    <nav aria-label="Workspace"><button data-screen="history"><span aria-hidden="true">◫</span> Investigations</button><button data-screen="ask"><span aria-hidden="true">▦</span> Companies</button><button data-screen="tokens"><span aria-hidden="true">⌗</span> Token strip</button><button data-screen="settings"><span aria-hidden="true">⚙</span> Settings</button></nav>
+    <nav aria-label="Workspace"><button data-screen="history"><span aria-hidden="true">◫</span> Investigations</button><button data-screen="ask"><span aria-hidden="true">▦</span> Companies</button><button data-screen="tokens"><span aria-hidden="true">⌗</span> Token strip</button><button data-screen="how-it-works"><span aria-hidden="true">ⓘ</span> How it works</button><button data-screen="settings"><span aria-hidden="true">⚙</span> Settings</button></nav>
     <div class="rail-heading">RECENT RUNS <button id="refresh-history" aria-label="Refresh history">↻</button></div><div id="run-history"></div>
     <p class="rail-foot">Zetaris · NVIDIA · Meterless<br>Evidence before advice.</p>
   </aside>
@@ -51,7 +51,7 @@
           <label for="latency-target">Full-reply target, seconds</label><input id="latency-target" type="number" min="0.01" max="300" step="any" value="2" required>
           <details><summary>System instructions</summary><label for="system-prompt">Shared instructions for both language variants</label><textarea id="system-prompt" maxlength="4000" rows="3" required>Help the customer using the supplied conversation context.</textarea><p class="hint">Used unchanged in both paired variants. Review the assumption for your workload.</p></details>
         </section>
-        <section class="panel"><h2>Conversation sample</h2><p class="data-warning">Use anonymised or synthetic conversations. Data stays on this machine.</p><p class="hint">Live reasoning sends workload summaries to NVIDIA. If you configure remote Zetaris, imported data goes to that server.</p>
+        <section class="panel"><h2>Conversation sample</h2><p class="data-warning">Use anonymised or synthetic conversations. Uploads go to your configured data stack.</p><p class="hint">Live reasoning sends workload summaries to NVIDIA. If you configure remote Zetaris, imported data goes to that server.</p>
           <label for="launch-source">Source</label><select id="launch-source"><option value="samudra">Samudra Telecom · Telugu chat</option><option value="swara">Swara Care · Hindi voice</option><option value="raitu">Raitu Mitra · Telugu voice</option><option value="paisa">Paisa Saathi · Hindi chat</option><option value="upload">Upload JSONL or CSV</option></select>
           <div id="upload-fields" hidden><label for="sample-file">Paired conversations</label><input id="sample-file" type="file" accept=".jsonl,.csv"><p class="hint">Up to one MiB. Each turn needs native text and an English baseline. <a href="/sample-template.jsonl" download>Download template</a> · <a href="/sample-schema.html" target="_blank" rel="noreferrer">Schema</a></p></div>
           <fieldset><legend>Candidate models · verified price list</legend><div id="candidate-models" class="model-choices"><p>Loading model choices…</p></div></fieldset>
@@ -90,6 +90,37 @@
       <button type="button" id="back-evidence" class="back">← Back to report</button>
       <div class="section-heading"><div><p class="eyebrow">Receipt / source and recomputation</p><h1 id="evidence-title">The receipt</h1></div></div>
       <div id="evidence-content"></div>
+    </section>
+    <section id="how-it-works" class="screen" aria-labelledby="how-title" hidden>
+      <p class="eyebrow">Evidence before advice</p><h1 id="how-title">How it works</h1>
+      <p class="intro">The agent investigates. The checker decides which numbers reach you.</p>
+      <div class="architecture-diagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 370" role="img" aria-labelledby="architecture-title architecture-desc">
+<title id="architecture-title">How PolyToken turns a workload into checked advice</title>
+<desc id="architecture-desc">A workload brief goes to the Nemotron agent, then tools which query Zetaris and use in-process Meterless memory. The deterministic checker recomputes claims before the report. Ask the evidence reads checked saved claims.</desc>
+<style>
+.arch-box{fill:var(--surface,#202329);stroke:var(--line,#424852);stroke-width:2}.arch-text{fill:var(--ink,#f1f2f5);font:600 22px Arial,sans-serif}.arch-sub{fill:var(--muted,#b5bdc9);font:18px Arial,sans-serif}.arch-flow{fill:none;stroke:var(--muted,#b5bdc9);stroke-width:2;marker-end:url(#arch-arrow)}.arch-agent{stroke:var(--model,#cdb2fa)}.arch-data{stroke:var(--active,#a5bbff)}.arch-check{stroke:var(--verified,#91dbaf)}
+</style>
+<defs><marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--muted,#b5bdc9)"/></marker></defs>
+<path class="arch-flow" d="M180 172H210M420 172H450M600 172H625V77H650M625 172V259H650M930 77H950V172H980M930 259H950V172M1210 172H1240M1310 220V291H1220"/>
+<rect class="arch-box" x="10" y="124" width="170" height="96" rx="10"/><text class="arch-text" x="28" y="160" style="font-size:19px">Your workload</text><text class="arch-sub" x="28" y="190">Brief or sample</text>
+<rect class="arch-box arch-agent" x="210" y="114" width="210" height="116" rx="10"/><text class="arch-text" x="230" y="149">Nemotron agent</text><text class="arch-sub" x="230" y="178">Planner / judge</text><text class="arch-sub" x="230" y="208">Hosted NVIDIA API</text>
+<rect class="arch-box" x="450" y="124" width="150" height="96" rx="10"/><text class="arch-text" x="470" y="160">Tools</text><text class="arch-sub" x="470" y="190">Bounded calls</text>
+<rect class="arch-box arch-data" x="650" y="15" width="280" height="126" rx="10"/><text class="arch-text" x="672" y="49">Zetaris · federated SQL</text><text class="arch-sub" x="672" y="78">Company data · measurements</text><text class="arch-sub" x="672" y="106">Reference sentences · prices</text>
+<rect class="arch-box arch-agent" x="650" y="198" width="280" height="126" rx="10"/><text class="arch-text" x="672" y="232">Meterless · in-process</text><text class="arch-sub" x="672" y="261">World Model · H-MEM</text><text class="arch-sub" x="672" y="289">Markovian carryover</text>
+<rect class="arch-box arch-check" x="980" y="104" width="230" height="136" rx="10"/><text class="arch-text" x="1000" y="133">Deterministic</text><text class="arch-text" x="1000" y="158">checker</text><text class="arch-sub" x="1000" y="186">Claim + evidence</text><text class="arch-sub" x="1000" y="209">+ recompute recipe</text><text class="arch-sub" x="1000" y="232">Unsupported → dropped</text>
+<rect class="arch-box arch-check" x="1240" y="124" width="150" height="96" rx="10"/><text class="arch-text" x="1260" y="160">Report</text><text class="arch-sub" x="1254" y="190" style="font-size:16px">Checked claims</text>
+<rect class="arch-box arch-check" x="980" y="270" width="240" height="80" rx="10"/><text class="arch-text" x="1000" y="301">Ask the evidence</text><text class="arch-sub" x="1000" y="330">Checked saved claims only</text>
+</svg>
+</div>
+      <h2>Where things run</h2>
+      <div class="architecture-locations">
+        <article><h3>Candidate tokenizers · this machine</h3><p>Standard model-fit investigations do not call Llama, Gemma or the other ranked candidates. Cached tokenizers count the supplied text locally; verified, dated price quotes come through Zetaris SQL.</p></article>
+        <article><h3>Nemotron · hosted NVIDIA API</h3><p>Live planning sends workload summaries to NVIDIA. One injected generator handles planning and judging. An explicitly requested quality experiment also sends conversation context for judging.</p></article>
+        <article><h3>Zetaris · your installation</h3><p>Local Docker by default. Company data and measurements live in the configured PostgreSQL. Sourced observations also persist in World Model SQLite and JSONL logs. Remote installations receive the data they query.</p></article>
+        <article><h3>Meterless · in this Python process</h3><p>In-repo Python implementations against a pinned reference specification: World Model evidence, H-MEM company memory and Markovian carryover. No Meterless package installation is required.</p></article>
+        <article><h3>Quality · verify on your sample</h3><p>The recorded controlled experiment used hosted openai/gpt-oss-20b as a stand-in after the other tested models failed serving probes. Its results do not establish candidate quality or voice latency.</p></article>
+        <article><h3>Demo and Ask · checked saved evidence</h3><p>Demo replays synthetic-company runs without external network calls; the browser only contacts this local app. Ask the evidence reads checked saved claims without a model call. Uploads need live mode.</p></article>
+      </div>
     </section>
     <section id="history" class="screen" hidden><p class="eyebrow">Investigation history</p><h1>Your investigations</h1><p>Replay a saved run through the same service map and trace. No live provider call is required.</p><div id="history-list"></div></section>
     <section id="settings" class="screen" hidden><p class="eyebrow">Workspace preferences</p><h1>Settings</h1><section class="panel"><label for="theme">Appearance</label><select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select><h2>Keyboard shortcuts</h2><p><kbd>Alt R</kbd> Run or re-run · <kbd>Alt S</kbd> Stop · <kbd>Alt 1–8</kbd> Run tabs · <kbd>Alt 9</kbd> Event console</p><p id="mode-note"></p></section></section>

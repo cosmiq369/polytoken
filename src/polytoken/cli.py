@@ -53,6 +53,9 @@ def doctor(env_file=".env", *, live=False, port=8000):
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="polytoken")
     subparsers = parser.add_subparsers(dest="command", required=True)
+    command = subparsers.add_parser("validate-sample", help="validate paired JSONL/CSV locally without displaying conversation text")
+    command.add_argument("file", type=Path)
+    command.add_argument("--language", choices=("te", "hi"), required=True)
     command = subparsers.add_parser("doctor", help="check installation offline; opt into service probes with --live")
     command.add_argument("--env-file", default=".env")
     command.add_argument("--live", action="store_true")
@@ -78,6 +81,20 @@ def main(argv=None) -> int:
     command.add_argument("--sample-dir", default="logs/sample")
     command.add_argument("--output", default=None)
     args = parser.parse_args(argv)
+    if args.command == "validate-sample":
+        from .launcher import validate_sample_file
+        logger = JsonlLogger()
+        try:
+            result = validate_sample_file(args.file, args.language)
+        except ValueError as exc:
+            # Validator errors contain only structural diagnostics, never source text.
+            print(f"INVALID: {exc}")
+            logger.write("sample_validation", "validated", ok=False, language=args.language, error=str(exc))
+            return 1
+        print(f"VALID: {result['rows']} rows / {result['chats']} chats / language {args.language}")
+        print("Translation review: pending. Structural validation does not verify meaning or model quality.")
+        logger.write("sample_validation", "validated", ok=True, language=args.language, **result)
+        return 0
     if args.command == "score":
         from .score import score
         for row in score(args.sample_dir, args.output):

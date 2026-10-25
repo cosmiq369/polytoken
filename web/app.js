@@ -41,6 +41,7 @@
     if (screen==='report' && !state.report) return;
     if (screen==='investigation' && !state.runId) return;
 
+    if(screen==='how-it-works') notice();
     state.screen=screen;
     window.dispatchEvent(new CustomEvent('polytoken:screen',{detail:screen}));
     document.querySelectorAll('.screen').forEach(el=>el.hidden=el.id!==screen);

@@ -17,6 +17,23 @@ from .prices import load_prices
 MAX_BYTES = 1_048_576
 
 
+def validate_sample_file(path, language):
+    """Use exactly the launcher's parser; retain neither paths nor sample text in output."""
+    try:
+        with Path(path).open('rb') as handle:
+            raw = handle.read(MAX_BYTES + 1)
+    except OSError:
+        raise ValueError('Cannot read sample file') from None
+    if len(raw) > MAX_BYTES:
+        raise ValueError('Sample exceeds the one MiB limit')
+    try:
+        content = raw.decode('utf-8')
+    except UnicodeError:
+        raise ValueError('Sample must be UTF-8') from None
+    rows = parse_sample(Path(path).name, content, language)
+    return dict(rows=len(rows), chats=len({r['chat_id'] for r in rows}), review_status='pending')
+
+
 def valid_company(value):
     return value in COMPANIES or bool(re.fullmatch(r'upload_[a-f0-9]{32}', value))
 
@@ -65,7 +82,14 @@ def parse_sample(filename, content, language):
         raise ValueError('Sample exceeds the one MiB limit')
     try:
         if filename.lower().endswith('.jsonl'):
-            rows = [json.loads(line) for line in content.splitlines() if line.strip()]
+            rows = []
+            for number, line in enumerate(content.splitlines(), 1):
+                if not line.strip():
+                    continue
+                try:
+                    rows.append(json.loads(line))
+                except json.JSONDecodeError:
+                    raise ValueError(f'Invalid JSONL at line {number}') from None
         elif filename.lower().endswith('.csv'):
             reader = csv.DictReader(io.StringIO(content.lstrip('\ufeff')))
             if len(reader.fieldnames or []) != len(set(reader.fieldnames or [])):
@@ -73,33 +97,36 @@ def parse_sample(filename, content, language):
             rows = list(reader)
         else:
             raise ValueError('Use a .jsonl or .csv file')
-    except (ValueError, csv.Error):
-        raise ValueError('Invalid JSONL/CSV; use the downloadable template') from None
+    except csv.Error:
+        raise ValueError('Invalid CSV structure; use the downloadable template') from None
     if not 2 <= len(rows) <= 500:
         raise ValueError('Supply between two and five hundred paired turns')
     required = {'chat_id', 'turn', 'role', 'text_native', 'text_en', 'lang'}
     grouped = defaultdict(list)
     cleaned = []
-    for row in rows:
-        if not isinstance(row, dict) or not required <= row.keys() or set(row) - required - {'review_status'}:
-            raise ValueError('Each row needs chat_id, turn, role, text_native, text_en and lang only')
-        if not isinstance(row['chat_id'], str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', row['chat_id']):
-            raise ValueError('Chat identifiers must use letters, digits, hyphens or underscores')
-        turn = row['turn']
-        if isinstance(turn, str) and turn.isdigit(): turn = int(turn)
-        if type(turn) is not int or not 1 <= turn <= 100:
-            raise ValueError('Turn must be a positive integer up to one hundred')
-        if row['lang'] != language or row['role'] not in ('user', 'assistant'):
-            raise ValueError('Language must match the form and role must be user or assistant')
-        for field in ('text_native', 'text_en'):
-            if not isinstance(row[field], str) or not row[field].strip() or len(row[field]) > 4000:
-                raise ValueError('Paired texts must be nonempty and at most four thousand characters')
-        wrong = r'[\u0900-\u097f]' if language == 'te' else r'[\u0c00-\u0c7f]'
-        if re.search(wrong, row['text_native']) or re.search(r'[\u0900-\u097f\u0c00-\u0c7f]', row['text_en']):
-            raise ValueError('Native script conflicts with selected language or English baseline')
-        item = {k: row[k] for k in required}
-        item.update(turn=turn, review_status='pending')
-        cleaned.append(item); grouped[row['chat_id']].append(item)
+    for number, row in enumerate(rows, 1):
+        try:
+            if not isinstance(row, dict) or not required <= row.keys() or set(row) - required - {'review_status'}:
+                raise ValueError('Each row needs chat_id, turn, role, text_native, text_en and lang only')
+            if not isinstance(row['chat_id'], str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', row['chat_id']):
+                raise ValueError('Chat identifiers must use letters, digits, hyphens or underscores')
+            turn = row['turn']
+            if isinstance(turn, str) and turn.isdigit(): turn = int(turn)
+            if type(turn) is not int or not 1 <= turn <= 100:
+                raise ValueError('Turn must be a positive integer up to one hundred')
+            if row['lang'] != language or row['role'] not in ('user', 'assistant'):
+                raise ValueError('Language must match the form and role must be user or assistant')
+            for field in ('text_native', 'text_en'):
+                if not isinstance(row[field], str) or not row[field].strip() or len(row[field]) > 4000:
+                    raise ValueError('Paired texts must be nonempty and at most four thousand characters')
+            wrong = r'[\u0900-\u097f]' if language == 'te' else r'[\u0c00-\u0c7f]'
+            if re.search(wrong, row['text_native']) or re.search(r'[\u0900-\u097f\u0c00-\u0c7f]', row['text_en']):
+                raise ValueError('Native script conflicts with selected language or English baseline')
+            item = {k: row[k] for k in required}
+            item.update(turn=turn, review_status='pending')
+            cleaned.append(item); grouped[row['chat_id']].append(item)
+        except ValueError as exc:
+            raise ValueError(f'Row {number}: {exc}') from None
     for turns in grouped.values():
         turns.sort(key=lambda r:r['turn'])
         if [r['turn'] for r in turns] != list(range(1,len(turns)+1)) or len(turns)<2:

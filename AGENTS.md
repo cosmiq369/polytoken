@@ -38,3 +38,10 @@ For setup and installation requests, read the canonical
 [`skills/polytoken-setup/SKILL.md`](skills/polytoken-setup/SKILL.md).
 Interview the user first and follow its demo/live boundaries. The identical Claude
 copy lives at `.claude/skills/polytoken-setup/SKILL.md`.
+
+## Bring-your-data requests
+For conversation export conversion, English baseline review and upload guidance,
+read the canonical [`skills/polytoken-add-data/SKILL.md`](skills/polytoken-add-data/SKILL.md).
+Interview first, keep conversion scripts and user samples in the user's own folder
+outside the repo, and never label machine translations reviewed. The identical
+Claude copy lives at `.claude/skills/polytoken-add-data/SKILL.md`.

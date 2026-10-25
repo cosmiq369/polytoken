@@ -165,3 +165,12 @@ footer{display:none}.skip{z-index:100}[hidden]{display:none!important}
 .model-choices input[type=checkbox]{width:16px;height:18px;padding:0;flex:0 0 16px;margin:2px 0 0}
 .model-choices label{justify-content:flex-start;align-items:flex-start;font-weight:400;line-height:1.5}
 @media(max-width:900px){body{grid-template-rows:52px 94px auto minmax(0,1fr) auto}.rail .new-investigation{margin:5px 0 4px;min-height:38px;flex-shrink:0}.notice{top:151px}}
+
+/* Architecture shares the console's semantic colors and travels into the deck. */
+.architecture-diagram{width:100%;overflow-x:auto;margin:14px 0 22px;padding:12px 0;background:var(--paper)}
+.architecture-diagram svg{display:block;width:100%;min-width:900px;height:auto;max-height:340px}
+.architecture-locations{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 28px}
+.architecture-locations article{border-top:2px solid var(--line);padding-top:14px}
+.architecture-locations h3{font-size:15px;margin:0 0 8px}.architecture-locations p{color:var(--muted);font-size:13px;line-height:1.65;margin:0}
+@media(max-width:1100px){.architecture-locations{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.architecture-locations{grid-template-columns:1fr}}

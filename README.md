@@ -1,5 +1,7 @@
 # PolyToken
 
+[Bring your data](docs/BRING_YOUR_DATA.md) · [Setup skill](skills/polytoken-setup/SKILL.md) · [Add-data skill](skills/polytoken-add-data/SKILL.md)
+
 **Which model fits your Indian-language users and your budget—and why?** PolyToken profiles the team's own conversations, measures their token counts, compares verified model/provider quotes, and explains a conditional recommendation with evidence you can inspect.
 
 Built by **Mohan Chelluru** for Open Agent Hackathon 2026, **Track 02: The Agent That Can Explain Why**. All four companies and their forty conversations each are fictional. Translations and native review remain pending.
@@ -45,7 +47,7 @@ The Model fit tab shows the script mix, conversation shape, answer share, ranked
 
 **NVIDIA Nemotron is the brain.** One injected generator handles planning and contextual judging; model name, base URL and rate limit come from `.env`. The loop uses physical-attempt budgets, bounded retries and one shared limiter. Only GPT-OSS passed the recorded serving probe. The retained A/A-controlled protocol can test an answer-length hypothesis on that stand-in, but cannot establish quality or latency for a different model/provider. Fresh model-fit runs collect reasoning and service-call timings; they do not pretend to be new quality experiments. [Generator](src/polytoken/llm.py) · [Serving evidence](logs/sample/hosted_probe.jsonl) · [Fresh calls](logs/sample/model_fit_v1_audit_llm_calls.jsonl).
 
-**Meterless reference architectures are implemented here.** World Model stores observations with source, query, time window and fetch time. H-MEM retains sourced company profiles and historical findings; replaced datasets do not inherit old findings. Markovian carries compressed state across bounded chunks and records projected versus actual token accounting. Its savings are a history-replay counterfactual, not a measured second execution. [Attribution and conformance](docs/METERLESS.md) · [New chunk accounting](logs/sample/model_fit_v1_audit_agent_markovian.jsonl).
+**Meterless runs in-process as in-repo Python against a pinned reference specification, not an installed library.** World Model stores observations with source, query, time window and fetch time. H-MEM retains sourced company profiles and historical findings; replaced datasets do not inherit old findings. Markovian carries compressed state across bounded chunks and records projected versus actual token accounting. Its savings are a history-replay counterfactual, not a measured second execution. [Attribution and conformance](docs/METERLESS.md) · [New chunk accounting](logs/sample/model_fit_v1_audit_agent_markovian.jsonl).
 
 **The deterministic checker gates every reported number.** It authenticates evidence and recomputes profiles, token ratios and per-model costs. Recommendations are rebuilt from those checked claims on replay. Missing prices never become zero cost; missing or mismatched timing never satisfies a voice constraint. [Calculator](src/polytoken/model_fit.py) · [Checker](src/polytoken/checker.py) · [Checker audit](logs/sample/model_fit_v1_audit_checker.jsonl).
 
@@ -106,3 +108,9 @@ Paste: **“Read skills/polytoken-setup/SKILL.md and set up this PolyToken clone
 The [setup skill](skills/polytoken-setup/SKILL.md) covers the key-free demo, the sponsor's local Zetaris distribution, the app database, local secret entry, and diagnostics. `polytoken doctor` checks the installation offline; `polytoken doctor --live` adds bounded service probes. Meterless engines are local implementations of a pinned reference architecture, not an extra package to install. Remote Docker over SSH remains an explicitly unverified roadmap path.
 
 Use **New investigation** to enter a workload and choose a bundled sample or a paired JSONL/CSV file ([schema and template](docs/SAMPLE_SCHEMA.md)). Demo runs replay checked saved evidence and retain its original settings; uploaded files require live mode. Ask the evidence answers a limited set of questions from authenticated saved claims and refuses unsupported requests.
+
+## Bring your data
+
+Use the [add-data guide](docs/BRING_YOUR_DATA.md) and [coding-agent skill](skills/polytoken-add-data/SKILL.md) to map an anonymised export locally and validate it with `polytoken validate-sample FILE --language te` (or `hi`). Use reviewed English or explicitly consent to a draft that remains pending native review. Validation reports counts and structural errors without echoing conversation text.
+
+Demo mode replays checked saved runs on synthetic companies. Uploads need live mode; full live-upload integration remains unverified pending an end-to-end check. Live planning sends workload summaries to NVIDIA; imported data goes to your configured PostgreSQL and Zetaris stack. The app's **How it works** page explains these boundaries.

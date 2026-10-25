@@ -18,11 +18,12 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
  try{
   const page=await browser.newPage({viewport:{width:1440,height:1040},colorScheme:'light'});
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
-  let companiesFail=false,postFail=false,posted=null,finishReport=false,billingUnavailable=false,billingOverride=null;
+  let launcherFail=false,companiesFail=false,postFail=false,posted=null,finishReport=false,billingUnavailable=false,billingOverride=null;
   const tokenRequests=[];
   await page.route('**/*',async route=>{
    const url=new URL(route.request().url());assert.equal(url.origin,'http://polytoken.test','No external origins allowed');
    const respond=(data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
+   if(url.pathname==='/launcher/options' && launcherFail)return respond({detail:'Not Found'},404);
    if(url.pathname==='/launcher/options')return respond({demo:false,models:['fixture/model'],samples:[{company:'samudra',language:'te',channel:'chat',monthly_chats:200000}],max_bytes:1048576});
   if(url.pathname==='/token-samples')return respond([]);
   if(url.pathname==='/model-fits')return respond([]);
@@ -178,6 +179,9 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   await page.waitForFunction(()=>document.querySelector('#stream-status').textContent.includes('Investigation complete'),{},{timeout:20000});assert.equal(await page.locator('.evidence-card').count(),evidenceCount);
   companiesFail=true;await page.reload();await page.locator('#retry-companies:not([hidden])').waitFor();assert.equal(await page.locator('#connection').textContent(),'Company lookup unavailable');
   companiesFail=false;await page.locator('#retry-companies').click();await page.locator('.company-card').first().waitFor();postFail=true;await page.locator('.rail [data-screen=launcher]').click();await page.locator('#investigate').click();await page.locator('#notice:not([hidden])').waitFor();assert.equal(await page.locator('#investigate').isEnabled(),true);
+  launcherFail=true;await page.reload();await page.locator('.rail [data-screen=launcher]').click();
+  await page.waitForFunction(()=>document.querySelector('#launcher-mode').textContent.includes('Restart the server: it may be an older process'));
+  assert.equal(await page.locator('#investigate').isDisabled(),true);
   assert.deepEqual(errors,[]);
   console.log(`UI checks passed: ${fixtures.length} saved reports; USD/INR persistence; signed fix grouping; non-zero intervals; readable dropped claims; billing and token receipts; 20-screen matrix; 390px light/dark contrast; what-if reset; optional A/A dots; native SSE; failure recovery. Chromium ${browser.version()}`);
  }finally{await browser.close();}
