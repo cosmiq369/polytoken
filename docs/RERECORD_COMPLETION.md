@@ -31,7 +31,7 @@ Twelve deck slides were regenerated as PPTX, PDF and PNG. Package validation pas
 - Final SRT text exactly equals normalized final spoken text, including real spellings.
 - History/worktree scan: **1,594 reachable objects; zero configured-secret or provider-prefix hits**.
 - OCR: **25 images, zero secret-pattern hits** (contact sheet, 18 ten-second frames, six dedicated key frames).
-- Fresh clone: pending final verification before push.
+- Fresh clone of `0075d28`: `uv venv .venv`, `uv pip install --offline --python .venv/bin/python '.[dev]'`, then `.venv/bin/python -m pytest -q`: **291 passed, 8 skipped in 197.26s**. No `.env` or presentation assets were copied.
 
 ## Historical assets and final checks
 
