@@ -31,8 +31,8 @@ def demo_companies(log_dir):
     result = {}
     for row in rows:
         config = row.get('payload', {}).get('config', {})
-        if config.get('company') in ('samudra', 'swara'):
-            result[config['company']] = {k: v for k, v in config.items() if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s')}
+        if config.get('company') in ('samudra', 'swara', 'raitu', 'paisa') and (config.get('dataset_version') or not result.get(config['company'], {}).get('dataset_version')):
+            result[config['company']] = {k: v for k, v in config.items() if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s', 'role', 'channel', 'current_model', 'dataset_version')}
     return list(result.values())
 
 
@@ -45,7 +45,9 @@ def mount_console(app, manager, log_dir, state_dir, demo):
     def history():
         found = reports(log_dir)
         preferred = set()
-        for name in ('demo_samudra_report.json', 'agent_swara_v3_report.json'):
+        new_names = tuple(f'agent_{c}_model_fit_report.json' for c in ('samudra', 'swara', 'raitu', 'paisa'))
+        names = new_names if any((Path(log_dir) / 'sample' / n).exists() for n in new_names) else ('demo_samudra_report.json', 'agent_swara_v3_report.json')
+        for name in names:
             path = Path(log_dir) / 'sample' / name
             if path.exists():
                 preferred.add(json.loads(path.read_text())['id'])
@@ -57,6 +59,45 @@ def mount_console(app, manager, log_dir, state_dir, demo):
                                'status': (entry.get('report') or {}).get('status', 'running' if entry['events'] else 'queued'),
                                'saved': entry.get('finished', False)}
         return list(result.values())
+
+    def fit_records():
+        records = {e['event_id']: e for e in archived_events(log_dir)}
+        path = Path(state_dir) / 'world.sqlite'
+        if path.exists():
+            with WorldModel(path, logger=JsonlLogger(log_dir)) as world:
+                records.update({e['event_id']: e for e in world.events()})
+        return EventWorld(records.values())
+
+    @app.get('/model-fits')
+    def model_fits():
+        from .model_fit import replay_fit
+        world = fit_records()
+        selected = {}
+        logger = JsonlLogger(log_dir)
+        for report in reports(log_dir).values():
+            if report.get('status') != 'complete' or not report.get('model_fit'):
+                continue
+            view, claims = replay_fit(report, world, logger)
+            if not view:
+                continue
+            snapshot_id = claims[0]['recompute']['inputs']['snapshot']
+            stamp = world.records[snapshot_id]['provenance']['fetched_at']
+            company = report['company']
+            if company not in selected or stamp > selected[company]['fetched_at']:
+                selected[company] = dict(company=company, id=report['id'], model_fit=view, claims=claims, fetched_at=stamp)
+        return [selected[c] for c in ('samudra', 'swara', 'raitu', 'paisa') if c in selected]
+
+    @app.get('/investigations/{identifier}/model-fit')
+    def model_fit(identifier: str):
+        from .model_fit import replay_fit
+        try:
+            report = find_report(identifier, manager, log_dir)
+        except FileNotFoundError:
+            raise HTTPException(404, 'Saved run not found') from None
+        view, claims = replay_fit(report or {}, fit_records(), JsonlLogger(log_dir))
+        if not view:
+            raise HTTPException(409, 'No fully checked model-fit evidence for this run')
+        return dict(id=identifier, model_fit=view, claims=claims)
 
     @app.get('/investigations/{identifier}/replay')
     def replay(identifier: str):
@@ -106,7 +147,9 @@ def mount_console(app, manager, log_dir, state_dir, demo):
         evidence = [records[k] for k in wanted if k in records]
         logger = JsonlLogger(log_dir, run_id=identifier)
         checked, dropped = Checker(SimpleNamespace(world=EventWorld(evidence)), logger).check(report['claims'])
-        report = {**copy.deepcopy(report), 'claims': checked, 'dropped_claims': [*report.get('dropped_claims', []), *dropped]}
+        from .model_fit import replay_fit
+        fit, _ = replay_fit(report, EventWorld(evidence), logger)
+        report = {**copy.deepcopy(report), 'model_fit': fit, 'claims': checked, 'dropped_claims': [*report.get('dropped_claims', []), *dropped]}
         valid = {c['id']: c for c in checked}
         cleaned = []
         for row in events:

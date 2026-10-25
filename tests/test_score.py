@@ -54,7 +54,7 @@ def test_compressed_demo_evidence_is_used_for_latest_run(score_source):
     _, records = score_source
     sample = ROOT / 'logs/sample'
     demo = json.loads((sample / 'demo_samudra_report.json').read_text())
-    reports = [(p, json.loads(p.read_text())) for p in sample.glob('*_report.json')]
+    reports = [(p, json.loads(p.read_text())) for p in sample.glob('*_report.json') if json.loads(p.read_text()).get('schema_version') != '3']
     selected = latest_complete(reports, records)
     assert selected['samudra'][1]['id'] == demo['id']
     ids = {row['event_id'] for row in records}

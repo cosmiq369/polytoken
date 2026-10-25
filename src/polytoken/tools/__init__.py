@@ -91,7 +91,7 @@ class InvestigationTools:
         return {'rows': rows, 'evidence_ids': [eid]}
 
     def load_company(self, company, overrides=None):
-        if company not in ('samudra', 'swara'):
+        if company not in ('samudra', 'swara', 'raitu', 'paisa'):
             raise ValueError('Unknown company')
         config_result = self.sql(f'SELECT * FROM company_systems.{company}__bot_config')
         if len(config_result['rows']) != 1:
@@ -119,7 +119,7 @@ class InvestigationTools:
                                'variant': variant, 'tokenizer_spec': tokenizer, 'rows': rows},
                                {'operation': 'indictax.count', 'tokenizer': tokenizer}, 'indictax tokenizer')
             return {'rows': rows, 'evidence_ids': [eid]}
-        if company not in ('samudra', 'swara'):
+        if company not in ('samudra', 'swara', 'raitu', 'paisa'):
             raise ValueError('Unknown company')
         result = self.sql("SELECT * FROM company_systems.measurements__latest_token_counts WHERE company='" + company + "'")
         rows = [r for r in result['rows'] if (part == 'all' or r['part'] == part)
@@ -166,20 +166,29 @@ class InvestigationTools:
         return {'metrics': baseline_metrics(self.snapshot, self.prices, self.fx),
                 'evidence_ids': [self.snapshot_id, self.price_id, self.fx_id]}
 
+    def model_fit(self):
+        from ..model_fit import calculate_fit
+        if not self.snapshot:
+            raise ValueError('Measure the workload first')
+        # No dated stand-in timing is relabelled as this workload/provider.
+        self.fit_timings = {'runs': [], 'supports': [self.snapshot_id]}
+        self.fit_timing_id = self.observe('measurement', self.fit_timings,
+            'No exact model/provider/workload latency sample collected', 'Model-fit coverage audit')
+        inputs = {'snapshot': self.snapshot_id, 'prices': self.price_id, 'timings': self.fit_timing_id}
+        metrics, view = calculate_fit(self.snapshot, self.prices, self.fit_timings)
+        self.logger.write('model_fit', 'computed', inputs=inputs, metrics=metrics, view=view)
+        return metrics, inputs
+
     def billed_cost(self, company, tokenizer, variant='native', price_entry=None):
-        if not self.snapshot or self.snapshot['items'][0]['company'] != company or variant not in ('native', 'english_system'):
-            raise ValueError('Measure the company first; use native or english_system')
-        price = select_price(self.prices, tokenizer)
+        if not self.snapshot or self.snapshot['items'][0]['company'] != company or variant != 'native':
+            raise ValueError('Measure the company first')
+        price = select_price(self.prices, tokenizer, self.snapshot['config'].get('current_model') if tokenizer == self.snapshot['config']['model_in_use'] else None)
         if price_entry is not None and price_entry != price:
             raise ValueError('Price entry must match the verified quoted scenario')
         metrics = baseline_metrics(self.snapshot, self.prices, self.fx)
-        prefix = 'baseline/' + tokenizer + '/'
-        before = metrics.get(prefix + 'monthly_inr')
-        saving = metrics.get(prefix + 'english_system_monthly_saving_inr')
+        before = metrics.get('baseline/' + tokenizer + '/monthly_inr')
         payload = {'money_status': 'quoted scenario' if before is not None else 'money unavailable',
-                   'before_monthly_inr': before,
-                   'after_monthly_inr': before - saving if before is not None and variant == 'english_system' else before,
-                   'saving_per_rupee_input_mtok': metrics[prefix + 'english_system_inr_per_rupee_input_mtok'],
+                   'before_monthly_inr': before, 'after_monthly_inr': before,
                    'price_entry': price, 'variant': variant,
                    'supports': [self.snapshot_id, self.price_id, self.fx_id]}
         eid = self.observe('measurement', payload, {'operation': 'billed_tokens + cost_usd + FX'})
@@ -199,8 +208,6 @@ class InvestigationTools:
 
     def changed_prompt(self, config, lever):
         language = config['language']
-        if lever == 'english_system':
-            return config['system_prompt_en'] + f'\nKeep every reply in language {language}.'
         if lever == 'answer_cap':
             return config['system_prompt_native'] + f'\nReply only in {language}. Use at most two short sentences. Preserve all relevant facts; ask a concise clarifying question when needed.'
         if lever == 'model_switch':

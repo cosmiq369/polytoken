@@ -15,8 +15,8 @@ def items_from_rows(company, config, chats):
     return items
 
 
-def select_price(prices, spec):
-    choices = [p for p in prices if p['tokenizer_spec'] == spec and p['verified'] is True
+def select_price(prices, spec, model=None):
+    choices = [p for p in prices if p['tokenizer_spec'] == spec and (model is None or p['model'] == model) and p['verified'] is True
                and p['input_per_mtok_usd'] is not None and p['output_per_mtok_usd'] is not None]
     # A reproducible quoted provider scenario, not a claim about the user's invoice.
     return sorted(choices, key=lambda p: (p['input_per_mtok_usd'], p['output_per_mtok_usd'], p['provider']))[0] if choices else None
@@ -57,7 +57,7 @@ def baseline_metrics(snapshot, prices, fx):
         for part, n in parts.items():
             metrics[prefix + part + '_tokens'] = n
             metrics[prefix + part + '_share'] = n / total
-        price = select_price(prices, spec)
+        price = select_price(prices, spec, config.get('current_model') if spec == config['model_in_use'] else None)
         scale = Decimal(str(config['monthly_chats'])) / row['chat_count']
         if price:
             money = cost_usd(price, row['billed_input'], row['billed_output'])
@@ -65,14 +65,10 @@ def baseline_metrics(snapshot, prices, fx):
             for part, n in parts.items():
                 component = cost_usd(price, n if part != 'output' else 0, n if part == 'output' else 0)
                 metrics[prefix + part + '_cost_share'] = float(component / money) if money else 0.
-        english_system = next(int(r['tokens']) for r in counts if r['tokenizer_spec'] == spec
-                              and r['lang_variant'] == 'en' and r['part'] == 'system_prompt')
-        saved = row['billed_system_input'] - english_system * row['requests']
-        metrics[prefix + 'english_system_input_saved'] = saved
-        metrics[prefix + 'english_system_inr_per_rupee_input_mtok'] = float(Decimal(saved) * scale / 1_000_000)
+        if not config.get('dataset_version'):
+            from ..archival_calculations import historical_metrics
+            historical_metrics(metrics, counts, spec, prefix, row, scale, price, fx)
         if price:
-            metrics[prefix + 'english_system_monthly_saving_inr'] = float(
-                Decimal(saved) / 1_000_000 * Decimal(str(price['input_per_mtok_usd'])) * scale * Decimal(str(fx['inr_per_usd'])))
             # Explicit hypothesis only: halve answer tokens, including their later replay.
             metrics[prefix + 'half_answers_monthly_saving_inr'] = float(
                 (Decimal(parts['output']) * Decimal(str(price['output_per_mtok_usd']))

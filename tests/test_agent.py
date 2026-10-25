@@ -87,7 +87,7 @@ def test_scripted_production_size_and_memory(apparatus):
     assert report['dropped_claims'] == []
     assert report['quality_status'] == 'automated pass; native review pending'
     assert report['speed_status'] == 'inconclusive'
-    assert report['top_fix'] == 'english_system'
+    assert report['top_fix'] is None  # Generated quality alone does not establish a saving.
     assert a['tools'].budget.counts == {'nemotron': 9, 'judge': 40, 'hosted': 68, 'sql': 4}
     assert all(c['verified'] for c in report['claims'])
     assert len(a['tools'].snapshot['items']) == 201
@@ -158,8 +158,9 @@ def test_tools_and_fail_closed_money(apparatus):
     config, ids = t.load_company('samudra')
     t.measure('samudra', config, ids)
     original = t.billed_cost('samudra', 'fixture/model')
-    changed = t.billed_cost('samudra', 'fixture/model', 'english_system')
-    assert changed['after_monthly_inr'] < original['before_monthly_inr']
+    with pytest.raises(ValueError):
+        t.billed_cost('samudra', 'fixture/model', 'withdrawn-lever')
+    assert original['after_monthly_inr'] == original['before_monthly_inr']
     assert t.token_meter('samudra', 'assistant', 'native')['rows']
     assert t.token_meter('samudra', 'assistant', 'changed', texts=['a b c'], tokenizer='fixture/model')['rows'][0]['tokens'] == 3
     t.prices = []
@@ -260,7 +261,7 @@ def test_model_switch_keeps_original_prompt(apparatus):
     assert result['systems']['original'] == result['systems']['changed']
     assert result['models']['original'] != result['models']['changed']
     with pytest.raises(ValueError, match='same hosted'):
-        t.fix_experiment('samudra', 'english_system', 'other/hosted')
+        t.fix_experiment('samudra', 'answer_cap', 'other/hosted')
     with pytest.raises(ValueError, match='allowlist'):
         t.fix_experiment('samudra', 'answer_cap', 'invented/model')
 
@@ -269,7 +270,7 @@ def test_judge_malformed_is_never_passed(apparatus):
     t = apparatus['tools']
     config, ids = t.load_company('samudra')
     t.measure('samudra', config, ids)
-    result = t.fix_experiment('samudra', 'english_system')
+    result = t.fix_experiment('samudra', 'answer_cap')
     t.generate = lambda *a, **k: {'text': 'not JSON'}
     quality = t.quality_judge(result['pairs'])
     assert len(quality['pairs']) == 20
@@ -418,17 +419,17 @@ def test_cache_reuses_successful_calls_and_retries_failed_only(apparatus):
             raise RuntimeError('one unavailable response')
         return original(prompt, **kwargs)
     t.generate = fail_one
-    first = t.fix_experiment('samudra', 'english_system')
+    first = t.fix_experiment('samudra', 'answer_cap')
     assert len(first['pairs']) == 20
     assert len(first['excluded_pairs']) == 1
     assert first['excluded_pairs'][0]['original']['ok'] is False or first['excluded_pairs'][0]['control']['ok'] is False or first['excluded_pairs'][0]['changed']['ok'] is False
     t.generate = original
     t.budget = BudgetGuard()
-    second = t.fix_experiment('samudra', 'english_system')
+    second = t.fix_experiment('samudra', 'answer_cap')
     assert all(p[v]['ok'] for p in second['pairs'] for v in ('original', 'changed'))
     assert t.budget.counts['hosted'] == 1
     t.budget = BudgetGuard()
-    t.fix_experiment('samudra', 'english_system')
+    t.fix_experiment('samudra', 'answer_cap')
     assert t.budget.counts['hosted'] == 0
 
 
@@ -436,7 +437,7 @@ def test_quality_refuses_nineteen_complete_pairs(apparatus):
     t = apparatus['tools']
     config, ids = t.load_company('samudra')
     t.measure('samudra', config, ids)
-    experiment = t.fix_experiment('samudra', 'english_system')
+    experiment = t.fix_experiment('samudra', 'answer_cap')
     experiment['pairs'][0]['changed']['ok'] = False
     before = t.budget.counts['nemotron']
     result = t.quality_judge(experiment['pairs'])
@@ -450,7 +451,7 @@ def test_prompt_bill_uses_history_and_measured_system_not_generated_lengths(appa
     t = apparatus['tools']
     config, ids = t.load_company('samudra')
     t.measure('samudra', config, ids)
-    experiment = t.fix_experiment('samudra', 'english_system')
+    experiment = t.fix_experiment('samudra', 'answer_cap')
     original = experiment_metrics(experiment, t.snapshot, t.prices, t.fx)
     baseline = baseline_metrics(t.snapshot, t.prices, t.fx)
     assert original['experiment/original_monthly_inr'] == baseline['baseline/fixture/model/monthly_inr']
@@ -637,7 +638,7 @@ def test_truncation_regeneration_exclusion_and_fixed_order(apparatus):
             row['finish_reason'] = 'length'
         return row
     t.generate = truncate
-    result = t.fix_experiment('samudra', 'english_system')
+    result = t.fix_experiment('samudra', 'answer_cap')
     assert [p['chat_id'] for p in result['pairs']] == ordered[1:21]
     assert len(result['excluded_pairs']) == 1
     assert all(result['excluded_pairs'][0][v]['error_class'] == 'TruncatedReply' for v in ('original', 'control', 'changed'))
@@ -664,11 +665,11 @@ def test_one_truncation_recovers_and_history_changes_cache_identity(apparatus):
     assert row['ok'] and len(row['generation_attempts']) == 2
     t.generate = original
     t.budget = BudgetGuard()
-    result = t.fix_experiment('samudra', 'english_system')
+    result = t.fix_experiment('samudra', 'answer_cap')
     chat = result['pairs'][0]['chat_id']
     next(i for i in t.snapshot['items'] if i['chat_id'] == chat and i['part'] == 'assistant')['native'] += ' new history'
     t.budget = BudgetGuard()
-    t.fix_experiment('samudra', 'english_system')
+    t.fix_experiment('samudra', 'answer_cap')
     assert t.budget.counts['hosted'] == 3
 
 
@@ -749,7 +750,7 @@ def test_judge_cache_preserves_valid_outcomes_and_requires_exact_context(apparat
     t = apparatus['tools']
     config, ids = t.load_company('samudra')
     t.measure('samudra', config, ids)
-    experiment = t.fix_experiment('samudra', 'english_system')
+    experiment = t.fix_experiment('samudra', 'answer_cap')
     first = t.quality_judge(experiment['pairs'])
     t.budget = BudgetGuard()
     second = t.quality_judge(experiment['pairs'])
@@ -770,7 +771,7 @@ def test_judge_repair_explains_wrong_reply_excerpt(apparatus, mistake):
     t = apparatus['tools']
     config, ids = t.load_company('samudra')
     t.measure('samudra', config, ids)
-    experiment = t.fix_experiment('samudra', 'english_system')
+    experiment = t.fix_experiment('samudra', 'answer_cap')
     original = t.generate
     bad = []
     repaired = []

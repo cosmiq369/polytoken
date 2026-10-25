@@ -17,10 +17,10 @@ DEFAULT_WHY = {
     'clarify': 'Read the company configuration and recall sourced constraints before measuring.',
     'measure': 'Read paired token measurements and verified prices through Zetaris to reconstruct billed history.',
     'locate': 'Compare billed cost contributions from the system, user turns, replayed answers and output.',
-    'hypothesise': 'Rank estimated savings from changing the system language, shortening answers and switching tokenizer families.',
-    'experiment': 'Test the highest-priority feasible hypothesis with paired hosted replies on the same sampled user turns.',
-    'judge': 'Check whether changed replies preserve the original facts and queue every pair for native review.',
-    'speed': 'Measure streamed timings in alternating order to expose run-to-run variation.',
+    'hypothesise': 'Rank estimated savings from model and tokenizer choice, answer length, history length and caching.',
+    'experiment': 'Check serving coverage and test an explicitly requested feasible hypothesis with paired hosted replies.',
+    'judge': 'Record quality coverage; judge paired replies only when a complete experiment is available.',
+    'speed': 'Record timing coverage; measure an available experiment in alternating order.',
     'check': 'Recompute every proposed report number using only stored evidence.',
     'report': 'Publish verified claims with model, accounting, uncertainty and review limitations.',
 }
@@ -28,8 +28,9 @@ DEFAULT_WHY = {
 
 class Investigation:
     def __init__(self, tools, memory, *, question='', monthly_chats=None, latency_target_s=None,
-                 event_sink=None, historical_runs=None, run_id=None, background=False):
+                 event_sink=None, historical_runs=None, run_id=None, background=False, test_answer_length=False):
         self.background = background
+        self.test_answer_length = test_answer_length
         self.pending_job = None
         self.job_status = None
         self.job_summary = None
@@ -130,11 +131,8 @@ class Investigation:
     def hypotheses(self):
         spec = self.config['model_in_use']
         prefix = 'baseline/' + spec + '/'
-        english_key = prefix + 'english_system_monthly_saving_inr'
         cap_key = prefix + 'half_answers_monthly_saving_inr'
-        candidates = [dict(lever='english_system', claim_id=english_key,
-                           basis='Measured system-language substitution; reply-language instruction overhead and generated answers require experiment.'),
-                      dict(lever='answer_cap', claim_id=cap_key,
+        candidates = [dict(lever='answer_cap', claim_id=cap_key,
                            basis='Hypothesis assumes half as many answer tokens, including replay; no measured cap benefit yet.')]
         own = self.metrics.get(prefix + 'monthly_inr')
         switched = {}
@@ -154,6 +152,8 @@ class Investigation:
         return sorted(candidates, key=lambda c: self.metrics.get(c['claim_id'], float('-inf')), reverse=True)
 
     def experiment_choices(self):
+        if self.config.get('dataset_version') and not self.test_answer_length:
+            return [{}]
         choices = []
         original, _ = self.tools.choose_host(self.config['model_in_use'])
         for candidate in self.candidates:
@@ -192,8 +192,15 @@ class Investigation:
             if self.needs_input:
                 self.partial_reason = 'Clarification required: ' + ', '.join(self.needs_input)
                 return
+            if config.get('dataset_version'):
+                self.remembered_findings = [{'id': r['memory'].id, 'text': r['memory'].content,
+                    'source': r['memory'].source, 'evidence_ids': r['memory'].derivedFrom}
+                    for r in retrieved if r['memory'].type == 'finding'
+                    and company in r['memory'].entities and config['dataset_version'] in r['memory'].entities]
+                remembered = remembered if remembered.get('dataset_version') == config['dataset_version'] else {}
             config['constraints'] = remembered.get('constraints') or [f"Replies stay in {config['language']}"]
             profile = {k: config[k] for k in ('monthly_chats', 'latency_target_s', 'model_in_use', 'language', 'constraints')}
+            profile.update({k: config[k] for k in ('dataset_version', 'channel', 'role', 'current_model') if k in config})
             eid = t.observe('query_result', {'config': config, 'user_overrides': self.overrides,
                                             'remembered': self.remembered, 'supports': ids},
                             {'operation': 'clarify', 'question': self.question}, 'Zetaris bot_config + sourced H-MEM + explicit user input')
@@ -203,15 +210,24 @@ class Investigation:
             self.emit('finding', text='Recalled the saved company profile and constraints.' if recalled else 'Saved the company configuration and reply-language constraint.',
                       remembered=self.remembered, evidence_ids=[eid])
             self.context.update(company=company, language=config['language'], model=config['model_in_use'], constraints=config['constraints'])
+            self.context['planning_levers'] = ['model choice', 'tokenizer choice', 'answer length', 'history length', 'caching eligibility; no unpublished discount']
             self.context['previous_findings'] = self.remembered_findings[:3]
         elif step == 'measure':
             result = t.measure(company, self.config, self.config_ids)
             self.metrics = result['metrics']
             self.add_metrics(self.metrics, 'baseline', self.baseline_inputs())
+            if self.config.get('dataset_version'):
+                fit_metrics, self.fit_inputs = t.model_fit()
+                self.add_metrics(fit_metrics, 'model_fit', self.fit_inputs)
+                self.metrics.update(fit_metrics)
             self.claims, dropped = self.check_claims()
             self.dropped.extend(dropped)
             t.billed_cost(company, self.config['model_in_use'])
             prefix = 'baseline/' + self.config['model_in_use'] + '/'
+            if self.config.get('dataset_version'):
+                from ..model_fit import calculate_fit
+                _, fit = calculate_fit(t.snapshot, t.prices, t.fit_timings)
+                self.context['model_fit'] = {k: fit[k] for k in ('profile', 'models', 'status')}
             self.context['billed_evidence'] = {k[len(prefix):]: v for k, v in self.metrics.items() if k.startswith(prefix)}
         elif step == 'locate':
             prefix = 'baseline/' + self.config['model_in_use'] + '/'
@@ -228,6 +244,9 @@ class Investigation:
                 self.candidates = self.hypotheses()
             self.context['ranked_hypotheses'] = [{**c, 'expected_monthly_saving_inr': self.metrics.get(c['claim_id'])} for c in self.candidates]
         elif step == 'experiment':
+            if self.config.get('dataset_version') and not args:
+                self.context['experiment'] = {'status': 'verify on your sample', 'reason': 'Ranked cost candidates lack serving-verified exact-model endpoints; the controlled stand-in protocol remains available separately.'}
+                return
             if self.background:
                 self.pending_job = dict(args)
                 self.job_status = 'queued'
@@ -343,7 +362,8 @@ class Investigation:
         report = self.build_report(company, verified)
         if report['top_finding']:
             self.memory.add(content=report['top_finding'], source=self.run_id, layer='working',
-                            type='finding', entities=[company], derived_from=list(self.baseline_inputs().values()))
+                            type='finding', entities=[company, *([self.config['dataset_version']] if self.config.get('dataset_version') else [])],
+                            derived_from=list(self.baseline_inputs().values()))
         if not self.pending_job:
             self.emit('done', status=report['status'], report_url=f'/investigations/{self.run_id}/report')
         return report
@@ -432,16 +452,20 @@ class Investigation:
             speed_status = 'inconclusive; cached timing evidence retains original time windows'
         money = any(k.startswith('baseline/' + getattr(self, 'config', {}).get('model_in_use', '?') + '/') and k.endswith('/monthly_inr') for k in verified)
         baseline_valid = any(k.endswith('_cost_share') or k.endswith('_share') for k in verified)
-        return {'schema_version': '2', 'id': self.run_id, 'company': company,
+        model_fit = None
+        if hasattr(self, 'fit_inputs'):
+            from ..model_fit import checked_fit
+            model_fit = checked_fit(self.tools.snapshot, self.tools.prices, self.tools.fit_timings, verified, self.fit_inputs)
+        return {'schema_version': '3' if model_fit else '2', 'model_fit': model_fit, 'id': self.run_id, 'company': company,
                 'status': 'running' if self.job_status in ('queued', 'running') else ('partial' if self.partial_reason else 'complete'),
                 'jobs': {'status': self.job_status, 'request': self.pending_job, 'budget': self.job_summary} if self.job_status else None, 'partial_reason': self.partial_reason,
                 'needs_input': self.needs_input, 'top_finding': getattr(self, 'finding', None) if baseline_valid else None,
                 'top_fix': next((f['lever'] for f in fixes if f['status'].startswith('provisional')), None),
                 'money_status': 'quoted provider scenario; content only' if money else 'money unavailable',
-                'quoted_price': {k: v for k, v in (select_price(self.tools.prices, self.config['model_in_use']) or {}).items()
+                'quoted_price': {k: v for k, v in (select_price(self.tools.prices, self.config['model_in_use'], self.config.get('current_model')) or {}).items()
                                  if k in ('model', 'provider', 'source_url', 'fetched_at')} if hasattr(self, 'config') else None,
                 'claims': self.claims, 'dropped_claims': self.dropped, 'fixes': fixes,
-                'quality_status': 'running' if self.job_status in ('queued', 'running') else ('automated pass; native review pending' if quality_pass else ('insufficient sample' if insufficient else 'failed')),
+                'quality_status': 'verify on your sample' if model_fit and not self.experiment else 'running' if self.job_status in ('queued', 'running') else ('automated pass; native review pending' if quality_pass else ('insufficient sample' if insufficient else 'failed')),
                 'quality_interpretation': interpretation,
                 'quality_evidence_ids': (self.quality or {}).get('evidence_ids', []),
                 'control_quality_evidence_ids': (self.control_quality or {}).get('evidence_ids', []),
@@ -454,7 +478,7 @@ class Investigation:
                     + [{'log_index': len(self.history), 'token_label': self.current_run['tokenLabel'], 'claim_prefix': f'markovian/{len(self.history)}/'}],
                 'limitations': ['Synthetic paired translations and all native reviews remain pending.',
                                'Baseline reconstructs completed whole-chat content billing; excludes templates, retries and unpublished cache discounts.',
-                               'Prompt-lever money holds historical replies and replay fixed, changing only measured system tokens. Generated output-length changes are separate; model switches are alternate tokenizer/provider scenarios.',
+                               'Model-fit money holds historical conversation content fixed; generation changes and quality require separate tests.',
                                'Hosted family membership is not proof of deployed-model quality or speed. Stand-in results require validation on the actual model.',
                                'Untested hypotheses are estimates, not validated recommendations.',
                                'Signed Markovian accounting is the reference history-replay counterfactual; it is not a measured second execution.'],

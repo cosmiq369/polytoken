@@ -31,7 +31,7 @@ def test_live_tools_measure_and_verified_prices(tmp_path):
             config, ids = tool.load_company('samudra')
             result = tool.measure('samudra', config, ids)
             assert config['model_in_use'] == 'unsloth/Llama-3.2-3B-Instruct'
-            assert len(tool.prices) == 7
+            assert len(tool.prices) == 11
             assert result['metrics']['baseline/unsloth/Llama-3.2-3B-Instruct/monthly_inr'] > 0
             assert tool.budget.counts['sql'] == 4
     finally:

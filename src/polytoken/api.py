@@ -103,7 +103,7 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
     def start(payload: InvestigationRequest):
         if demo:
             raise HTTPException(409, 'Demo mode is offline. Replay a saved run, or restart without --demo for live calls.')
-        if payload.company not in ('samudra', 'swara'):
+        if payload.company not in ('samudra', 'swara', 'raitu', 'paisa'):
             raise HTTPException(422, 'Unknown company')
         return {'id': manager.start(payload.model_dump())}
 
@@ -179,8 +179,8 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
         from .zetaris import ZetarisClient
         with ZetarisClient(load_settings()) as client:
             return [{k: v for k, v in client.query(f'SELECT * FROM company_systems.{company}__bot_config')[0].items()
-                     if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s')}
-                    for company in ('samudra', 'swara')]
+                     if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s', 'role', 'channel', 'current_model', 'dataset_version')}
+                    for company in ('samudra', 'swara', 'raitu', 'paisa')]
     mount_billing_api(app, manager, state_dir, log_dir)
     from .console_api import mount_console
     mount_console(app, manager, log_dir, state_dir, demo)

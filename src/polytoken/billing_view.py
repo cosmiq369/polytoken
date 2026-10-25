@@ -132,7 +132,7 @@ def _calculate(snapshot, price_rows, native, english, baseline, fx):
     for spec, n in native.items():
         e = english[spec]
         prefix = f'baseline/{spec}/'
-        price = select_price(price_rows, spec)
+        price = select_price(price_rows, spec, config.get('current_model') if spec == config['model_in_use'] else None)
         row = dict(tokenizer=spec, price=price, fields={}, composition={})
         out = row['fields']
         def add(field, value, unit='number', formula='Recorded source value'):

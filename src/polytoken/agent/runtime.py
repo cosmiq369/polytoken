@@ -51,7 +51,7 @@ def historical_runs(log_dir, agent_model=None):
 
 
 def investigate(company, *, question='', monthly_chats=None, latency_target_s=None,
-                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None, report_sink=None, cancel_event=None):
+                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None, report_sink=None, cancel_event=None, test_answer_length=False):
     guard = BudgetGuard(cancel_event=cancel_event)
     guard.check()
     settings = load_settings(env_file)
@@ -68,7 +68,7 @@ def investigate(company, *, question='', monthly_chats=None, latency_target_s=No
         toolset = InvestigationTools(client, generator.generate, EvidenceStore(world), guard, logger, catalogue=catalogue, agent_model=settings.agent_model)
         toolset.observe('query_result', catalogue, 'GET ' + catalogue.get('live_query', '/models'), 'NVIDIA catalogue intersected with verified allowlist')
         agent = Investigation(toolset, memory, question=question, monthly_chats=monthly_chats,
-                              latency_target_s=latency_target_s, event_sink=event_sink, historical_runs=history, background=True)
+                              latency_target_s=latency_target_s, event_sink=event_sink, historical_runs=history, background=True, test_answer_length=test_answer_length)
         directory = Path(log_dir) / 'investigations'
         directory.mkdir(parents=True, exist_ok=True)
         latest = {}

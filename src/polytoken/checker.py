@@ -12,6 +12,10 @@ def _canonical(value):
 
 
 def unit_for(key, value):
+    if 'usd' in key:
+        return 'USD'
+    if 'latency_target_s' in key:
+        return 'seconds'
     if 'inr' in key:
         return 'INR' if 'per_rupee' not in key else 'INR per INR input price per million tokens'
     if 'percent' in key:
@@ -73,6 +77,9 @@ class Checker:
                             result = {'hypotheses/' + s + '/switch_monthly_saving_inr': own - value
                                       for k, value in result.items() if k.startswith('baseline/') and k.endswith('/monthly_inr')
                                       for s in [k[len('baseline/'):-len('/monthly_inr')]] if own is not None and s != spec}
+                    elif op == 'model_fit':
+                        from .model_fit import calculate_fit
+                        result, _ = calculate_fit(args['snapshot'], args['prices']['rows'], args['timings'])
                     elif op == 'experiment':
                         result = experiment_metrics(args['experiment'], args['snapshot'], args['prices']['rows'], args['fx'])
                     elif op == 'quality':
