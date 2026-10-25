@@ -1,71 +1,62 @@
-# PolyToken interface
+# The Token Ledger
 
-Plain HTML, CSS and JavaScript; no build, framework, CDN or npm installation.
-From a source checkout, run `polytoken serve` and open `http://127.0.0.1:8000/`.
-The static mount is last so existing API routes keep precedence. Only `web/` is
-publicly served; neither `.env` nor `logs/` is mounted. The API static path resolves
-relative to its source file, independent of the shell's working directory.
+PolyToken's source-checkout interface answers five billing questions: what we
+pay, the extra cost above English, the repeated content behind it, which change
+preserves meaning, and what changes with volume, price or model.
 
-## Saved investigations
+Plain HTML, CSS and JavaScript. No framework, build, CDN, chart library or npm
+installation. Run `polytoken serve` from a configured source checkout and open
+`http://127.0.0.1:8000/`. The final static mount exposes only `web/`; `.env` and
+`logs/` are not mounted. Paper/turmeric/indigo styling, tabular figures, SVG charts,
+verdict stamps, light/dark media support and keyboard controls follow the restored
+Token Ledger spec under `docs/prompts/PROMPT-05-ui.md`.
 
-On Ask, select one `logs/sample/agent_*_report.json`. Optionally select its event
-JSONL and World Model JSONL in the same file chooser. Supporting files can also be
-added later. A World Model archive wraps each event in `world_event`; bare events
-are accepted too. The file loader stays in the browser and makes no model calls.
-Only events whose investigation ID matches the report are displayed. Saved files
-retain their recorded checker verdicts; opening a file is not a fresh checker run.
+The new routes and every projected field/formula are described in
+[BILLING_SCHEMA.md](BILLING_SCHEMA.md). The investigation worker, agent/tools,
+checker and saved report files retain their contracts. USD is canonical in the
+billing view; legacy INR records remain exact in receipts. Only currency
+conversion and clearly labelled what-if scenarios calculate business values in
+the browser. Missing data stays missing.
 
-For the curated Samudra v2 demonstration, select:
+## Saved investigations and receipts
 
-- `logs/sample/agent_samudra_v2_report.json`
-- `logs/sample/agent_samudra_v2.jsonl`
-- `logs/sample/agent_world_events.jsonl`
-- `logs/sample/agent_v2_world_events.jsonl`
+On Ask, choose one `logs/sample/agent_*_report.json`. Add its event JSONL and World
+Model JSONL to inspect steps and transitive raw evidence. Files stay in the
+browser. The billing endpoint can also resolve curated archived report IDs from
+its configured `logs/sample/` and derive a fresh checked view from recorded World
+Model sources. A source unavailable to this server remains explicitly unavailable.
 
-The older World Model archive supplies transitive evidence reused by the v2 run.
-A missing source remains explicitly unavailable. Evidence views show the recipe,
-its named source IDs, provenance, raw payloads and links to supporting records.
-Runtime budget and experiment counters open their original event JSON.
+For Samudra v2 choose `agent_samudra_v2_report.json`, `agent_samudra_v2.jsonl`,
+`agent_world_events.jsonl` and `agent_v2_world_events.jsonl` from `logs/sample/`.
+Only matching investigation events appear. New billing claims carry direct
+receipt inputs; imported World Model files supply reused/transitive records.
+No provider generation occurs during saved-file review or token inspection.
 
-## Display contract and deliberate gaps
+Token inspection defaults to a native user turn from the billing snapshot, with
+its paired English translation available. Only known cached tokenizer files are
+used. The existing `indictax` library supplies encoding and fragment classification;
+weights are never loaded. Partial-character tokens are hatched and their raw
+labels are available. Every returned display span joins back to the input.
 
-`docs/REPORT_SCHEMA.md` is authoritative. Claims are selected by exact ID with
-`verified: true`, finite numeric values and nonempty evidence IDs. Dropped claim
-IDs take precedence. Tokenizer discovery strips anchored prefixes/suffixes, so
-IDs containing `/` remain intact. Missing values are never coerced to zero.
-Formatting uses `Intl.NumberFormat`; bar widths only encode existing values.
-Fix ordering and statuses come from the report, not a new browser calculation.
-Unrecognized fields are ignored. All source text is escaped before rendering.
+## Verification and screenshots
 
-The optional PROMPT-04C fields `quality/aa/{passed,judged}` and
-`quality_interpretation` are supported. Their absence in older reports is shown as
-not measured. Quality appears only on the fix with experiment evidence, so other
-hypotheses do not inherit the tested fix's verdict. The denominator is the actual
-checked judged count, including incomplete samples. Stand-in and pending native
-review labels remain visible.
+Run pytest from this checkout with its source on `PYTHONPATH`. The endpoint tests
+check exact hand-computed billing examples, FX compatibility and refusal rules,
+tampered/missing evidence, negative savings, local token boundaries and API route
+precedence. Live/provider tests remain opt-in.
 
-The current API does not provide checked transcript totals or call ceilings.
-The Billed / Transcript control therefore explains the missing transcript claims;
-it does not fabricate totals from billed counts. Budget meters show recorded
-counts and elapsed/remaining seconds, with an indeterminate bar and an explicit
-missing ceiling. The UI does not hardcode server limits. Provider aliases are not
-silently mapped to tokenizers; the selected tokenizer is explicitly labelled.
+When Node and Playwright are already installed, the browser test first builds
+fixtures through the production Python projection code. It intercepts every HTTP
+request: no Zetaris or provider calls. It exercises all saved reports, future
+currency rows, USD/INR persistence, after-cost grouping, meaningful intervals,
+readable dropped claims, A/A and A/B strips, what-if reset, source escaping,
+missing-data recovery, native SSE replay and polling. Every screen is checked at
+1440 px and 390 px, in both themes, for page overflow and 4.5:1 text contrast.
 
-The screenshot harness uses saved source records for company configuration and
-intercepts every request. It does not run Zetaris or NVIDIA calls. The final page
-has no test harness dependency. Deployment as a standalone installed wheel is
-outside this source-checkout interface task; `web/` must accompany the checkout.
-
-## Checks
-
-Run the full pytest suite from this checkout with its Python environment. The
-static route test is always run. With Node and Playwright already installed, the
-browser test runs `node web/check-ui.cjs` and parses every saved report fixture,
-including archived subdirectories. If Playwright is outside Node's search path,
-set `NODE_PATH` to its existing `node_modules` directory. There is no npm step.
-
-`node web/check-ui.cjs --screenshots` additionally writes `logs/sample/ui_*.png`.
-It checks native SSE replay, POST inputs, report polling, explicit missing values,
-partial reports, optional A/A data, negative savings, dropped/unverified claims,
-HTML escaping, archive evidence, error recovery and both themes at 390px width.
-It intercepts all HTTP requests; any external origin fails the check.
+`UI_SCREENSHOTS=1` on pytest captures the full matrix as
+`logs/sample/ui_5b_<screen>_<desktop|mobile>_<light|dark>.png`, plus a report summary
+viewport. Existing PROMPT-05 screenshots remain as the historical checkpoint.
+A standalone browser run can use `web/prepare-ui-fixtures.py <directory>` with
+`PYTHONPATH=src`, then set `UI_BILLING_FIXTURES` and run `node web/check-ui.cjs`.
+Use `NODE_PATH` for an existing nonstandard Playwright installation; no npm step
+is needed. Empty local tokenizer caches produce explicit unavailable rows.

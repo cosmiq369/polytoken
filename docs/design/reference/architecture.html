@@ -1,0 +1,411 @@
+<title>PolyToken Blueprint</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Telugu:wght@400;600&display=swap">
+<style>
+/* Layout: an engineering blueprint read top to bottom: the problem, the system, the loop, the data, the build. */
+:root{
+  --bg:#F3F5F6; --surface:#FFFFFF; --ink:#13222B; --muted:#56666F; --line:#C5D0D5;
+  --accent:#A86A12; --accent-soft:#F4E5C8; --teal:#1C6770; --teal-soft:#D6EAEB; --ok:#2E7A4D;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body:"IBM Plex Sans", "Noto Sans Telugu", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0D1418; --surface:#142027; --ink:#E3EAED; --muted:#94A5AE; --line:#2B3C46;
+  --accent:#E2A23A; --accent-soft:#3A2B12; --teal:#5BB4BC; --teal-soft:#113236; --ok:#5ABD82; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0D1418; --surface:#142027; --ink:#E3EAED; --muted:#94A5AE; --line:#2B3C46;
+  --accent:#E2A23A; --accent-soft:#3A2B12; --teal:#5BB4BC; --teal-soft:#113236; --ok:#5ABD82; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:32px 64px}
+.wrap{max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+header{display:grid;gap:14px}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+h1{font:700 clamp(34px,5vw,56px)/1.02 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{max-width:66ch;font-size:17px;color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chip{font:500 12px/1 var(--mono);padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink)}
+.chip.hot{border-color:var(--accent);color:var(--accent)}
+section{display:grid;gap:16px;min-width:0}
+h2{font:700 26px/1.15 var(--display);margin:0;text-wrap:balance}
+.sub{color:var(--muted);max-width:70ch;margin:0}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 18px 12px;display:grid;gap:10px;min-width:0}
+.scroll{overflow-x:auto}
+figcaption{font-size:13px;color:var(--muted);max-width:90ch}
+svg{display:block;width:100%;height:auto;color:var(--ink);font-family:var(--body)}
+svg .scroll-min{min-width:760px}
+.d-wide{min-width:820px}
+
+/* SVG roles */
+.box{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.group{fill:none;stroke:var(--line);stroke-width:1.2;stroke-dasharray:4 4}
+.grp-fill{fill:var(--bg);stroke:var(--line);stroke-width:1.2}
+.ext{fill:var(--teal-soft);stroke:var(--teal);stroke-width:1.2}
+.key{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+.t{font-size:13px;font-weight:600;fill:currentColor}
+.s{font-size:10.5px;fill:var(--muted)}
+.lab{font-size:10.5px;fill:var(--muted);font-family:var(--mono)}
+.lab-a{font-size:10.5px;fill:var(--accent);font-family:var(--mono)}
+.gt{font-size:11px;font-weight:600;fill:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono)}
+.edge{fill:none;stroke:currentColor;stroke-width:1.3}
+.edge-a{fill:none;stroke:var(--accent);stroke-width:1.6}
+.edge-t{fill:none;stroke:var(--teal);stroke-width:1.4}
+.edge-d{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 3}
+.num{font:700 12px var(--mono);fill:var(--accent)}
+.bar{fill:var(--accent)}
+.bar-ok{fill:var(--teal)}
+.grid{stroke:var(--line);stroke-width:1}
+
+/* tables and lists */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 11px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td code,pre{font-family:var(--mono)}
+td code{font-size:12.5px;background:var(--bg);padding:1px 5px;border-radius:4px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.panel h3{font:700 16px/1.2 var(--display);margin:0 0 8px}
+pre{margin:0;font-size:12.5px;line-height:1.55;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;color:var(--ink)}
+.kw{color:var(--teal);font-weight:500}
+.cm{color:var(--muted)}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:4px;align-content:start}
+.step b{font:700 14px/1.2 var(--display)}
+.step span{font-size:12.5px;color:var(--muted)}
+.pill{justify-self:start;font:600 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+.pill.done{color:var(--ok);border-color:var(--ok)}
+.pill.run{color:var(--accent);border-color:var(--accent)}
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.screens .panel p{margin:0;font-size:13.5px;color:var(--muted)}
+a{color:var(--teal)}
+@media (prefers-reduced-motion:no-preference){ .flow-pulse{animation:pulse 2.4s ease-in-out infinite} @keyframes pulse{50%{opacity:.45}} }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Open Agent Hackathon 2026 · Track 02 · The Agent That Can Explain Why</div>
+  <h1>PolyToken finds out why your <em>Telugu</em> AI costs more, and what to change.</h1>
+  <p class="lede">A product team asks one question. PolyToken measures its own chats, finds where the extra tokens come from, runs fixes against a quality bar, times real models, and reports savings in rupees. Every number on the report is recomputed by code before anyone sees it.</p>
+  <div class="meta">
+    <span class="chip hot">Submit by Mon 27 Oct, 23:00 IST</span>
+    <span class="chip">Hard deadline Tue 28 Oct, 05:15 IST</span>
+    <span class="chip">Brain: NVIDIA Nemotron</span>
+    <span class="chip">Data layer: Zetaris</span>
+    <span class="chip">Engines: Meterless</span>
+  </div>
+</header>
+
+<section>
+  <h2>The problem in one picture</h2>
+  <p class="sub">The same 18 sentences, counted in tokens relative to English. The model you pick decides the Telugu bill more than the language does.</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 880 300" role="img" aria-label="Telugu token cost relative to English for eight tokenizers: Llama 3.2 and SmolLM3 7.59 times, Qwen3 6.48, Krutrim 2 2.05, Phi-4 mini and gpt-oss 1.75, Gemma 3 1.58, Sarvam-1 1.19." style="min-width:640px">
+      <!-- scale: x = 200 + ratio * 80 ; ratio 0..8 -> 200..840 -->
+      <g class="lab">
+        <line class="grid" x1="200" y1="20" x2="200" y2="262"/><text x="200" y="282" text-anchor="middle">0×</text>
+        <line class="grid" x1="280" y1="20" x2="280" y2="262"/><text x="280" y="282" text-anchor="middle">1× parity</text>
+        <line class="grid" x1="440" y1="20" x2="440" y2="262"/><text x="440" y="282" text-anchor="middle">3×</text>
+        <line class="grid" x1="600" y1="20" x2="600" y2="262"/><text x="600" y="282" text-anchor="middle">5×</text>
+        <line class="grid" x1="760" y1="20" x2="760" y2="262"/><text x="760" y="282" text-anchor="middle">7×</text>
+      </g>
+      <g font-size="12.5" fill="currentColor">
+        <text x="190" y="38" text-anchor="end">Llama 3.2 3B</text>
+        <text x="190" y="68" text-anchor="end">SmolLM3 3B</text>
+        <text x="190" y="98" text-anchor="end">Qwen3 4B</text>
+        <text x="190" y="128" text-anchor="end">Krutrim 2</text>
+        <text x="190" y="158" text-anchor="end">Phi-4 mini</text>
+        <text x="190" y="188" text-anchor="end">gpt-oss (o200k)</text>
+        <text x="190" y="218" text-anchor="end">Gemma 3 4B</text>
+        <text x="190" y="248" text-anchor="end">Sarvam-1</text>
+      </g>
+      <rect class="bar" x="200" y="26" width="607.2" height="16" rx="2"/>
+      <rect class="bar" x="200" y="56" width="607.2" height="16" rx="2"/>
+      <rect class="bar" x="200" y="86" width="518.4" height="16" rx="2"/>
+      <rect class="bar-ok" x="200" y="116" width="164" height="16" rx="2"/>
+      <rect class="bar-ok" x="200" y="146" width="140" height="16" rx="2"/>
+      <rect class="bar-ok" x="200" y="176" width="140" height="16" rx="2"/>
+      <rect class="bar-ok" x="200" y="206" width="126.4" height="16" rx="2"/>
+      <rect class="bar-ok" x="200" y="236" width="95.2" height="16" rx="2"/>
+      <g class="lab" fill="currentColor">
+        <text x="813" y="38">7.59×</text><text x="813" y="68">7.59×</text><text x="724" y="98">6.48×</text>
+        <text x="370" y="128">2.05×</text><text x="346" y="158">1.75×</text><text x="346" y="188">1.75×</text>
+        <text x="332" y="218">1.58×</text><text x="301" y="248">1.19×</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Experiment 01 of indic-inference-tax, 18 Sep 2026: 18 parallel prompts, Telugu native-reviewed. On Llama 3.2, 98.2% of Telugu tokens are lone bytes or partial characters; on Gemma 3 it is 0%. Bars in amber are the byte-fallback tokenizers.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>How the parts connect</h2>
+  <p class="sub">Read left to right: the person asks, the agent plans and calls tools, tools reach NVIDIA and Zetaris, every result lands in the World Model, and only checked claims come back.</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1120 520" role="img" aria-label="Architecture: the product lead uses the web UI, which starts an investigation in the PolyToken API. The agent loop, with a Nemotron planner, budget guard, rate limiter and the three Meterless engines, calls five tools. Three tools call NVIDIA models, the SQL tool queries Zetaris, which federates the company database, measurements and reference data. A checker reads the World Model and returns a verified report to the UI. Everything is logged as JSONL." class="d-wide">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+      </defs>
+
+      <!-- Column A: person and UI -->
+      <rect class="box" x="16" y="40" width="170" height="60" rx="8"/>
+      <text class="t" x="101" y="66" text-anchor="middle">Product lead</text>
+      <text class="s" x="101" y="84" text-anchor="middle">Telugu or Hindi AI product</text>
+      <rect class="key" x="16" y="170" width="170" height="80" rx="8"/>
+      <text class="t" x="101" y="200" text-anchor="middle">Web UI</text>
+      <text class="s" x="101" y="218" text-anchor="middle">timeline · evidence</text>
+      <text class="s" x="101" y="232" text-anchor="middle">report · ₹ savings</text>
+
+      <!-- Column B: API, agent loop, checker -->
+      <rect class="box" x="240" y="40" width="330" height="50" rx="8"/>
+      <text class="t" x="405" y="62" text-anchor="middle">PolyToken API</text>
+      <text class="s" x="405" y="78" text-anchor="middle">FastAPI · server-sent events</text>
+
+      <rect class="grp-fill" x="240" y="120" width="330" height="250" rx="10"/>
+      <text class="gt" x="256" y="140">Agent loop</text>
+      <rect class="box" x="260" y="150" width="290" height="44" rx="7"/>
+      <text class="t" x="405" y="170" text-anchor="middle">Planner · Nemotron</text>
+      <text class="s" x="405" y="186" text-anchor="middle">decides the next step from the evidence so far</text>
+      <rect class="box" x="260" y="204" width="140" height="44" rx="7"/>
+      <text class="t" x="330" y="222" text-anchor="middle">Budget guard</text>
+      <text class="s" x="330" y="238" text-anchor="middle">25 model · 60 SQL · 6 min</text>
+      <rect class="box" x="410" y="204" width="140" height="44" rx="7"/>
+      <text class="t" x="480" y="222" text-anchor="middle">Rate limiter</text>
+      <text class="s" x="480" y="238" text-anchor="middle">≤ 38 requests / min</text>
+      <text class="gt" x="256" y="270">Meterless engines</text>
+      <rect class="ext" x="260" y="278" width="92" height="74" rx="7"/>
+      <text class="t" x="306" y="302" text-anchor="middle">World</text>
+      <text class="t" x="306" y="317" text-anchor="middle">Model</text>
+      <text class="s" x="306" y="334" text-anchor="middle">evidence +</text>
+      <text class="s" x="306" y="346" text-anchor="middle">provenance</text>
+      <rect class="ext" x="359" y="278" width="92" height="74" rx="7"/>
+      <text class="t" x="405" y="302" text-anchor="middle">Markovian</text>
+      <text class="s" x="405" y="322" text-anchor="middle">chunked</text>
+      <text class="s" x="405" y="334" text-anchor="middle">carry-over,</text>
+      <text class="s" x="405" y="346" text-anchor="middle">token savings</text>
+      <rect class="ext" x="458" y="278" width="92" height="74" rx="7"/>
+      <text class="t" x="504" y="302" text-anchor="middle">H-MEM</text>
+      <text class="s" x="504" y="322" text-anchor="middle">company</text>
+      <text class="s" x="504" y="334" text-anchor="middle">profiles, past</text>
+      <text class="s" x="504" y="346" text-anchor="middle">investigations</text>
+
+      <rect class="key" x="240" y="400" width="330" height="56" rx="8"/>
+      <text class="t" x="405" y="423" text-anchor="middle">Checker</text>
+      <text class="s" x="405" y="441" text-anchor="middle">recomputes every number · drops unsupported claims</text>
+
+      <!-- Column C: tools -->
+      <text class="gt" x="630" y="130">Tools</text>
+      <rect class="box" x="630" y="140" width="200" height="40" rx="7"/><text class="t" x="642" y="164">Quality judge</text><text class="s" x="818" y="164" text-anchor="end">same facts?</text>
+      <rect class="box" x="630" y="192" width="200" height="40" rx="7"/><text class="t" x="642" y="216">Speed probe</text><text class="s" x="818" y="216" text-anchor="end">TTFT · tokens/s</text>
+      <rect class="box" x="630" y="244" width="200" height="40" rx="7"/><text class="t" x="642" y="268">Fix experiment</text><text class="s" x="818" y="268" text-anchor="end">re-run the bot</text>
+      <rect class="box" x="630" y="296" width="200" height="40" rx="7"/><text class="t" x="642" y="320">Token meter</text><text class="s" x="818" y="320" text-anchor="end">indictax · 8</text>
+      <rect class="box" x="630" y="348" width="200" height="40" rx="7"/><text class="t" x="642" y="372">Zetaris SQL</text><text class="s" x="818" y="372" text-anchor="end">read-only</text>
+
+      <rect class="box" x="630" y="455" width="200" height="48" rx="7"/>
+      <text class="t" x="730" y="476" text-anchor="middle">logs/</text>
+      <text class="s" x="730" y="492" text-anchor="middle">JSONL audit for judges</text>
+
+      <!-- Column D: NVIDIA and Zetaris -->
+      <rect class="grp-fill" x="900" y="40" width="204" height="150" rx="10"/>
+      <text class="gt" x="914" y="60">NVIDIA API</text>
+      <rect class="ext" x="914" y="72" width="176" height="46" rx="7"/>
+      <text class="t" x="1002" y="92" text-anchor="middle">Nemotron</text><text class="s" x="1002" y="108" text-anchor="middle">plans · judges quality</text>
+      <rect class="ext" x="914" y="128" width="176" height="46" rx="7"/>
+      <text class="t" x="1002" y="148" text-anchor="middle">Hosted models</text><text class="s" x="1002" y="164" text-anchor="middle">speed tests, fix re-runs</text>
+
+      <rect class="grp-fill" x="900" y="230" width="204" height="200" rx="10"/>
+      <text class="gt" x="914" y="250">Zetaris · one SQL</text>
+      <rect class="ext" x="914" y="262" width="176" height="46" rx="7"/>
+      <text class="t" x="1002" y="282" text-anchor="middle">Company DB</text><text class="s" x="1002" y="298" text-anchor="middle">bot config · chats</text>
+      <rect class="ext" x="914" y="316" width="176" height="46" rx="7"/>
+      <text class="t" x="1002" y="336" text-anchor="middle">Measurements</text><text class="s" x="1002" y="352" text-anchor="middle">token counts by part</text>
+      <rect class="ext" x="914" y="370" width="176" height="46" rx="7"/>
+      <text class="t" x="1002" y="390" text-anchor="middle">Reference</text><text class="s" x="1002" y="406" text-anchor="middle">parallel sentences · prices</text>
+
+      <!-- Edges -->
+      <path class="edge" d="M101 100 V170" marker-end="url(#ar)"/>
+      <text class="lab" x="108" y="130">question</text>
+      <text class="lab" x="108" y="144">chats · volume</text>
+
+      <path class="edge" d="M186 190 H213 V65 H240" marker-end="url(#ar)"/>
+      <text class="lab" x="216" y="59">ask</text>
+      <path class="edge-t" d="M240 82 H226 V232 H186" marker-end="url(#ar)" style="color:var(--teal)"/>
+      <text class="lab" x="108" y="270" fill="var(--teal)">live steps (SSE)</text>
+
+      <path class="edge" d="M405 90 V120" marker-end="url(#ar)"/>
+      <text class="lab" x="412" y="110">run</text>
+
+      <path class="edge-a" d="M550 158 H585 V24 H1002 V72" marker-end="url(#ar)" style="color:var(--accent)"/>
+      <text class="lab-a" x="760" y="18" text-anchor="middle">plan · decide · through the rate limiter</text>
+
+      <path class="edge" d="M550 180 H600 V368"/>
+      <path class="edge" d="M600 160 H630" marker-end="url(#ar)"/>
+      <path class="edge" d="M600 212 H630" marker-end="url(#ar)"/>
+      <path class="edge" d="M600 264 H630" marker-end="url(#ar)"/>
+      <path class="edge" d="M600 316 H630" marker-end="url(#ar)"/>
+      <path class="edge" d="M600 368 H630" marker-end="url(#ar)"/>
+      <text class="lab" x="556" y="198">tool calls</text>
+      <path class="edge-t" d="M600 330 H572" marker-end="url(#ar)" style="color:var(--teal)"/>
+      <text class="lab" x="574" y="346" fill="var(--teal)">results</text>
+
+      <path class="edge" d="M830 160 H865 M830 212 H865 M830 264 H865 M865 264 V146 H900" marker-end="url(#ar)"/>
+      <text class="lab" x="836" y="138">model calls</text>
+      <path class="edge" d="M830 368 H900" marker-end="url(#ar)"/>
+      <text class="lab" x="838" y="360">SQL/REST</text>
+
+      <path class="edge-t" d="M306 352 V400" marker-end="url(#ar)" style="color:var(--teal)"/>
+      <text class="lab" x="312" y="382" fill="var(--teal)">evidence</text>
+      <path class="edge-a" d="M240 428 H101 V250" marker-end="url(#ar)" style="color:var(--accent)"/>
+      <text class="lab-a" x="110" y="420">verified report</text>
+      <path class="edge-d" d="M570 440 H600 V479 H630" marker-end="url(#ar)" style="color:var(--muted)"/>
+      <path class="edge-d" d="M730 388 V455" marker-end="url(#ar)" style="color:var(--muted)"/>
+      <text class="lab" x="738" y="426">every call</text>
+    </svg>
+    </div>
+    <figcaption>Amber marks the two paths that matter most: the planner's calls to Nemotron, which all pass the rate limiter, and the report, which only leaves through the checker. Teal boxes are sponsor technology. Measurements are written by the token meter into the company database and read back through Zetaris with the chats and reference data.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>One investigation, step by step</h2>
+  <p class="sub">The order is real: each step needs the one before it. What changes between companies is which lever the agent tests at step 5, decided by what it measured at step 3.</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1120 360" role="img" aria-label="Investigation flow: clarify, measure, locate the extra tokens, form a hypothesis, run a fix experiment, judge quality, test speed, check every number, report. A loop returns from speed to hypothesis while budget remains. Samudra's long Telugu system prompt leads to testing an English system prompt; Swara's long answers lead to a length cap." class="d-wide">
+      <defs>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+      </defs>
+      <!-- row 1 -->
+      <g>
+        <rect class="box" x="16" y="30" width="236" height="78" rx="8"/><text class="num" x="30" y="52">1</text><text class="t" x="48" y="52">Clarify</text><text class="s" x="30" y="72">asks only what it cannot look up:</text><text class="s" x="30" y="86">monthly chats, reply-time target</text>
+        <rect class="box" x="292" y="30" width="236" height="78" rx="8"/><text class="num" x="306" y="52">2</text><text class="t" x="324" y="52">Measure</text><text class="s" x="306" y="72">token counts per chat part,</text><text class="s" x="306" y="86">8 tokenizers, native vs English</text>
+        <rect class="key" x="568" y="30" width="236" height="78" rx="8"/><text class="num" x="582" y="52">3</text><text class="t" x="600" y="52">Locate</text><text class="s" x="582" y="72">where the extra tokens sit:</text><text class="s" x="582" y="86">system prompt · user · answers</text>
+        <rect class="box" x="844" y="30" width="248" height="78" rx="8"/><text class="num" x="858" y="52">4</text><text class="t" x="876" y="52">Hypothesise</text><text class="s" x="858" y="72">picks the lever with the biggest</text><text class="s" x="858" y="86">expected saving still untested</text>
+      </g>
+      <path class="edge" d="M252 69 H292" marker-end="url(#ar2)"/>
+      <path class="edge" d="M528 69 H568" marker-end="url(#ar2)"/>
+      <path class="edge" d="M804 69 H844" marker-end="url(#ar2)"/>
+      <!-- branch notes -->
+      <text class="lab-a" x="582" y="130">Samudra: prompt 98% of input → English prompt</text>
+      <text class="lab-a" x="582" y="146">Swara: long answers → length cap?</text>
+      <path class="edge" d="M968 108 V180 H200 V210" marker-end="url(#ar2)"/>
+      <!-- row 2 -->
+      <g>
+        <rect class="box" x="16" y="210" width="196" height="88" rx="8"/><text class="num" x="30" y="232">5</text><text class="t" x="48" y="232">Experiment</text><text class="s" x="30" y="252">re-runs sample chats with the</text><text class="s" x="30" y="266">change on hosted models</text><text class="s" x="30" y="280">(prompt · length · model)</text>
+        <rect class="box" x="236" y="210" width="196" height="88" rx="8"/><text class="num" x="250" y="232">6</text><text class="t" x="268" y="232">Judge</text><text class="s" x="250" y="252">Nemotron: same facts on</text><text class="s" x="250" y="266">≥ 90% of 20 chats; native</text><text class="s" x="250" y="280">spot check can veto</text>
+        <rect class="box" x="456" y="210" width="196" height="88" rx="8"/><text class="num" x="470" y="232">7</text><text class="t" x="488" y="232">Speed</text><text class="s" x="470" y="252">time to first token and</text><text class="s" x="470" y="266">output speed, same prompt</text><text class="s" x="470" y="280">in Telugu and English</text>
+        <rect class="key" x="676" y="210" width="196" height="88" rx="8"/><text class="num" x="690" y="232">8</text><text class="t" x="708" y="232">Check</text><text class="s" x="690" y="252">recomputes cost and ratios</text><text class="s" x="690" y="266">from raw rows; claims without</text><text class="s" x="690" y="280">evidence are dropped</text>
+        <rect class="box" x="896" y="210" width="196" height="88" rx="8"/><text class="num" x="910" y="232">9</text><text class="t" x="928" y="232">Report</text><text class="s" x="910" y="252">fixes ranked by ₹ / month</text><text class="s" x="910" y="266">at the team's volume;</text><text class="s" x="910" y="280">rejected ones say why</text>
+      </g>
+      <path class="edge" d="M212 254 H236" marker-end="url(#ar2)"/>
+      <path class="edge" d="M432 254 H456" marker-end="url(#ar2)"/>
+      <path class="edge" d="M652 254 H676" marker-end="url(#ar2)"/>
+      <path class="edge" d="M872 254 H896" marker-end="url(#ar2)"/>
+      <!-- loop back -->
+      <path class="edge-a" d="M554 298 V330 H1116 V69 H1092" marker-end="url(#ar2)" style="color:var(--accent)"/>
+      <text class="lab-a" x="760" y="348" text-anchor="middle">next lever while the budget lasts · stops when confident or at 25 calls / 60 SQL / 6 min</text>
+    </svg>
+    </div>
+    <figcaption>Every box writes what it observed, with source and time, to the World Model; the checker at step 8 reads only from there. Markovian compresses the evidence carried between steps, and H-MEM keeps the company's profile for the next investigation.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Where the data lives</h2>
+  <p class="sub">PolyToken never reads the company database directly. One Zetaris query joins chats, measurements and reference data, which is the Track 02 "across sources" requirement doing real work.</p>
+  <div class="two">
+    <figure>
+      <svg viewBox="0 0 520 300" role="img" aria-label="Sources federated by Zetaris: the company database with Samudra and Swara schemas and the measurements schema, reference sentences, and a price file served locally. PolyToken's SQL tool sends one query to Zetaris and gets joined rows back.">
+        <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <text class="gt" x="16" y="24">Sources</text>
+        <rect class="box" x="16" y="36" width="200" height="40" rx="7"/><text class="t" x="28" y="54">samudra.*</text><text class="s" x="28" y="69">Telugu bot config, 50 chats</text>
+        <rect class="box" x="16" y="86" width="200" height="40" rx="7"/><text class="t" x="28" y="104">swara.*</text><text class="s" x="28" y="119">Hindi bot config, 50 chats</text>
+        <rect class="box" x="16" y="136" width="200" height="40" rx="7"/><text class="t" x="28" y="154">measurements.token_counts</text><text class="s" x="28" y="169">written by the token meter</text>
+        <rect class="box" x="16" y="186" width="200" height="40" rx="7"/><text class="t" x="28" y="204">reference.sentences</text><text class="s" x="28" y="219">18 parallel prompts</text>
+        <rect class="box" x="16" y="236" width="200" height="40" rx="7"/><text class="t" x="28" y="254">prices.json</text><text class="s" x="28" y="269">verified, dated, with source URL</text>
+        <rect class="ext" x="276" y="110" width="110" height="90" rx="9"/>
+        <text class="t" x="331" y="146" text-anchor="middle">Zetaris</text><text class="s" x="331" y="164" text-anchor="middle">federated</text><text class="s" x="331" y="177" text-anchor="middle">SQL</text>
+        <path class="edge" d="M216 56 H246 V256 H216 M216 106 H246 M216 156 H246 M216 206 H246 M246 155 H276" marker-end="url(#ar3)"/>
+        <rect class="key" x="420" y="120" width="88" height="70" rx="8"/>
+        <text class="t" x="464" y="150" text-anchor="middle">SQL tool</text><text class="s" x="464" y="168" text-anchor="middle">PolyToken</text>
+        <path class="edge" d="M420 142 H386" marker-end="url(#ar3)"/><text class="lab" x="390" y="134">query</text>
+        <path class="edge" d="M386 170 H420" marker-end="url(#ar3)"/><text class="lab" x="390" y="186">rows</text>
+      </svg>
+      <figcaption>Company data stays where the company keeps it; Zetaris reads it in place. If the price file cannot be registered as a source, it moves into a table and the decision is written down.</figcaption>
+    </figure>
+    <div class="panel">
+      <h3>The query that proves the federation</h3>
+<pre><span class="cm">-- planned: sql/token_ratio_by_part.sql</span>
+<span class="kw">SELECT</span> t.company, t.tokenizer_spec, t.part,
+       <span class="kw">SUM</span>(<span class="kw">CASE WHEN</span> t.lang_variant = 'native'
+                <span class="kw">THEN</span> t.tokens <span class="kw">END</span>) * 1.0 /
+       <span class="kw">SUM</span>(<span class="kw">CASE WHEN</span> t.lang_variant = 'en'
+                <span class="kw">THEN</span> t.tokens <span class="kw">END</span>) <span class="kw">AS</span> ratio_to_en
+<span class="kw">FROM</span>   measurements.token_counts t
+<span class="kw">JOIN</span>   samudra.chats c
+  <span class="kw">ON</span>   c.chat_id = t.chat_id <span class="kw">AND</span> c.turn = t.turn
+<span class="kw">GROUP BY</span> 1, 2, 3;</pre>
+      <p class="sub" style="margin-top:10px;font-size:13.5px">Codex writes and runs the real version in Prompt 02 against both companies; its output becomes the first sample in <code>logs/sample/</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>What goes in, what comes out</h2>
+  <div class="two">
+    <div class="panel">
+      <h3>Inputs</h3>
+      <table>
+        <tr><th>Input</th><th>From</th></tr>
+        <tr><td>The question, in plain words</td><td>Product lead, in the UI</td></tr>
+        <tr><td>Sample chats and the bot's system prompt</td><td>Company DB, through Zetaris</td></tr>
+        <tr><td>Monthly chats, reply-time target</td><td>Asked once, then remembered by H-MEM</td></tr>
+        <tr><td>Parallel English text</td><td>Chat translations and the reference corpus</td></tr>
+        <tr><td>Prices per million tokens</td><td><code>prices.json</code>, each entry with a source and date</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h3>Outputs</h3>
+      <table>
+        <tr><th>Output</th><th>What it holds</th></tr>
+        <tr><td>Live timeline</td><td>Each step as it happens, with the tool and the finding</td></tr>
+        <tr><td>Cost card</td><td>Native-to-English ratio per model, with a bootstrap interval</td></tr>
+        <tr><td>Where the tokens go</td><td>Share of tokens by system prompt, user turns and answers</td></tr>
+        <tr><td>Ranked fixes</td><td>₹ / month and seconds per reply saved, quality verdict, or the rejection reason</td></tr>
+        <tr><td>Evidence drawer</td><td>Every number traced to a query, a measurement row or a timed call</td></tr>
+        <tr><td><code>logs/*.jsonl</code></td><td>The audit trail judges can replay</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The planned interface</h2>
+  <p class="sub">Four screens on one page. The full mockups are on the PolyToken UI design canvas.</p>
+  <div class="screens">
+    <div class="panel"><h3>Start</h3><p>Pick Samudra Telecom or Swara Care, or bring your own chats. Type the question. One button: Investigate.</p></div>
+    <div class="panel"><h3>Investigation</h3><p>The timeline streams each step on the left; the evidence it just gathered fills the right. Budget meters show calls and minutes used.</p></div>
+    <div class="panel"><h3>Report</h3><p>Cost card, a where-the-tokens-go bar, and fixes ranked by rupees saved, each with a quality tick or a rejection reason.</p></div>
+    <div class="panel"><h3>Evidence</h3><p>Click any number to see the rows, query or timed call behind it, and how a Telugu sentence splits on each tokenizer.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Build plan</h2>
+  <div class="status">
+    <div class="step"><span class="pill done">Done · verified</span><b>P01 Foundation</b><span>Settings, rate-limited Nemotron calls, Zetaris client, JSONL logs, doctor check</span></div>
+    <div class="step"><span class="pill done">Done · verified</span><b>P02 Data layer</b><span>7,168 token counts, 48 federated groups, all recomputed independently and matched</span></div>
+    <div class="step"><span class="pill run">Tonight</span><b>P03 Fixes + Meterless</b><span>Two parallel sessions: data and billing fixes with the version lock; World Model, H-MEM and Markovian with conformance tests</span></div>
+    <div class="step"><span class="pill">Sun afternoon</span><b>P04 The agent</b><span>Planner, five tools, budgets, checker, live event stream</span></div>
+    <div class="step"><span class="pill">Sun night</span><b>P05 Interface</b><span>Start, investigation, report and evidence screens</span></div>
+    <div class="step"><span class="pill">Monday</span><b>P06 Proof and pack</b><span>Both companies scored against the contract, README, video, deck, submit by 23:00 IST</span></div>
+  </div>
+</section>
+
+</div>

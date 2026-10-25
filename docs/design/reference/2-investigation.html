@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PolyToken · Live investigation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Noto+Sans+Telugu:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#F3F5F6}
+a{color:#1C6770}a:hover{color:#13222B}
+button:focus-visible,a:focus-visible{outline:2px solid #1C6770;outline-offset:2px}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 100vh; background: #F3F5F6; color: #13222B; font-family: 'IBM Plex Sans', 'Noto Sans Telugu', system-ui, sans-serif; font-size: 15px; line-height: 1.55">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #D3DBDF">
+  <div style="box-sizing: border-box; max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+    <a href="Main.dc.html" aria-label="PolyToken home" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #13222B">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="5" width="22" height="4" rx="2" fill="#A86A12"></rect><rect x="3" y="12" width="14" height="4" rx="2" fill="#1C6770"></rect><rect x="3" y="19" width="8" height="4" rx="2" fill="#1C6770"></rect></svg>
+      <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.01em">PolyToken</span>
+    </a>
+    <nav aria-label="Progress" style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px">
+      <a href="Main.dc.html" style="padding: 6px 12px; border-radius: 999px; color: #56666F; text-decoration: none">1 Ask</a>
+      <span aria-current="step" style="padding: 6px 12px; border-radius: 999px; background: #13222B; color: #FFFFFF; font-weight: 600">2 Investigate</span>
+      <span style="padding: 6px 12px; border-radius: 999px; color: #56666F">3 Report</span>
+    </nav>
+    <div style="margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px">
+      <span style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid #D3DBDF; border-radius: 999px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #2E7A4D"></span>Zetaris connected</span>
+      <span style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid #D3DBDF; border-radius: 999px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #2E7A4D"></span>Nemotron ready</span>
+    </div>
+  </div>
+</header>
+
+<main style="box-sizing: border-box; max-width: 1240px; margin: 0 auto; padding: 32px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+
+  <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+      <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #1C6770">Samudra Telecom · Telugu support bot</p>
+      <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 34px; line-height: 1.1; letter-spacing: -0.01em">Why does our Telugu bot cost more, and what should we change?</h1>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px">
+      <button type="button" style="min-height: 44px; padding: 10px 16px; border-radius: 10px; border: 1px solid #B9C6CC; background: #FFFFFF; color: #13222B; font: inherit; font-weight: 500; cursor: pointer">Stop and report so far</button>
+      <a href="Report.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; padding: 10px 16px; border-radius: 10px; background: #13222B; color: #FFFFFF; text-decoration: none; font-weight: 600">Open report when ready</a>
+    </div>
+  </div>
+
+  <section aria-label="Budget" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px">
+    <div style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; font-size: 13px; color: #56666F"><span>Model calls</span><span style="font-family: 'IBM Plex Mono', monospace; color: #13222B">9 / 25</span></div>
+      <div role="img" aria-label="9 of 25 model calls used" style="height: 8px; border-radius: 4px; background: #E4E9EC"><div style="width: 36%; height: 8px; border-radius: 4px; background: #1C6770"></div></div>
+      <span style="font-size: 12px; color: #56666F">through the rate limiter, at most 38 a minute</span>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; font-size: 13px; color: #56666F"><span>Zetaris queries</span><span style="font-family: 'IBM Plex Mono', monospace; color: #13222B">14 / 60</span></div>
+      <div role="img" aria-label="14 of 60 queries used" style="height: 8px; border-radius: 4px; background: #E4E9EC"><div style="width: 23%; height: 8px; border-radius: 4px; background: #1C6770"></div></div>
+      <span style="font-size: 12px; color: #56666F">read-only, one federated source</span>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; font-size: 13px; color: #56666F"><span>Time</span><span style="font-family: 'IBM Plex Mono', monospace; color: #13222B">2:48 / 6:00</span></div>
+      <div role="img" aria-label="2 minutes 48 seconds of 6 minutes used" style="height: 8px; border-radius: 4px; background: #E4E9EC"><div style="width: 47%; height: 8px; border-radius: 4px; background: #A86A12"></div></div>
+      <span style="font-size: 12px; color: #56666F">partial results are reported if time runs out</span>
+    </div>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+    <section aria-labelledby="tl-h" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+      <h2 id="tl-h" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px">Investigation</h2>
+      <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0">
+
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #1C6770; color: #FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span style="flex-grow: 1; width: 2px; background: #B5D3D6"></span></div>
+          <div style="padding-bottom: 16px; display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><b style="font-weight: 600">1 · Clarify</b><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; padding: 2px 7px; border-radius: 5px; background: #E3EFF0; color: #13222B">H-MEM</span><span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56666F">0:00</span></div>
+            <span style="color: #2F3F47">Found volume and target in the bot config, so nothing to ask: 100,000 chats a month, first words within 3.0 s. Saved to company memory.</span>
+          </div>
+        </li>
+
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #1C6770; color: #FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span style="flex-grow: 1; width: 2px; background: #B5D3D6"></span></div>
+          <div style="padding-bottom: 16px; display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><b style="font-weight: 600">2 · Measure</b><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; padding: 2px 7px; border-radius: 5px; background: #E3EFF0; color: #13222B">token meter</span><span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56666F">0:21</span></div>
+            <span style="color: #2F3F47">Counted every part of 50 chats on 8 tokenizers, in Telugu and in English. Telugu ÷ English on Llama 3.2: system prompt 9.81×, user turns 7.17×, answers 9.49×.</span>
+            <a href="Evidence.dc.html" style="align-self: flex-start; font-size: 13px; font-weight: 500">Evidence E2</a>
+          </div>
+        </li>
+
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #1C6770; color: #FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span style="flex-grow: 1; width: 2px; background: #B5D3D6"></span></div>
+          <div style="padding-bottom: 16px; display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><b style="font-weight: 600">3 · Locate</b><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; padding: 2px 7px; border-radius: 5px; background: #E3EFF0; color: #13222B">Zetaris SQL</span><span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56666F">1:05</span></div>
+            <span style="color: #2F3F47">The system prompt is 11,935 tokens on Llama 3.2 and is re-sent with every reply: 98.2% of billed input. Answers are 1.1% of billed tokens.</span>
+            <a href="Evidence.dc.html" style="align-self: flex-start; font-size: 13px; font-weight: 500">Evidence E3, E4</a>
+          </div>
+        </li>
+
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #1C6770; color: #FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span style="flex-grow: 1; width: 2px; background: #B5D3D6"></span></div>
+          <div style="padding-bottom: 16px; display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><b style="font-weight: 600">4 · Hypothesise</b><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; padding: 2px 7px; border-radius: 5px; background: #E3EFF0; color: #13222B">Nemotron</span><span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56666F">1:31</span></div>
+            <span style="color: #2F3F47">Test first: keep the system prompt in English, replies stay in Telugu. Expected: 24,071 → 2,850 billed input tokens per chat.</span>
+          </div>
+        </li>
+
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #A86A12; background: #FFFFFF"><span style="width: 8px; height: 8px; border-radius: 50%; background: #A86A12"></span></span><span style="flex-grow: 1; width: 2px; background: #D3DBDF"></span></div>
+          <div style="margin-bottom: 16px; padding: 16px; border-radius: 12px; border: 1px solid #E2C48E; background: #FBF4E6; display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><b style="font-weight: 600">5 · Experiment</b><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; padding: 2px 7px; border-radius: 5px; background: #FFFFFF; border: 1px solid #E2C48E; color: #13222B">fix experiment</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #95600F">running</span><span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56666F">1:44</span></div>
+            <span style="color: #2F3F47">Re-running 20 sample chats with an English system prompt on <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.9em; color: #1C6770; border-bottom: 1px dashed #1C6770">[hosted model]</span>.</span>
+            <div style="display: flex; align-items: center; gap: 10px"><div role="img" aria-label="12 of 20 chats re-run" style="flex-grow: 1; height: 8px; border-radius: 4px; background: #F1DFC0"><div style="width: 60%; height: 8px; border-radius: 4px; background: #A86A12"></div></div><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">12 / 20</span></div>
+            <div style="border-top: 1px solid #EBD6B0; padding-top: 10px; font-size: 14px; color: #2F3F47"><b style="font-weight: 600">Why this step.</b> The system prompt is the biggest share of input and customers must still be answered in Telugu, so translating only the system prompt is the cheapest lever that keeps the product the same.</div>
+          </div>
+        </li>
+
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="box-sizing: border-box; width: 28px; height: 28px; border-radius: 50%; border: 2px solid #B9C6CC; background: #FFFFFF"></span><span style="flex-grow: 1; width: 2px; background: #D3DBDF"></span></div>
+          <div style="padding: 3px 0 18px; display: flex; flex-wrap: wrap; gap: 4px 10px; color: #56666F"><b style="font-weight: 600; color: #3E5259">6 · Judge</b><span>Nemotron checks the same facts on at least 18 of 20 chats; a native reviewer can veto</span></div>
+        </li>
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="box-sizing: border-box; width: 28px; height: 28px; border-radius: 50%; border: 2px solid #B9C6CC; background: #FFFFFF"></span><span style="flex-grow: 1; width: 2px; background: #D3DBDF"></span></div>
+          <div style="padding: 3px 0 18px; display: flex; flex-wrap: wrap; gap: 4px 10px; color: #56666F"><b style="font-weight: 600; color: #3E5259">7 · Speed</b><span>time to first token and output speed, Telugu and English</span></div>
+        </li>
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="box-sizing: border-box; width: 28px; height: 28px; border-radius: 50%; border: 2px solid #B9C6CC; background: #FFFFFF"></span><span style="flex-grow: 1; width: 2px; background: #D3DBDF"></span></div>
+          <div style="padding: 3px 0 18px; display: flex; flex-wrap: wrap; gap: 4px 10px; color: #56666F"><b style="font-weight: 600; color: #3E5259">8 · Check</b><span>every number recomputed from raw rows</span></div>
+        </li>
+        <li style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px">
+          <div style="display: flex; flex-direction: column; align-items: center"><span style="box-sizing: border-box; width: 28px; height: 28px; border-radius: 50%; border: 2px solid #B9C6CC; background: #FFFFFF"></span></div>
+          <div style="padding: 3px 0 0; display: flex; flex-wrap: wrap; gap: 4px 10px; color: #56666F"><b style="font-weight: 600; color: #3E5259">9 · Report</b><span>fixes ranked by rupees saved a month</span></div>
+        </li>
+      </ol>
+    </section>
+
+    <aside aria-labelledby="ev-h" style="flex: 1 1 360px; min-width: 0; background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+        <h2 id="ev-h" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px">Evidence so far</h2>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56666F">World Model · 6 items</span>
+      </div>
+
+      <a href="Evidence.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 10px; border: 1px solid #E4E9EC; text-decoration: none; color: #13222B">
+        <span style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F"><b style="color: #95600F">E1</b>reference · Zetaris</span>
+        <span style="font-size: 14px">Same 18 sentences: Telugu takes 7.59× English tokens on Llama 3.2, 1.58× on Gemma 3</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F">reference.sentences · experiment 01</span>
+      </a>
+      <a href="Evidence.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 10px; border: 1px solid #E4E9EC; text-decoration: none; color: #13222B">
+        <span style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F"><b style="color: #95600F">E2</b>measurement · token meter</span>
+        <span style="font-size: 14px">Samudra, Telugu ÷ English on Llama 3.2: system prompt 9.81×, user 7.17×, answers 9.49×</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F">measurements.token_counts</span>
+      </a>
+      <a href="Evidence.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 10px; border: 1px solid #E4E9EC; text-decoration: none; color: #13222B">
+        <span style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F"><b style="color: #95600F">E3</b>query · Zetaris</span>
+        <span style="font-size: 14px">System prompt share of billed input: 98.2% (11,935 tokens × 99 replies)</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F">sql/token_ratio_by_part.sql</span>
+      </a>
+      <a href="Evidence.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 10px; border: 1px solid #E4E9EC; text-decoration: none; color: #13222B">
+        <span style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F"><b style="color: #95600F">E4</b>query · Zetaris</span>
+        <span style="font-size: 14px">Answer share of billed tokens: 1.1%</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F">sql/token_ratio_by_part.sql</span>
+      </a>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 10px; border: 1px solid #E4E9EC">
+        <span style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F"><b style="color: #95600F">E5</b>memory · H-MEM</span>
+        <span style="font-size: 14px">100,000 chats a month, target 3.0 s, model Llama 3.2 3B, from the bot config</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 10px; border: 1px dashed #E2C48E; background: #FFFCF6">
+        <span style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F"><b style="color: #95600F">E6</b>timed calls · NVIDIA · in progress</span>
+        <span style="font-size: 14px">English-system-prompt re-runs, 12 of 20 done</span>
+      </div>
+
+      <div style="margin-top: 4px; padding-top: 12px; border-top: 1px solid #E4E9EC; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #3E5259">
+        <span><b style="font-weight: 600">Carried between steps:</b> a Markovian summary of <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.9em; color: #1C6770; border-bottom: 1px dashed #1C6770">[n]</span> tokens instead of the full <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.9em; color: #1C6770; border-bottom: 1px dashed #1C6770">[m]</span></span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #56666F">every step is also written to logs/run.jsonl</span>
+      </div>
+    </aside>
+
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1320}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

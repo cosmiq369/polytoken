@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PolyToken · Evidence</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Noto+Sans+Telugu:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#F3F5F6}
+a{color:#1C6770}a:hover{color:#13222B}
+button:focus-visible,a:focus-visible{outline:2px solid #1C6770;outline-offset:2px}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 100vh; background: #F3F5F6; color: #13222B; font-family: 'IBM Plex Sans', 'Noto Sans Telugu', system-ui, sans-serif; font-size: 15px; line-height: 1.55">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #D3DBDF">
+  <div style="box-sizing: border-box; max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+    <a href="Main.dc.html" aria-label="PolyToken home" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #13222B">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="5" width="22" height="4" rx="2" fill="#A86A12"></rect><rect x="3" y="12" width="14" height="4" rx="2" fill="#1C6770"></rect><rect x="3" y="19" width="8" height="4" rx="2" fill="#1C6770"></rect></svg>
+      <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.01em">PolyToken</span>
+    </a>
+    <nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13.5px; color: #56666F">
+      <a href="Report.dc.html">Report</a><span aria-hidden="true">/</span><span aria-current="page" style="color: #13222B; font-weight: 600">Evidence</span>
+    </nav>
+    <a href="Report.dc.html" style="margin-left: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; box-sizing: border-box; padding: 8px 14px; border-radius: 8px; border: 1px solid #B9C6CC; background: #FFFFFF; color: #13222B; text-decoration: none; font-size: 14px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="M11 6l-6 6 6 6"></path></svg>
+      Back to report
+    </a>
+  </div>
+</header>
+
+<main style="box-sizing: border-box; max-width: 1240px; margin: 0 auto; padding: 32px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+
+  <section aria-labelledby="claim-h" style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 14px; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+    <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #1C6770">Claim · Samudra Telecom · Llama 3.2</span>
+      <h1 id="claim-h" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; line-height: 1.15">The system prompt is 97.1% of billed tokens</h1>
+      <p style="margin: 0; color: #2F3F47">Recomputed by the checker from raw measurement rows before the report was shown.</p>
+    </div>
+    <div style="flex: 1 1 420px; min-width: 0; padding: 16px; border-radius: 10px; background: #F3F5F6; display: flex; flex-direction: column; gap: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 13.5px">
+      <span style="color: #56666F">system tokens × replies ÷ all billed tokens</span>
+      <span>11,935 × 99 ÷ 1,216,846 = <b style="font-weight: 500; color: #95600F">97.1%</b></span>
+      <span style="color: #56666F; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px">99 replies across 50 chats; each reply re-sends the system prompt and the conversation so far.</span>
+    </div>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+    <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+      <section aria-labelledby="t8-h" style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <h2 id="t8-h" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px">The same system prompt on eight tokenizers</h2>
+        <div style="overflow-x: auto">
+          <table style="width: 100%; min-width: 480px; border-collapse: collapse; font-size: 14px">
+            <thead>
+              <tr style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #56666F">
+                <th scope="col" style="padding: 8px 10px; border-bottom: 1px solid #D3DBDF; font-weight: 500">Tokenizer</th>
+                <th scope="col" style="padding: 8px 10px; border-bottom: 1px solid #D3DBDF; font-weight: 500; text-align: right">Telugu</th>
+                <th scope="col" style="padding: 8px 10px; border-bottom: 1px solid #D3DBDF; font-weight: 500; text-align: right">English</th>
+                <th scope="col" style="padding: 8px 10px; border-bottom: 1px solid #D3DBDF; font-weight: 500; text-align: right">Ratio</th>
+              </tr>
+            </thead>
+            <tbody style="font-family: 'IBM Plex Mono', monospace">
+              <tr style="background: #FBF4E6"><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600">Llama 3.2 (in use)</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">11,935</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1,217</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right; color: #95600F">9.81×</td></tr>
+              <tr><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; font-family: 'IBM Plex Sans', sans-serif">SmolLM3</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">11,935</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1,217</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">9.81×</td></tr>
+              <tr><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; font-family: 'IBM Plex Sans', sans-serif">Qwen3</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">10,220</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1,217</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">8.40×</td></tr>
+              <tr><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; font-family: 'IBM Plex Sans', sans-serif">Krutrim 2</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">3,201</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1,225</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">2.61×</td></tr>
+              <tr><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; font-family: 'IBM Plex Sans', sans-serif">Phi-4 mini</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">2,342</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1,210</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1.94×</td></tr>
+              <tr><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; font-family: 'IBM Plex Sans', sans-serif">gpt-oss</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">2,342</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1,210</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1.94×</td></tr>
+              <tr><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; font-family: 'IBM Plex Sans', sans-serif">Gemma 3</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">2,134</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1,214</td><td style="padding: 8px 10px; border-bottom: 1px solid #E4E9EC; text-align: right">1.76×</td></tr>
+              <tr><td style="padding: 8px 10px; font-family: 'IBM Plex Sans', sans-serif">Sarvam-1</td><td style="padding: 8px 10px; text-align: right">1,599</td><td style="padding: 8px 10px; text-align: right">1,360</td><td style="padding: 8px 10px; text-align: right">1.18×</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #56666F">English stays near 1,200 tokens on every tokenizer; Telugu ranges from 1,599 to 11,935. The model choice moves the bill more than the language does.</p>
+      </section>
+
+      <section aria-labelledby="sql-h" style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><h2 id="sql-h" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px">The query, through Zetaris</h2><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #56666F">sql/token_ratio_by_part.sql</span></div>
+        <pre style="margin: 0; padding: 14px; border-radius: 8px; background: #F3F5F6; border: 1px solid #E4E9EC; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.55; color: #13222B">SELECT i.company, n.tokenizer_spec, i.part,
+       COUNT(*)      AS paired_items,
+       SUM(n.tokens) AS native_tokens,
+       SUM(e.tokens) AS english_tokens,
+       CAST(SUM(n.tokens) AS DOUBLE) / SUM(e.tokens) AS native_to_english_ratio
+FROM inputs i
+JOIN company_systems.measurements__latest_token_counts n ON ...
+JOIN company_systems.measurements__latest_token_counts e ON ... AND e.lang_variant = 'en'
+GROUP BY i.company, n.tokenizer_spec, i.part</pre>
+        <p style="margin: 0; font-size: 13px; color: #56666F">One query joins the company's chats, the token measurements and the reference corpus. The checker then recomputes every group from the raw rows and refuses the report if any count differs.</p>
+      </section>
+    </div>
+
+    <aside aria-label="Provenance" style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <section style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px">Provenance</h2>
+        <dl style="margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 14px; font-size: 13.5px">
+          <dt style="color: #56666F">Source</dt><dd style="margin: 0">Zetaris SQL, read-only</dd>
+          <dt style="color: #56666F">Table</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; overflow-wrap: anywhere">measurements__latest_token_counts</dd>
+          <dt style="color: #56666F">Tokenizer</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; overflow-wrap: anywhere">unsloth/Llama-3.2-3B-Instruct</dd>
+          <dt style="color: #56666F">Rows</dt><dd style="margin: 0">1 system prompt, 124 user and 99 answer pairs</dd>
+          <dt style="color: #56666F">Fetched</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #1C6770">[fetched_at]</dd>
+          <dt style="color: #56666F">Run</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #1C6770">[run_id]</dd>
+          <dt style="color: #56666F">Log</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px">logs/federation.jsonl</dd>
+        </dl>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #D3DBDF; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px">Every model call is logged</h2>
+        <pre style="margin: 0; padding: 12px; border-radius: 8px; background: #13222B; color: #DCE6EA; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere">{"event": "completion",
+ "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+ "prompt_tokens": 20, "completion_tokens": 8,
+ "latency_s": 0.61, "attempt": 1, "ok": true}</pre>
+        <p style="margin: 0; font-size: 13px; color: #56666F">A real line from the first doctor check, trimmed. Prompts are stored as a hash and a length, never as text.</p>
+      </section>
+
+      <section style="background: #E3EFF0; border: 1px solid #B5D3D6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+        <h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px">Cross-check</h2>
+        <p style="margin: 0; font-size: 14px">On 18 public parallel sentences, Llama 3.2 needs 7.59× the tokens for Telugu and Gemma 3 1.58×. Samudra's prompt follows the same pattern.</p>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #3E5259">reference.sentences · indic-inference-tax experiment 01</span>
+      </section>
+    </aside>
+
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

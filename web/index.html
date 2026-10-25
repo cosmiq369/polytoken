@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>PolyToken · Follow the evidence</title>
+  <title>PolyToken · The Token Ledger</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
@@ -17,17 +17,18 @@
       <button type="button" data-screen="ask" aria-current="page">1 Ask</button>
       <button type="button" data-screen="investigation" disabled>2 Investigate</button>
       <button type="button" data-screen="report" disabled>3 Report</button>
+      <button type="button" data-screen="tokens" disabled>4 Token strip</button>
     </nav>
-    <span class="connection" id="connection" role="status">Loading company configuration…</span>
+    <div class="header-controls"><span class="connection" id="connection" role="status">Loading company configuration…</span><label class="currency-label" for="currency">Currency <select id="currency"><option value="USD">USD</option></select></label><button type="button" id="currency-source" class="rate-note" title="Open currency source receipt"></button></div>
   </div></header>
   <div class="notice" id="notice" role="alert" hidden></div>
   <main id="main" tabindex="-1">
     <section id="ask" class="screen" aria-labelledby="ask-title">
       <div class="ask-grid">
         <div>
-          <p class="eyebrow">An investigation, with receipts</p>
-          <h1 id="ask-title">Ask why your<br>Indian-language AI<br><span class="amber">costs more.</span></h1>
-          <p class="intro">Follow the tokens from conversation to bill. Test a change, check what it preserves, and trace every finding back to its source.</p>
+          <p class="eyebrow">The Token Ledger / new case</p>
+          <h1 id="ask-title">Understand the bill.<br><span class="amber">Keep the meaning.</span></h1>
+          <p class="intro">What do we pay? What is the language tax? Follow the cost through every resent prompt, test a fix, and open the receipt behind the result.</p>
           <form id="ask-form">
             <fieldset><legend>Which product?</legend><div id="companies" class="company-grid"><p class="muted">Loading from Zetaris…</p></div></fieldset>
             <label for="question">Your question</label>
@@ -40,13 +41,13 @@
           </form>
         </div>
         <aside class="ask-aside">
-          <section class="panel source-panel"><p class="eyebrow">Follow the evidence</p><h2>A bill has a history.</h2><div class="source-path"><div><span class="path-dot amber-dot"></span><h3>The conversation</h3><p>System instructions, user turns, answers and replayed history.</p></div><div><span class="path-dot"></span><h3>The measurement</h3><p>Paired native-to-English token counts, timing and quoted prices.</p></div><div><span class="path-dot"></span><h3>The checked finding</h3><p>A formula, its inputs and the original source. Open any reported number to inspect them.</p></div></div><p class="hint">Company data and references are queried through Zetaris.</p></section>
+          <section class="panel source-panel"><p class="eyebrow">Five questions for the bill owner</p><h2>Account for every reply.</h2><ol class="questions"><li>What do we pay per month, conversation and reply?</li><li>What do we pay above the same content in English?</li><li>How much comes from prompts and history sent again?</li><li>Which fix saves money and preserves meaning?</li><li>What changes with volume, price or the model?</li></ol><p class="hint">Company chats, measured tokens and quoted prices are sourced through Zetaris.</p></section>
           <section class="panel archive-panel"><h2>Open a saved investigation</h2><p>Choose a report JSON. Add its event and World Model JSONL files to inspect the recorded steps and raw evidence.</p><label class="file-label" for="saved-files">Report and supporting files</label><input id="saved-files" type="file" accept=".json,.jsonl" multiple><p class="hint">Files stay in this browser. Saved reports retain their recorded checker verdicts.</p></section>
         </aside>
       </div>
     </section>
     <section id="investigation" class="screen" aria-labelledby="investigation-title" hidden>
-      <div class="section-heading"><div><p class="eyebrow" id="run-context">Investigation</p><h1 id="investigation-title">Follow the investigation.</h1></div><button type="button" data-screen="report" id="view-report" disabled>Open report →</button></div>
+      <div class="section-heading"><div><p class="eyebrow" id="run-context">Investigation</p><h1 id="investigation-title">The investigation case file.</h1></div><button type="button" data-screen="report" id="view-report" disabled>Open report →</button></div>
       <p id="stream-status" class="muted" role="status"></p>
       <div id="budgets" class="budgets"></div>
       <p id="experiment-progress" class="progress-note" role="status">Background experiment: not measured — no progress event received.</p>
@@ -55,12 +56,18 @@
     <section id="report" class="screen" aria-labelledby="report-title" hidden>
       <div id="report-content"></div>
     </section>
+    <section id="tokens" class="screen" aria-labelledby="tokens-title" hidden>
+      <p class="eyebrow">Inspect the language tax / token boundaries</p><h1 id="tokens-title">Why does this sentence cost more?</h1>
+      <p class="intro">Compare the same text across local tokenizers. Hatched pieces are lone bytes or partial characters.</p>
+      <form id="token-form"><label for="token-text">Sentence from the company’s chats, or your own text</label><textarea id="token-text" rows="3" maxlength="2000" required></textarea><div class="actions"><button class="primary" type="submit">Inspect tokens</button><button type="button" id="token-native">Use company sentence</button><button type="button" id="token-english">Use English translation</button></div></form>
+      <p id="token-status" class="hint" role="status"></p><div id="token-rows"></div>
+    </section>
     <section id="evidence" class="screen" aria-labelledby="evidence-title" hidden>
       <button type="button" id="back-evidence" class="back">← Back to report</button>
-      <div class="section-heading"><div><p class="eyebrow">The receipt behind the result</p><h1 id="evidence-title">Evidence</h1></div></div>
+      <div class="section-heading"><div><p class="eyebrow">Receipt / source and recomputation</p><h1 id="evidence-title">The receipt</h1></div></div>
       <div id="evidence-content"></div>
     </section>
   </main>
-  <footer>PolyToken <span aria-hidden="true">/</span> Telugu · తెలుగు <span aria-hidden="true">/</span> Hindi · हिन्दी <span aria-hidden="true">/</span> Evidence before recommendations.</footer>
+  <footer><strong>PolyToken / The Token Ledger</strong><span>Every token accounted for.</span><span lang="te">ప్రతి టోకెన్‌కు లెక్క.</span><span lang="hi">हर टोकन का हिसाब।</span></footer>
 </body>
 </html>
