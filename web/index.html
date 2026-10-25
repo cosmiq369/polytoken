@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>PolyToken · Follow the evidence</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="#ask" aria-label="PolyToken home"><svg width="29" height="29" viewBox="0 0 29 29" aria-hidden="true"><rect x="2" y="5" width="25" height="4" rx="2" class="logo-amber"/><rect x="2" y="13" width="17" height="4" rx="2"/><rect x="2" y="21" width="9" height="4" rx="2"/></svg>PolyToken</a>
+    <nav aria-label="Investigation views">
+      <button type="button" data-screen="ask" aria-current="page">1 Ask</button>
+      <button type="button" data-screen="investigation" disabled>2 Investigate</button>
+      <button type="button" data-screen="report" disabled>3 Report</button>
+    </nav>
+    <span class="connection" id="connection" role="status">Loading company configuration…</span>
+  </div></header>
+  <div class="notice" id="notice" role="alert" hidden></div>
+  <main id="main" tabindex="-1">
+    <section id="ask" class="screen" aria-labelledby="ask-title">
+      <div class="ask-grid">
+        <div>
+          <p class="eyebrow">An investigation, with receipts</p>
+          <h1 id="ask-title">Ask why your<br>Indian-language AI<br><span class="amber">costs more.</span></h1>
+          <p class="intro">Follow the tokens from conversation to bill. Test a change, check what it preserves, and trace every finding back to its source.</p>
+          <form id="ask-form">
+            <fieldset><legend>Which product?</legend><div id="companies" class="company-grid"><p class="muted">Loading from Zetaris…</p></div></fieldset>
+            <label for="question">Your question</label>
+            <textarea id="question" name="question" rows="3" required>Why does our Indian-language AI cost more than English, and what can we change without losing meaning?</textarea>
+            <div class="two-columns fields">
+              <div><label for="monthly-chats">Chats per month <span class="optional">optional</span></label><input id="monthly-chats" name="monthly_chats" type="number" min="1" step="1" inputmode="numeric"><p class="hint">Leave blank to use the company configuration.</p></div>
+              <div><label for="latency-target">Reply-time target, seconds <span class="optional">optional</span></label><input id="latency-target" name="latency_target_s" type="number" min="0.001" step="any" inputmode="decimal"><p class="hint">Leave blank to use the configured target.</p></div>
+            </div>
+            <div class="actions"><button class="primary" type="submit" id="investigate" disabled>Investigate <span aria-hidden="true">→</span></button><button type="button" id="retry-companies" hidden>Retry company lookup</button><span class="hint">Findings are checked before they reach the report.</span></div>
+          </form>
+        </div>
+        <aside class="ask-aside">
+          <section class="panel source-panel"><p class="eyebrow">Follow the evidence</p><h2>A bill has a history.</h2><div class="source-path"><div><span class="path-dot amber-dot"></span><h3>The conversation</h3><p>System instructions, user turns, answers and replayed history.</p></div><div><span class="path-dot"></span><h3>The measurement</h3><p>Paired native-to-English token counts, timing and quoted prices.</p></div><div><span class="path-dot"></span><h3>The checked finding</h3><p>A formula, its inputs and the original source. Open any reported number to inspect them.</p></div></div><p class="hint">Company data and references are queried through Zetaris.</p></section>
+          <section class="panel archive-panel"><h2>Open a saved investigation</h2><p>Choose a report JSON. Add its event and World Model JSONL files to inspect the recorded steps and raw evidence.</p><label class="file-label" for="saved-files">Report and supporting files</label><input id="saved-files" type="file" accept=".json,.jsonl" multiple><p class="hint">Files stay in this browser. Saved reports retain their recorded checker verdicts.</p></section>
+        </aside>
+      </div>
+    </section>
+    <section id="investigation" class="screen" aria-labelledby="investigation-title" hidden>
+      <div class="section-heading"><div><p class="eyebrow" id="run-context">Investigation</p><h1 id="investigation-title">Follow the investigation.</h1></div><button type="button" data-screen="report" id="view-report" disabled>Open report →</button></div>
+      <p id="stream-status" class="muted" role="status"></p>
+      <div id="budgets" class="budgets"></div>
+      <p id="experiment-progress" class="progress-note" role="status">Background experiment: not measured — no progress event received.</p>
+      <div class="investigation-grid"><section class="panel"><h2>The reasoning trail</h2><ol id="timeline" class="timeline"></ol></section><aside class="panel"><h2>Evidence as it arrives</h2><p class="hint">Recorded observations; report claims are checked separately.</p><div id="evidence-cards" class="evidence-cards"></div></aside></div>
+    </section>
+    <section id="report" class="screen" aria-labelledby="report-title" hidden>
+      <div id="report-content"></div>
+    </section>
+    <section id="evidence" class="screen" aria-labelledby="evidence-title" hidden>
+      <button type="button" id="back-evidence" class="back">← Back to report</button>
+      <div class="section-heading"><div><p class="eyebrow">The receipt behind the result</p><h1 id="evidence-title">Evidence</h1></div></div>
+      <div id="evidence-content"></div>
+    </section>
+  </main>
+  <footer>PolyToken <span aria-hidden="true">/</span> Telugu · తెలుగు <span aria-hidden="true">/</span> Hindi · हिन्दी <span aria-hidden="true">/</span> Evidence before recommendations.</footer>
+</body>
+</html>

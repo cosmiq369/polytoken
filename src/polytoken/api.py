@@ -150,4 +150,12 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
             return [{k: v for k, v in client.query(f'SELECT * FROM company_systems.{company}__bot_config')[0].items()
                      if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s')}
                     for company in ('samudra', 'swara')]
+    mount_ui(app)
     return app
+
+
+def mount_ui(app):
+    """Mount the checkout's no-build interface after the API routes."""
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount('/', StaticFiles(directory=Path(__file__).resolve().parents[2] / 'web', html=True), name='ui')
