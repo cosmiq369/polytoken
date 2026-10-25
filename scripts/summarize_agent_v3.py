@@ -26,7 +26,9 @@ def main():
             world.db.execute('INSERT OR IGNORE INTO events(event_id,kind,item_key,payload,provenance,at) VALUES(?,?,?,?,?,?)',
                              (e['event_id'], e['kind'], e['item_key'], json.dumps(e['payload']), json.dumps(e['provenance']), e['at']))
         world.db.commit()
-        events = {e['event_id']: e['payload'] for e in world.events()}
+        archived = world.events()
+        events = {e['event_id']: e['payload'] for e in archived}
+        event_times = {e['event_id']: e['at'] for e in archived}
         checker = Checker(EvidenceStore(world), JsonlLogger(run_id='prompt04c-summary'))
         history = {}
         for path in sorted(SAMPLE.glob('agent_*v3*report.json')):
@@ -87,10 +89,11 @@ def main():
         lines += ['', '## Prior scores and run history', '',
                   'V2 remains Samudra **1/20** and Swara **0/20**, with the original failed-quality verdicts and diagnosis unchanged. These used the earlier protocol and are not a controlled trend comparison with v3. See [v2 report](agent_v2_completion_report.md) and [quality diagnosis](agent_v2_quality_diagnosis.md).', '',
                   '| Company / retained v3 attempt | Status | A/A | A/B | Reasoning / judge / hosted / SQL attempts |', '| --- | --- | --- | --- | --- |']
-        for path, r, values in history.values():
+        for path, r, values in sorted(history.values(), key=lambda row: event_times[row[1]['evidence_ids'][0]]):
             score = lambda prefix: f"{values.get(prefix + '/passed', 0)}/{values.get(prefix + '/judged', 0)}"
             counts = ' / '.join(str(values.get('jobs/' + k, values.get('budget/' + k, 0))) for k in ('nemotron', 'judge', 'hosted', 'sql'))
-            lines.append(f"| [{r['company']} / {r['id']}]({path.name}) | {r['status']} | {score('quality/aa')} | {score('quality')} | {counts} |")
+            status = r['status'] + ('; insufficient sample' if r['quality_status'] == 'insufficient sample' else '')
+            lines.append(f"| [{r['company']} / {r['id']}]({path.name}) | {status} | {score('quality/aa')} | {score('quality')} | {counts} |")
         lines += ['', '## Validation', '']
         validation = {}
         for line in (SAMPLE / 'agent_v3_validation.jsonl').read_text().splitlines():
@@ -137,7 +140,13 @@ def main():
                 for variant in ('original', 'changed'):
                     for claim in q.get(variant + '_claims', []):
                         review.append('| ' + ' | '.join(cell(x) for x in (variant, claim['claim'], claim['quote'], claim['material'], claim['status'], claim['grounding'])) + ' |')
-            (SAMPLE / 'native_review_samudra.md').write_text('\n'.join(review) + '\n')
+            review_path = SAMPLE / 'native_review_samudra.md'
+            if review_path.exists():
+                if f"Run `{report['id']}`" not in review_path.read_text():
+                    raise ValueError('Preserve the existing native review: it belongs to another run')
+            else:
+                review_path.write_text('\n'.join(review) + '\n')
+            # A rerun must never overwrite verdicts Mohan may already have entered.
             logger.write('agent_v3_validation', 'native_review_selected', seed=SEED, chat_ids=[p['chat_id'] for p in pairs], review_status='pending', evidence_ids=report['quality_evidence_ids'] + report['experiment']['evidence_ids'])
         logger.write('agent_v3_validation', 'summary_generated', ok=True, reports=[f'agent_{c}_v3_report.json' for c in results])
     print('Wrote checked completion report and native review sheet.')
