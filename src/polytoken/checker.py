@@ -76,7 +76,22 @@ class Checker:
                     elif op == 'experiment':
                         result = experiment_metrics(args['experiment'], args['snapshot'], args['prices']['rows'], args['fx'])
                     elif op == 'quality':
-                        result = quality_metrics(args['quality'])
+                        quality = args['quality']
+                        if quality.get('protocol_version') == 3:
+                            experiment = verify(quality['supports'][0])
+                            pairs = {p['chat_id']: p for p in experiment['pairs']}
+                            if {r['chat_id'] for r in quality['pairs']} != set(pairs):
+                                raise ValueError('Judge sample differs from generation sample')
+                            changed = 'control' if quality.get('comparison') == 'aa' else 'changed'
+                            for row in quality['pairs']:
+                                if row.get('same_facts') is None:
+                                    continue
+                                pair = pairs[row['chat_id']]
+                                for variant, source in (('original', 'original'), ('changed', changed)):
+                                    if (not pair[source]['ok'] or pair[source].get('finish_reason') != 'stop'
+                                            or row['reply_texts'][variant]['text'] != pair[source]['text']):
+                                        raise ValueError('Judge reply differs from completed generation')
+                        result = quality_metrics(quality)
                     elif op == 'speed':
                         result = speed_metrics(args['speed'])
                     elif op == 'markovian':

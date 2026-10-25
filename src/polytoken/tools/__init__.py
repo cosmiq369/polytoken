@@ -1,11 +1,9 @@
 """Investigation capabilities: all observations have World Model evidence IDs."""
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from ..agent.jobs import cache_key, cached_calls
 from datetime import datetime, timezone
 from decimal import Decimal
 import json
 import math
-import random
 import re
 import time
 from uuid import uuid4
@@ -276,7 +274,10 @@ class InvestigationTools:
                     row.pop('output_tokens_per_s', None)
                     row['throughput_note'] = 'Unavailable: provider completion usage does not separate reasoning tokens from visible reply tokens.'
             runs.append(row)
-            call_ids.append(self.observe('timed_call', row, {'operation': 'speed_probe', 'variant': variant, 'temperature': 0}, 'NVIDIA streamed usage'))
+            call_ids.append(self.observe('timed_call', row, {'operation': 'speed_probe', 'variant': variant, 'temperature': 0,
+                             'system_prompt': args['system'], 'conversation': args.get('conversation'),
+                             'max_tokens': 1024, 'generation_options': self.generation_options(model)},
+                             'NVIDIA streamed usage', row['started']))
         result = {'runs': runs, 'order': 'ABBAABBA', 'supports': call_ids}
         eid = self.observe('timed_call', result, 'Four streamed runs per variant, ABBA twice', 'NVIDIA streamed usage')
         return {**result, 'evidence_ids': [eid]}

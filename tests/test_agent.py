@@ -711,3 +711,22 @@ def test_localhost_cors_only():
             response = client.options('/investigations', headers={'Origin': origin, 'Access-Control-Request-Method': 'POST',
                                                                  'Access-Control-Request-Headers': 'content-type'})
             assert (response.headers.get('access-control-allow-origin') == origin) == accepted
+
+
+def test_quality_checker_binds_claim_quotes_to_generation(apparatus):
+    a = apparatus
+    agent = Investigation(a['tools'], a['memory'], background=True)
+    agent.run('samudra')
+    agent.finish_jobs('samudra', lambda _: None)
+    t = a['tools']
+    from polytoken.agent.calculations import quality_metrics
+    payload = copy.deepcopy(agent.quality)
+    payload.pop('evidence_ids')
+    row = payload['pairs'][0]
+    row['reply_texts']['changed']['text'] = 'unrelated invented reply'
+    row['changed_claims'][0]['quote'] = 'unrelated invented reply'
+    eid = t.observe('quality_verdict', payload, 'deliberately mismatched fixture')
+    claims = make_claims(quality_metrics(payload), 'quality', {'quality': eid})
+    accepted, dropped = Checker(t.store).check(claims)
+    assert not accepted
+    assert all('differs from completed generation' in r['reason'] for r in dropped)

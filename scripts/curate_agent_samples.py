@@ -36,7 +36,7 @@ def main():
                 pending.append(parent)
     rows = [{'world_event': event} for eid, event in events.items() if eid in wanted]
     (sample / (args.prefix + '_world_events.jsonl')).write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in rows))
-    streams = ('llm_calls', 'llm_errors', 'zetaris_queries', 'planner', 'native_review', 'agent_markovian', 'checker', 'hmem', 'agent', 'experiment_jobs')
+    streams = ('llm_calls', 'llm_errors', 'zetaris_queries', 'planner', 'native_review', 'agent_markovian', 'checker', 'hmem', 'agent', 'experiment_jobs', 'quality')
     for stream in streams:
         source = Path('logs') / (stream + '.jsonl')
         if not source.exists():
