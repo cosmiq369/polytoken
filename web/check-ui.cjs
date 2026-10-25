@@ -23,6 +23,7 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   await page.route('**/*',async route=>{
    const url=new URL(route.request().url());assert.equal(url.origin,'http://polytoken.test','No external origins allowed');
    const respond=(data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
+   if(url.pathname==='/model-fits')return respond([]);
    if(url.pathname==='/companies')return respond(companiesFail?{detail:'Test company lookup unavailable'}:companies,companiesFail?503:200);
    if(url.pathname==='/currencies')return respond(currencies);
    if(url.pathname==='/tokens'){
@@ -43,7 +44,7 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
    }
    if(url.pathname.endsWith('/report'))return respond(finishReport?samudra:{...samudra,status:'running',jobs:{...samudra.jobs,status:'running'}},finishReport?200:202);
    if(url.pathname.startsWith('/evidence/')){const e=world.get(decodeURIComponent(url.pathname.slice(10)));return respond(e || {detail:'Evidence not found'},e?200:404);}
-   const filename={'/':'index.html','/app.js':'app.js','/styles.css':'styles.css','/console.css':'console.css','/console.js':'console.js'}[url.pathname];
+   const filename={'/':'index.html','/model-fit.js':'model-fit.js','/app.js':'app.js','/styles.css':'styles.css','/console.css':'console.css','/console.js':'console.js'}[url.pathname];
    return filename?route.fulfill({path:path.join(__dirname,filename),contentType:filename.endsWith('.js')?'application/javascript':filename.endsWith('.css')?'text/css':'text/html'}):route.fulfill({status:404,body:'Not found'});
   });
   await page.goto('http://polytoken.test/');await page.locator('.company-card').first().waitFor();
@@ -82,14 +83,14 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
    await page.getByRole('button',{name:'Billed',exact:true}).click();await noOverflow();
    // Every negative checked fix belongs in the cost-increase group, never the saving group.
    const view=index[report.id]?readJSON(index[report.id]):null;
-   for(const f of view?.fixes || [])if(f.group==='would_cost_more'){
+   for(const f of view?.fixes || [])if(['answer_cap','model_switch','history_window','caching'].includes(f.lever) && f.group==='would_cost_more'){
     const selector=`[data-claim="${f.fields.saving_usd}"]`;
     assert.equal(await page.locator('.would-cost-more '+selector).count(),1);
     assert.equal(await page.locator('.fix:not(.would-cost-more .fix) '+selector).count(),0);
    }
   }
   await importReport(samudraPath,samudra.id);
-  assert.match(await page.locator('#report-title').innerText(),/Your Telugu system prompt/);
+  assert.match(await page.locator('#report-title').innerText(),/Your Telugu workload/);
   assert.ok(!(await page.locator('#report-title').innerText()).includes('system_prompt'));
   assert.equal(await page.locator('.model-table tbody tr').count(),8);
   assert.match(await page.locator('.model-table').innerText(),/no verified price/i);
@@ -121,9 +122,9 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   await page.locator('#reset-what-if').click();assert.equal(await page.locator('#what-if-result').innerText(),scenarioBefore);
   await tab('quality');assert.match(await page.locator('.quality-line').innerText(),/A\/A floor 7 \/ 20 judged/);
   await tab('quality');assert.match(await page.locator('.quality-line').innerText(),/A\/B change 3 \/ 20 judged/);
-  assert.match(await page.locator('.fix.tested .fix-heading').innerText(),/Inconclusive/i);
+  assert.match(await page.locator('.archived-quality h3').innerText(),/Inconclusive/i);
   assert.match(await page.locator('.interpretation').innerText(),/the bar cannot be met by this judge and stand-in model/);
-  assert.match(await page.locator('#report-title').innerText(),/of the money/);
+  assert.match(await page.locator('#report-title').innerText(),/of quoted content cost/);
   assert.match(await page.locator('.composition-grid').innerText(),/of billed tokens/);
   assert.match(await page.locator('.tax-cell').innerText(),/what the same content costs in English/);
   assert.ok(!(await page.locator('#report').innerText()).includes('820.65%'));

@@ -107,7 +107,7 @@ def test_checker_drops_tampered_fit_and_replay_rebuilds_labels(apparatus):
 
 def test_active_product_has_no_withdrawn_lever():
     root=Path(__file__).resolve().parents[1]
-    paths=list((root/'src/polytoken/agent').glob('*.py'))+list((root/'web').glob('*.js'))+[root/'src/polytoken/tools/__init__.py',root/'README.md',root/'docs/SUBMISSION.md']
+    paths=[p for p in (root/'src/polytoken').glob('*.py') if not p.name.startswith('archival_')]+list((root/'src/polytoken/agent').glob('*.py'))+list((root/'web').glob('*.js'))+[root/'src/polytoken/tools/__init__.py',root/'README.md',root/'docs/SUBMISSION.md']
     for p in paths:
         assert 'english_system' not in p.read_text(),p
         assert 'Keep system instructions in English' not in p.read_text(),p

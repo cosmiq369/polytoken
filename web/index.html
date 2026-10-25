@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/console.css">
   <script src="/app.js" defer></script>
   <script src="/console.js" defer></script>
+  <script src="/model-fit.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -26,21 +27,22 @@
   </aside>
   <div id="run-shell" hidden>
     <div class="run-bar"><div><strong id="run-company"></strong><code id="console-run-id"></code></div><span id="run-status" role="status" class="tag">Queued</span><span id="elapsed" aria-label="Elapsed run time">00:00</span><button id="stop-run">Stop</button><button id="rerun">Re-run</button></div>
-    <nav class="run-tabs" aria-label="Run views"><button data-console-tab="activity">Activity</button><button data-console-tab="trace">Trace</button><button data-console-tab="overview" data-screen="report">Overview</button><button data-console-tab="billing">Billing</button><button data-console-tab="quality">Quality</button><button data-console-tab="evidence">Evidence</button><button data-console-tab="tokens" data-screen="tokens">Token strip</button><button id="toggle-events" aria-expanded="false">Events</button></nav>
+    <nav class="run-tabs" aria-label="Run views"><button data-console-tab="fit">Model fit</button><button data-console-tab="activity">Activity</button><button data-console-tab="trace">Trace</button><button data-console-tab="overview" data-screen="report">Overview</button><button data-console-tab="billing">Billing</button><button data-console-tab="quality">Quality</button><button data-console-tab="evidence">Evidence</button><button data-console-tab="tokens" data-screen="tokens">Token strip</button><button id="toggle-events" aria-expanded="false">Events</button></nav>
     <div class="replay-controls" id="replay-controls" hidden><span class="tag">REPLAY</span><button id="replay-play">Pause</button><label>Speed <select id="replay-speed"><option value="1">1×</option><option value="4" selected>4×</option><option value="16">16×</option></select></label><input id="replay-position" aria-label="Replay position" type="range" step="any" min="0" max="1000" value="0"><output id="replay-time">00:00 / 00:00</output></div>
   </div>
   <main id="main" tabindex="-1">
     <section id="ask" class="screen" aria-labelledby="ask-title">
       <div class="empty-actions"><button class="primary" id="demo-run">Run a demo investigation</button><button id="replay-saved">Replay a saved run</button><span class="hint">Offline playback from recorded evidence</span></div>
+      <section class="fit-comparison" aria-labelledby="fit-comparison-title"><p class="eyebrow">Four fictional workloads · measured evidence</p><h1 id="fit-comparison-title">Model fit starts with your users.</h1><p class="intro">Native speech, romanized messages, long answers, short chats. Compare the same workload across model prices and tokenizers.</p><div id="company-fit-grid" class="fit-company-grid"><p>Loading checked comparisons…</p></div></section>
       <div class="ask-grid">
         <div>
           <p class="eyebrow">New investigation</p>
           <h1 id="ask-title">Investigate a workload</h1>
-          <p class="intro">What do we pay? What is the language tax? Follow the cost through every resent prompt, test a fix, and open the receipt behind the result.</p>
+          <p class="intro">Find the model that fits your language mix, conversation shape and budget. Open the evidence behind every comparison.</p>
           <form id="ask-form">
             <fieldset><legend>Which product?</legend><div id="companies" class="company-grid"><p class="muted">Loading from Zetaris…</p></div></fieldset>
             <label for="question">Your question</label>
-            <textarea id="question" name="question" rows="3" required>Why does our Indian-language AI cost more than English, and what can we change without losing meaning?</textarea>
+            <textarea id="question" name="question" rows="3" required>Our bot works in an Indian language. Which model fits our users and our budget, and why?</textarea>
             <div class="two-columns fields">
               <div><label for="monthly-chats">Chats per month <span class="optional">optional</span></label><input id="monthly-chats" name="monthly_chats" type="number" min="1" step="1" inputmode="numeric"><p class="hint">Leave blank to use the company configuration.</p></div>
               <div><label for="latency-target">Reply-time target, seconds <span class="optional">optional</span></label><input id="latency-target" name="latency_target_s" type="number" min="0.001" step="any" inputmode="decimal"><p class="hint">Leave blank to use the configured target.</p></div>
@@ -54,6 +56,7 @@
         </aside>
       </div>
     </section>
+    <section id="model-fit" class="screen" aria-labelledby="model-fit-title" hidden><div id="model-fit-content"></div></section>
     <section id="investigation" class="screen" aria-labelledby="investigation-title" hidden>
       <div class="activity-heading"><div><p class="eyebrow" id="run-context">Investigation</p><h1 id="investigation-title">Investigation in progress</h1></div><button type="button" data-screen="report" id="view-report" disabled>View findings ↗</button></div>
       <section id="current-work" class="current-work" aria-label="Current investigation state" aria-live="polite"></section>
@@ -83,7 +86,7 @@
       <div id="evidence-content"></div>
     </section>
     <section id="history" class="screen" hidden><p class="eyebrow">Investigation history</p><h1>Your investigations</h1><p>Replay a saved run through the same service map and trace. No live provider call is required.</p><div id="history-list"></div></section>
-    <section id="settings" class="screen" hidden><p class="eyebrow">Workspace preferences</p><h1>Settings</h1><section class="panel"><label for="theme">Appearance</label><select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select><h2>Keyboard shortcuts</h2><p><kbd>Alt R</kbd> Run or re-run · <kbd>Alt S</kbd> Stop · <kbd>Alt 1–7</kbd> Run tabs · <kbd>Alt 8</kbd> Event console</p><p id="mode-note"></p></section></section>
+    <section id="settings" class="screen" hidden><p class="eyebrow">Workspace preferences</p><h1>Settings</h1><section class="panel"><label for="theme">Appearance</label><select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select><h2>Keyboard shortcuts</h2><p><kbd>Alt R</kbd> Run or re-run · <kbd>Alt S</kbd> Stop · <kbd>Alt 1–8</kbd> Run tabs · <kbd>Alt 9</kbd> Event console</p><p id="mode-note"></p></section></section>
     <section id="evidence-index" class="screen" hidden><h1>Evidence ledger</h1><div id="evidence-ledger"></div></section>
   </main>
   <section id="event-console" hidden aria-label="Raw event console"><div class="toolbar"><h2>Event console</h2><span>Recorded telemetry · not business claims</span></div><div id="event-tail"></div></section>

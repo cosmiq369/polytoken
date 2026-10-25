@@ -298,8 +298,6 @@ def build_billing(report, events, *, logger=None):
                         after_input-=(original_system-int(experiment['changed_system_tokens']))*n['requests']
                     else:
                         after_input=None
-                elif fix['claim_id'].endswith('/english_system_monthly_saving_inr'):
-                    after_input-=baseline[f'baseline/{spec}/english_system_input_saved']
                 elif fix['claim_id'].endswith('/half_answers_monthly_saving_inr'):
                     after_input-=baseline[f'baseline/{spec}/assistant_tokens']/2
                     after_output/=2

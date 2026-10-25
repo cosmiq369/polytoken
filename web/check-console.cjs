@@ -22,6 +22,7 @@ const fakeEvents=[
   const url=new URL(route.request().url());assert.equal(url.origin,'http://polytoken.test','No external network requests');
   const json=(data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
   if(url.pathname==='/console/config')return json({demo:false});
+  if(url.pathname==='/model-fits')return json([]);
   if(url.pathname==='/companies')return json([{company:'samudra',language:'te',model_in_use:billing.tokenizer,monthly_chats:100000},{company:'swara',language:'hi'}]);
   if(url.pathname==='/currencies')return json(currencies);
   if(url.pathname==='/investigations' && route.request().method()==='GET')return json([{id:report.id,company:'samudra',status:'complete',saved:true,demo:true},{id:swara.id,company:'swara',status:'complete',saved:true}]);
@@ -33,7 +34,7 @@ const fakeEvents=[
   if(url.pathname.endsWith('/report'))return json(stopped?{id:'live-fake',status:'partial',claims:[],dropped_claims:[],partial_reason:'Stopped by user'}:{detail:'Investigation is running'},stopped?200:202);
   if(url.pathname==='/tokens')return json(tokens[url.searchParams.get('text')+'\n'+url.searchParams.get('tokenizer')] || {ok:false,reason:'Test fixture unavailable'});
   if(url.pathname.startsWith('/evidence/'))return json({detail:'Raw archive not loaded in this fixture'},404);
-  const filename={'/':'index.html','/app.js':'app.js','/styles.css':'styles.css','/console.js':'console.js','/console.css':'console.css'}[url.pathname];
+  const filename={'/':'index.html','/model-fit.js':'model-fit.js','/app.js':'app.js','/styles.css':'styles.css','/console.js':'console.js','/console.css':'console.css'}[url.pathname];
   return filename?route.fulfill({path:path.join(__dirname,filename),contentType:filename.endsWith('.js')?'application/javascript':filename.endsWith('.css')?'text/css':'text/html'}):route.fulfill({status:404,body:'Not found'});
  });}
  const page=await context.newPage();await routePage(page);
@@ -56,7 +57,7 @@ const fakeEvents=[
  assert.match(await page.locator('#current-work h2').textContent(),/quality needs review/);
  for(const currency of ['USD','INR']){await page.locator('#currency').selectOption(currency);assert.equal(await page.locator('.finding-unit').first().textContent(),currency);assert.match(await page.locator('.finding-card .metric').first().textContent(),currency==='INR'?/₹/:/\$/);}
  await seek(0);assert.equal(await page.locator('.finding-card').count(),0,'Scrub backwards clears future findings');await seek(1000);await page.waitForFunction(()=>document.querySelector('#report').dataset.billingStatus==='checked');
- await page.keyboard.press('Alt+3');assert.equal(await page.locator('#report').isVisible(),true);await page.keyboard.press('Alt+8');assert.equal(await page.locator('#event-console').isVisible(),true);await page.keyboard.press('Alt+8');
+ await page.keyboard.press('Alt+4');assert.equal(await page.locator('#report').isVisible(),true);await page.keyboard.press('Alt+9');assert.equal(await page.locator('#event-console').isVisible(),true);await page.keyboard.press('Alt+9');
  for(const name of ['overview','billing','quality','evidence','tokens','trace','activity']){await tab(name);await noOverflow();}
  await page.locator('.rail [data-screen=ask]').click();await page.locator('#investigate').click();await page.locator('[data-edge=measurements].active').waitFor();
  if(await page.locator('[data-trace-step=measure]').getAttribute('open')===null)await page.locator('[data-trace-step=measure]>summary').click();await page.locator('[data-span=test-tool]>summary').click();

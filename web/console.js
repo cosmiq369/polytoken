@@ -51,7 +51,7 @@
   $('#run-shell').hidden=!s.runId;
   if(!s.runId)return;
   if(c.lastRun!==s.runId){c.lastRun=s.runId;c.started=Date.now();}
-  $('#run-company').textContent=({samudra:'Samudra Telecom',swara:'Swara Care'})[s.report?.company || c.loaded?.report.company || s.company] || 'Investigation';
+  $('#run-company').textContent=({samudra:'Samudra Telecom',swara:'Swara Care',raitu:'Raitu Mitra',paisa:'Paisa Saathi'})[s.report?.company || c.loaded?.report.company || s.company] || 'Investigation';
   $('#console-run-id').textContent=s.runId;
   const st=status();$('#run-status').textContent=st;$('#run-status').dataset.status=st;
   $('#stop-run').disabled=!c.replay && (s.mode!=='live' || ['Complete','Partial','Failed'].includes(st));
@@ -87,9 +87,9 @@
   for(const row of rows){for(const id of [row.service,...(row.role==='planner'?['planner']:[])]){const n=nodes.get(id);if(!n)continue;n.count++;n.active+=!row.end && !row.legacy?1:0;n.error ||= row.finish?.status==='error';if(row.finish)n.duration=row.finish.duration_ms;}}
   const last=s.events.at(-1),observed=last?.event==='tool_called'?'tools':last?.event==='evidence_added'?'world':last?.event==='step_started'?'planner':null;
   const legacy=!rows.some(r=>!r.legacy);
-  $('#map-caption').textContent=legacy?'Archive: individual call timings unavailable':'Live spans · measured call latency';
+  $('#map-caption').textContent=legacy?'Timing unavailable · archive has no call spans':'Live spans · measured call latency';
   const groups=[['reason','Orchestrate',['planner','tools']],['data','Read sources',['company','measurements','reference','prices']],['model','Generate',['nvidia']],['memory','Remember',['world','hmem','markovian']],['verify','Verify',['checker']]];
-  $('#service-map').innerHTML='<div class="service-lanes">'+groups.map(([kind,label,ids],index)=>`<section class="service-lane" data-kind="${kind}"><h3><span class="lane-symbol" aria-hidden="true">${['◇','▤','✳','▧','✓'][index]}</span>${label}</h3>${ids.map(id=>{const [,brand,label]=services.find(row=>row[0]===id),n=nodes.get(id),state=n.active?'active':n.error?'error':n.count?'recorded':'idle';return `<div data-node="${id}" data-edge="${id}" class="service-node circuit-edge ${state} ${legacy && observed===id?'observed':''}"><strong>${esc(label)}</strong><small>${esc(brand)}</small><span class="service-state">${legacy && !n.count?'Timing unavailable':n.count+' calls · '+(state==='recorded'?'finished':state)}${n.duration!==null?' · '+Math.round(n.duration)+' ms':''}</span></div>`;}).join('')}</section>`).join('')+'</div>';
+  $('#service-map').innerHTML='<div class="service-lanes">'+groups.map(([kind,label,ids],index)=>`<section class="service-lane" data-kind="${kind}"><h3><span class="lane-symbol" aria-hidden="true">${['◇','▤','✳','▧','✓'][index]}</span>${label}</h3>${ids.map(id=>{const [,brand,label]=services.find(row=>row[0]===id),n=nodes.get(id),state=n.active?'active':n.error?'error':n.count?'recorded':'idle';return `<div data-node="${id}" data-edge="${id}" class="service-node circuit-edge ${state} ${legacy && observed===id?'observed':''}"><strong>${esc(label)}</strong><small>${esc(brand)}</small><span class="service-state">${legacy?'Timing unavailable':n.count+' calls · '+(state==='recorded'?'finished':state)}${n.duration!==null?' · '+Math.round(n.duration)+' ms':''}</span></div>`;}).join('')}</section>`).join('')+'</div>';
  }
  function trace(rows){
   const focused=document.activeElement,focusedSpan=focused?.closest('#trace-tree [data-span]'),focusKey=focusedSpan?.dataset.span,focusIndex=focusedSpan?[...focusedSpan.querySelectorAll('summary')].indexOf(focused):-1;
@@ -137,7 +137,7 @@
   const groups=['overview','composition','replay','quality','models','scenario','timing','evidence','compression','evidence','evidence'];
   children.forEach((el,i)=>{el.dataset.reportGroup=groups[i] || 'evidence';el.hidden=!(c.tab==='overview' && i===0 || c.tab==='billing' && el.dataset.reportGroup===c.billing || c.tab==='quality' && ['quality','timing'].includes(el.dataset.reportGroup));});
   const hero=$('#report-content .report-hero');
-  if(hero && s.report){let verdict=hero.querySelector('.overview-verdict');if(!verdict){verdict=document.createElement('div');verdict.className='overview-verdict panel';hero.append(verdict);}verdict.innerHTML=`<h2>Verdict</h2><p>${esc(s.report.quality_interpretation || s.report.quality_status || 'No quality verdict recorded.')}</p><p class="hint">${esc(s.report.top_fix || 'No verified fix recommended')} · ${esc(s.report.review_status || 'Native review pending')}</p>`;}
+  if(hero && s.report){let verdict=hero.querySelector('.overview-verdict');if(!verdict){verdict=document.createElement('div');verdict.className='overview-verdict panel';hero.append(verdict);}verdict.innerHTML=`<h2>Verdict</h2><p>${esc(s.report.quality_interpretation || s.report.quality_status || 'No quality verdict recorded.')}</p><p class="hint">${esc((['answer_cap','model_switch','history_window','caching'].includes(s.report.top_fix)?s.report.top_fix:null) || 'No verified fix recommended')} · ${esc(s.report.review_status || 'Native review pending')}</p>`;}
   let nav=$('#billing-tabs');if(!nav){nav=document.createElement('nav');nav.id='billing-tabs';nav.setAttribute('aria-label','Billing views');$('#report').prepend(nav);}
   nav.hidden=c.tab!=='billing';nav.innerHTML=[['composition','Composition'],['replay','History replay'],['models','Models'],['scenario','What-if'],['compression','Agent overhead']].map(([key,label])=>`<button data-bill-tab="${key}" aria-pressed="${c.billing===key}">${label}</button>`).join('');
   if(c.tab==='evidence')evidenceIndex();
@@ -148,7 +148,7 @@
  }
  function select(tab){
   c.tab=tab;
-  const screen=tab==='tokens'?'tokens':tab==='evidence'?'evidence-index':['overview','billing','quality'].includes(tab)?'report':'investigation';
+  const screen=tab==='fit'?'model-fit':tab==='tokens'?'tokens':tab==='evidence'?'evidence-index':['overview','billing','quality'].includes(tab)?'report':'investigation';
   if(screen==='report' && !s.report){a.notice('The checked result will be available when the run publishes its report.');return;}
   a.notice();a.show(screen);$('#main').scrollTop=0;$('#investigation').dataset.view=tab;
   document.querySelectorAll('[data-console-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.consoleTab===tab?'page':'false'));
@@ -159,7 +159,7 @@
   renderHistory();
  }
  function renderHistory(){
-  const html=c.history.slice().reverse().sort((a,b)=>Number(b.demo || false)-Number(a.demo || false)).map(r=>`<button class="history-run" data-status="${esc(r.status)}" data-run="${esc(r.id)}"><strong>${esc(({samudra:'Samudra Telecom',swara:'Swara Care'})[r.company] || r.company || 'Investigation')}</strong><span class="tag">${esc(r.status)}</span><code>${esc(r.id)}</code><small>${r.saved?'Replay saved run':'Open live run'}</small></button>`).join('');
+  const html=c.history.slice().reverse().sort((a,b)=>Number(b.demo || false)-Number(a.demo || false)).map(r=>`<button class="history-run" data-status="${esc(r.status)}" data-run="${esc(r.id)}"><strong>${esc(({samudra:'Samudra Telecom',swara:'Swara Care',raitu:'Raitu Mitra',paisa:'Paisa Saathi'})[r.company] || r.company || 'Investigation')}</strong><span class="tag">${esc(r.status)}</span><code>${esc(r.id)}</code><small>${r.saved?'Replay saved run':'Open live run'}</small></button>`).join('');
   $('#run-history').innerHTML=html || '<p class="hint">No saved runs yet.</p>';$('#history-list').innerHTML=html || '<p>No saved runs found. Import a report and its event log from Companies.</p>';
  }
  async function openRun(id){
@@ -209,8 +209,10 @@
  window.addEventListener('polytoken:reset',()=>{c.open.clear();c.activeStage=null;if(s.mode==='live'){c.replay=null;c.loaded=null;}});
  window.addEventListener('polytoken:update',update);window.addEventListener('polytoken:report',reportTabs);window.addEventListener('polytoken:import',imported);
  window.addEventListener('polytoken:screen',event=>{$('#main').scrollTop=0;if(event.detail==='report' && !['overview','billing','quality'].includes(c.tab))c.tab='overview';if(event.detail==='history')history();reportTabs();});
- document.addEventListener('keydown',event=>{if(!event.altKey || event.ctrlKey || event.metaKey)return;const key=event.key.toLowerCase();if(key==='r'){event.preventDefault();if(s.runId)$('#rerun').click();else $('#ask-form').requestSubmit();}if(key==='s'){event.preventDefault();$('#stop-run').click();}if(/^[1-8]$/.test(key)){event.preventDefault();if(key==='8')$('#toggle-events').click();else select(['activity','trace','overview','billing','quality','evidence','tokens'][Number(key)-1]);}});
+ document.addEventListener('keydown',event=>{if(!event.altKey || event.ctrlKey || event.metaKey)return;const key=event.key.toLowerCase();if(key==='r'){event.preventDefault();if(s.runId)$('#rerun').click();else $('#ask-form').requestSubmit();}if(key==='s'){event.preventDefault();$('#stop-run').click();}if(/^[1-9]$/.test(key)){event.preventDefault();if(key==='9')$('#toggle-events').click();else select(['fit','activity','trace','overview','billing','quality','evidence','tokens'][Number(key)-1]);}});
  setInterval(()=>{const r=c.replay;if(r?.playing){const now=performance.now(),delta=now-r.last;r.last=now;applyReplay(r.position+delta*Number($('#replay-speed').value));}else if(r)r.last=performance.now();clock();},100);
  a.fetchJSON('/console/config').then(({data})=>{c.demo=s.demo=data.demo;$('#mode-note').textContent=c.demo?'Offline demo. Saved runs are ready; live provider calls are disabled.':'Live mode. Start a configured investigation or replay a saved run.';if(c.demo){$('#connection').textContent='Offline demo · recorded Zetaris evidence';$('#investigate').textContent='Live calls disabled in demo';$('#investigate').disabled=true;}}).catch(()=>{});
+ window.polyConsole.openRun=openRun;
+ window.polyConsole.loadCompleted=data=>{c.loaded=data;replay(data);applyReplay(c.replay.duration);select('fit');};
  history();
 })();
