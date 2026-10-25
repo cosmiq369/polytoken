@@ -1,37 +1,54 @@
-# PolyToken — model-fit pitch text
+# PolyToken — final model-fit deck
 
-## 1. Which model fits your users?
-Indian-language bots and voice agents need a model decision grounded in how people actually communicate.
+[Deck PDF](deck/PolyToken_deck.pdf) · [Editable PowerPoint](deck/PolyToken_deck.pptx) · [Recomputed values and claim IDs](deck/evidence.json)
 
-## 2. The same language has different shapes
-Native-script speech transcripts, romanized messages and code-mixed product vocabulary tokenize differently. Conversation history and answer length also affect cost. Use the dated Experiment 01 table in the README as the reference example, not as a company measurement.
+## 1. PolyToken
 
-## 3. Four companies, four workload profiles
-Samudra Telecom: Tenglish and romanized app support. Swara Care: Hindi voice with long spoken answers. Raitu Mitra: Telugu voice with rural vocabulary. Paisa Saathi: short Hinglish fintech chat. All data is fictional and review is pending.
+The model-fit advisor for Indian-language AI. Which model fits your users — and why?
 
-## 4. Show the Companies screen
-Llama 3.1 8B is the cheapest quoted candidate for Samudra and Paisa. Gemma 3 4B is the cheapest candidate for Swara and Raitu. Compare monthly cost at the company’s configured volume, with the cheapest-per-token model alongside it.
+Open Agent Hackathon 2026 · Track 02: The Agent That Can Explain Why · Mohan Chelluru.
 
-| Company / monthly volume | Best content-cost fit / month | Cheapest per token / month | × best fit |
+## 2. A price sheet cannot see how your users write
+
+Experiment 01: Llama 3.2 uses 7.59× English tokens for Telugu script, versus 1.09× for Tenglish. Gemma 3 uses 1.58× and 1.06× respectively. These are paired reference-corpus ratios, not company measurements or quality results. [Raw counts](../logs/sample/experiment01/fertility.csv) · [Published table](../logs/sample/experiment01/fertility.md) · [Provenance](../logs/sample/experiment01_provenance.jsonl).
+
+## 3. One decision, four workloads
+
+Samudra Telecom: Tenglish and romanized app support. Swara Care: Hindi voice with long spoken answers. Raitu Mitra: Telugu voice with rural vocabulary. Paisa Saathi: short Hinglish fintech chat. All companies and conversations are fictional; native review is pending.
+
+“Which model fits our users and our budget — and why?”
+
+## 4. The agent explains the path
+
+Understand the workload; measure paired token counts; compare dated quotes; check the arithmetic; explain the ranked cost fit and missing evidence. Nemotron plans bounded steps. Zetaris provides SQL data access. Meterless state preserves evidence, company profiles and compressed reasoning. [Implementation](../src/polytoken/agent/) · [Meterless attribution](METERLESS.md).
+
+## 5. One reasoning loop, evidence at every boundary
+
+Console → Nemotron loop → deterministic checker → checked report. Zetaris supplies configuration, chats, token measurements, reference sentences and prices. Independently implemented World Model, H-MEM and Markovian engines preserve sourced state. Audit and provenance records go to `logs/` as JSONL. [Diagram](deck/slides/slide-05.png) · [Federation query](../sql/token_ratio_by_part.sql).
+
+## 6. Raitu Mitra: the lowest unit price costs 2.61×
+
+Gemma 3 4B: ₹139/month, 1.35× English tokens. Cheapest-per-token Llama 3.1 8B: ₹363/month, 5.03× English tokens. Same configured volume: 80,000 conversations/month. Voice latency is unverified; quality must be verified on a real sample. [Checked Raitu report](../logs/sample/agent_raitu_model_fit_report.json).
+
+## 7. Four companies, four answers
+
+| Company / monthly conversations | Best content-cost fit / month | Cheapest per token / month | × best fit |
 | --- | --- | --- | ---: |
-| [Samudra Telecom](../logs/sample/agent_samudra_model_fit_report.json) / 200,000 | Llama-3.1-8B-Instruct: ₹176 ($1.86) | Llama-3.1-8B-Instruct: ₹176 ($1.86) | 1.00× |
-| [Swara Care](../logs/sample/agent_swara_model_fit_report.json) / 120,000 | gemma-3-4b-it: ₹275 ($2.89) | Llama-3.1-8B-Instruct: ₹359 ($3.78) | 1.31× |
-| [Raitu Mitra](../logs/sample/agent_raitu_model_fit_report.json) / 80,000 | gemma-3-4b-it: ₹139 ($1.47) | Llama-3.1-8B-Instruct: ₹363 ($3.83) | 2.61× |
-| [Paisa Saathi](../logs/sample/agent_paisa_model_fit_report.json) / 300,000 | Llama-3.1-8B-Instruct: ₹154 ($1.62) | Llama-3.1-8B-Instruct: ₹154 ($1.62) | 1.00× |
+| [Samudra Telecom](../logs/sample/agent_samudra_model_fit_report.json) / 200,000 | Llama 3.1 8B: ₹176 | Llama 3.1 8B: ₹176 | 1.00× |
+| [Swara Care](../logs/sample/agent_swara_model_fit_report.json) / 120,000 | Gemma 3 4B: ₹275 | Llama 3.1 8B: ₹359 | 1.31× |
+| [Raitu Mitra](../logs/sample/agent_raitu_model_fit_report.json) / 80,000 | Gemma 3 4B: ₹139 | Llama 3.1 8B: ₹363 | 2.61× |
+| [Paisa Saathi](../logs/sample/agent_paisa_model_fit_report.json) / 300,000 | Llama 3.1 8B: ₹154 | Llama 3.1 8B: ₹154 | 1.00× |
 
-Monthly costs multiply the reports’ checked cost claims by `profile/monthly_conversations` / 1,000. INR uses the [dated FX receipt](../data/reference/fx.json). Voice latency remains unverified.
+Monthly INR = checked USD per 1,000 × checked monthly volume / 1,000 × [dated FX rate](../data/reference/fx.json). Multiples use unrounded checked costs. Content-only estimates exclude templates, retries, taxes and unpublished cache discounts; these are not invoices. Both voice companies abstain from a latency-qualified deployment recommendation.
 
-## 5. Explain the decision
-The Model fit tab links script mix, conversation shape, model-specific measured tokens and dated provider quotes. It ranks models, names a runner-up and shows “× the best fit” and flags the highest tokenizer penalty among models in the cheaper half of equal input/output unit quotes. Raitu’s lowest-unit-price Llama 3.1 8B costs 2.61× Gemma: 5.03× English tokens versus 1.35×. Llama 3.2 3B costs 16.42× Gemma. [Checked Raitu claims](../logs/sample/agent_raitu_model_fit_report.json).
+## 8. A claim earns its place
 
-## 6. Evidence before recommendation
-The checker authenticates and recomputes each number. Missing prices produce tokenizer-fit-only entries. Missing exact-model/provider/workload timing cannot satisfy a voice constraint. Quality stays “verify on your sample.”
+29 pinned Meterless conformance checks; 241 tests passed, eight live tests skipped; 12/12 pre-registered model-fit addendum checks passed. These are distinct validation measures, not model accuracy scores. Receipts expose formula, inputs, query, source and fetch time. Unsupported claims are dropped. [Conformance](METERLESS.md) · [Validation](../logs/sample/video_deck_validation.jsonl) · [Addendum score](../logs/sample/model_fit_score.jsonl).
 
-## 7. Sponsor architecture
-Zetaris: federated SQL data layer. NVIDIA: Nemotron planning and judging through one configured generator. Meterless: independent World Model, H-MEM and Markovian reference implementations. Cursor was not used.
+## 9. Sponsors and their jobs
 
-## 8. Honest limits and next evidence
-Synthetic templates, unreviewed translations, content-only cost estimates and shared tokenizer families. Only GPT-OSS passed the serving probe. Keep the A/A-controlled quality protocol, but do not transfer its stand-in results to another model.
+Zetaris: the federated SQL data layer. Meterless: reference architectures, independently implemented here. NVIDIA: Nemotron planning and judging through one configured generator. Cursor was not used. Codex and Claude assisted development. [Sponsor usage](SUBMISSION.md) · [Declarations](DECLARATIONS.md).
 
-## 9. Watch the agent, inspect the receipt
-Replay fresh timing events, open a source query, and compare the four model-fit decisions. The offline scorer checks the dated addendum; the agent never sees its planted expectations.
+## 10. Next evidence to earn
+
+Review native-language data, replace fictional templates with consented samples, measure exact-model/provider/workload serving latency, and run controlled quality comparisons before switching models. These are proposed next steps, not completed results. Only GPT-OSS passed the recorded serving probe; its stand-in evidence does not transfer to other models. PolyToken: every token accounted for.

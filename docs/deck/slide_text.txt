@@ -1,0 +1,214 @@
+Slide 1
+OPEN AGENT HACKATHON 2026 · TRACK 02
+
+
+
+PolyToken
+The model-fit advisor
+for Indian-language AI
+Which model fits your users — and why?
+Mohan Chelluru
+Track 02 · The Agent That Can Explain Why  |  Fictional demonstration workloads
+01
+
+Slide 2
+THE PROBLEM
+A price sheet cannot see how your users write.
+Source: logs/sample/experiment01/fertility.csv + fertility.md · 18 paired reference sentences; not company data.
+02
+
+7.59× → 1.09×
+Same language.
+Different script.
+Different token bill.
+Ratios to English, not a quality score.
+
+Slide 3
+WHO IT IS FOR
+One decision. Four very different workloads.
+Sources: logs/sample/agent_{samudra,swara,raitu,paisa}_model_fit_report.json · All four companies are fictional.
+03
+
+APP SUPPORT
+Samudra Telecom
+Tenglish + romanized Telugu
+
+Longer chat history
+
+VOICE CARE
+Swara Care
+Hindi in Devanagari
+
+Long spoken answers
+
+VOICE ADVISORY
+Raitu Mitra
+Telugu script from ASR
+
+Farmers and rural vocabulary
+
+FINTECH CHAT
+Paisa Saathi
+Short Hinglish messages
+
+English product terms
+“Which model fits our users and our budget — and why?”
+
+Slide 4
+THE INVESTIGATION
+The agent explains the path to its answer.
+Sources: src/polytoken/agent/ · src/polytoken/model_fit.py · docs/METERLESS.md · logs/sample/model_fit_v1_audit_*.jsonl
+04
+
+01
+Understand
+Script mix, channel,
+history and answers
+
+
+02
+Measure
+Paired token counts
+through Zetaris SQL
+
+
+03
+Compare
+Measured counts ×
+dated provider quotes
+
+
+04
+Check
+Recompute claims;
+drop unsupported ones
+
+
+05
+Explain
+Ranked cost fit,
+receipts and limits
+Nemotron plans each bounded step. Meterless state preserves its evidence.
+
+Slide 5
+ARCHITECTURE
+One reasoning loop. Evidence at every boundary.
+Sources: src/polytoken/{llm,zetaris,checker,model_fit}.py · src/polytoken/meterless/ · sql/token_ratio_by_part.sql
+05
+
+Companies + console
+Question, profile, ranking and receipts
+
+Nemotron agent loop
+One injected generator · bounded calls
+
+Deterministic checker
+Authenticate → recompute → report
+
+
+
+Zetaris · federated SQL
+Company config + chats + measured tokens
+Reference sentences + verified prices
+
+Meterless reference engines
+World Model: sourced observations
+H-MEM: profiles · Markovian: chunks
+
+logs/ · JSONL evidence
+Queries, fetch times, formulas,
+service timings and token accounting
+
+
+
+
+
+Slide 6
+RAITU MITRA · TELUGU VOICE
+The lowest unit price costs 2.61× the best fit.
+Source: logs/sample/agent_raitu_model_fit_report.json · cost + token_ratio + monthly_conversations claims; data/reference/fx.json
+06
+
+BEST CONTENT-COST FIT
+Gemma 3 4B
+₹139
+1.35× English tokens
+
+CHEAPEST PER TOKEN
+Llama 3.1 8B
+₹363
+5.03× English tokens
+Per month at 80,000 conversations · content estimates, not invoices
+Voice latency unverified. Quality: verify on your sample.
+
+Slide 7
+FOUR COMPANIES · FOUR ANSWERS
+The best fit follows the workload.
+Sources: logs/sample/agent_{samudra,swara,raitu,paisa}_model_fit_report.json; data/reference/fx.json (23 Oct 2026).
+07
+Chat mixtures favor Llama. Native-script voice workloads favor Gemma on cost.
+Voice deployment decisions await matching latency evidence. All quality remains to verify.
+
+Slide 8
+TRUST · BEFORE THE RECOMMENDATION
+A claim earns its place in the report.
+Sources: docs/METERLESS.md · logs/sample/fit_polish_validation.jsonl · logs/sample/model_fit_score.jsonl · video_deck_validation.jsonl
+08
+
+29
+Meterless conformance checks
+
+241
+Tests passed · 8 live tests skipped
+
+12 / 12
+Pre-registered addendum checks
+Receipt = formula + inputs + query + source + fetch time
+Unsupported claims are dropped. Missing timing is not a passed voice constraint.
+
+Slide 9
+SPONSOR TECHNOLOGY
+Data. Memory. Reasoning. Each with a clear job.
+Sources: docs/SUBMISSION.md · docs/METERLESS.md · docs/DECLARATIONS.md · source and audit paths in repository.
+09
+
+THE DATA LAYER
+Zetaris
+Federated SQL over conversations,
+configuration, measurements,
+reference text and prices.
+
+THE STATE ARCHITECTURES
+Meterless
+Our independent implementations:
+World Model, H-MEM
+and Markovian.
+
+THE AGENT’S BRAIN
+NVIDIA
+Nemotron planning and judging
+through one configured generator,
+with shared rate limits and budgets.
+Cursor was not used.  ·  Codex and Claude assisted development.
+
+Slide 10
+NEXT EVIDENCE TO EARN
+From a cost candidate to a deployment decision.
+Sources: checked model-fit reports, “limitations” and “serving_note”; docs/CONTRACT.md · Proposed next work, not completed results.
+10
+
+1
+Native review
+Review translations and replace
+fictional templates with consented samples.
+
+2
+Serving evidence
+Measure the exact model, provider
+and voice workload against its target.
+
+3
+Controlled quality
+Run paired controls and assess
+meaning before switching models.
+PolyToken. Every token accounted for.
