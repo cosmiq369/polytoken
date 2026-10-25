@@ -153,3 +153,45 @@ not a change to materiality, semantic equivalence, the 18/20 bar, native review,
 call/deadline limits, generation settings or fixed-seed chat selection. Existing
 completed v3 generation may be reused; prior outcomes are not overwritten. Source
 identity checks cannot verify the semantic correctness of a model's classification.
+
+### 25 Oct 2026 — model-fit question and four workloads (PROMPT-08)
+
+Registered before generating or measuring the new dataset. PolyToken now asks:
+“Our bot or voice agent works in an Indian language. Which model fits our users
+and our budget, and why?” All four fictional companies use English instructions.
+The earlier prompt-language lever and Samudra planted property are withdrawn:
+real teams use English system prompts, and Mohan's native review found eight
+same-meaning and two different-meaning pairs, including declining instead of
+gathering details. The original contract, review verdicts and all old evidence
+remain historical records. No Hindi review request is carried into this demo.
+
+Each company has forty fixed-seed conversations, paired English text, and pending
+review. The following predictions are registered before measurements; mismatches
+must be reported rather than adjusting the data or expectations.
+
+| Company | Planted workload property | Expected model-fit recommendation |
+| --- | --- | --- |
+| Samudra Telecom | Telugu app chat; mostly Tenglish and romanized Telugu, some script; short support replies | Low-price Llama 3.1 8B should compete with Gemma; predict Llama 3.1 8B as cheapest on this mostly Latin mix. Verify quality on the sample. |
+| Swara Care | Hindi voice; Devanagari transcripts; long spoken answers; reply-time target | Predict Gemma 3 4B as the lowest content-cost candidate; investigate answer length. No voice-qualified recommendation without matching latency evidence. |
+| Raitu Mitra | Telugu voice; native script and rural vocabulary; medium replies; reply-time target | Predict Gemma 3 4B over Llama on tokenizer coverage and cost. No voice-qualified recommendation without matching latency evidence. |
+| Paisa Saathi | Hinglish fintech chat; numbers and English product terms; short replies | Predict Llama 3.1 8B as cheapest; verify financial-language quality on the sample. |
+
+Rank each verified model/provider quote using that model's tokenizer measurements,
+replaying the same completed conversation history. Report USD per thousand
+conversations and native/English ratios on the actual mixture, excluding chat
+formatting overhead and unpublished caching discounts. Unpriced families remain
+tokenizer-fit-only. Shared tokenizer families do not establish shared quality or
+latency. Script classification is a disclosed heuristic, with an unknown bucket.
+A voice target is full reply latency in seconds; a model passes only with a complete,
+uncached, exact model/provider/workload timing sample whose observed maximum is
+within target. Missing timing never passes. Display the cheapest cost candidate
+separately from any constraint-qualified recommendation, with a runner-up and a
+higher-cost alternative to avoid on cost alone. Quality stays “verify on your
+sample” absent a qualifying experiment and native review.
+
+The A/A-controlled quality protocol and all resource limits remain unchanged.
+Only GPT-OSS passed the recorded serving probe. Its stand-in tests cannot validate
+a different ranked model or provider. Model/tokenizer choice, answer length,
+history length and caching are the remaining levers; hypothetical savings must
+be labelled and never presented as measured results. Scoring is offline and the
+agent must not import the scorer or read this contract.
