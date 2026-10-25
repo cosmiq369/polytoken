@@ -15,17 +15,24 @@ approval of `https://github.com/cosmiq369/polytoken`; all commits are local.
   original-time replay and scrubbing. Existing billing, currency, quality, token
   and receipt renderers are preserved behind focused run tabs. Browser coverage
   and the reproducible capture script are included.
-- The final proof commit contains this report, 64 screenshots, the recording and
+- The initial proof commit contains this report, 64 screenshots, the recording and
   `logs/sample/console_validation.jsonl`.
 
-The design rationale is [CONSOLE.md](design/CONSOLE.md): slate/blue surfaces,
-cyan activity and evidence, explicit error states, 14px system sans and monospace
-figures. The service circuit is the primary view; billing uses focused subviews
-instead of a long report. No CDN, build step or new dependency was introduced.
+The October 25 UX revision replaces that first visual design with an investigation
+workspace: neutral surfaces, semantic blue/amber/green/violet/red states, a current
+work briefing, highlighted stage path, checked findings and grouped service lanes.
+The workspace rail, run bar and tabs stay fixed while content and recent history
+scroll independently. Mobile automatically reveals the active stage. The design
+rationale is [CONSOLE.md](design/CONSOLE.md).
+
+The revision also fixes a stale experiment status during quality checks, preserves
+archive completion status during replay, keeps trace keyboard focus through event
+updates, labels converted currency correctly, and distinguishes completed runs
+from quality results needing review. No CDN, build step or dependency was added.
 
 ## Validation
 
-- `.venv/bin/python -m pytest -q` — **219 passed, 8 skipped in 143.01s**.
+- `.venv/bin/python -m pytest -q` — **219 passed, 8 skipped in 148.84s**.
   All skipped tests are explicitly opt-in live NVIDIA/Zetaris/data checks.
 - `.venv/bin/python -m pytest tests/test_console.py tests/test_agent.py -q` —
   **71 passed in 11.84s**.
@@ -36,6 +43,9 @@ instead of a long report. No CDN, build step or new dependency was introduced.
 - `node web/check-console.cjs` with the same environment — passed replay clocks,
   ordered observed edges, backward scrubbing, verified findings, nested SQL spans,
   fake-live Stop, shortcuts, all views, 1280/390px, dark/light contrast and overflow.
+  New checks cover Swara’s current quality stage, fixed navigation at 320–1280px,
+  visible mobile stages, trace keyboard focus, currency captions, review-required
+  outcomes, reduced motion and 640×475 zoom-equivalent reflow.
   This command also runs inside full pytest.
 - `node --check web/app.js`, `node --check web/console.js`, `git diff --check` — passed.
 - Configured-secret and provider-prefix scan of tracked/unignored working files —
@@ -55,18 +65,23 @@ API; no response mocks or live provider calls were used. Capture command:
 NODE_PATH=/Users/mohan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules node web/record-console.cjs
 ```
 
-All 64 screenshots are `docs/images/console_<view>_<desktop|mobile>_<dark|light>.png`.
+The 64 base screenshots are `docs/images/console_<view>_<desktop|mobile>_<dark|light>.png`.
 Views: settings, companies, history, activity, trace, overview, billing,
 quality, evidence, tokens, billing_replay, billing_models, billing_scenario,
-billing_compression, receipt and events.
+billing_compression, receipt and events. Eight additional screenshots cover
+Swara in quality review and scrolled navigation, for **72 reproducible captures total**. An additional
+[open-app preview](images/console_in_app_preview.png) records the refreshed user
+browser paused at Swara’s quality-review stage.
 
 Representative captures:
 
+- [Swara quality review, dark](images/console_swara_quality_desktop_dark.png)
 - [Activity, dark](images/console_activity_desktop_dark.png)
 - [Overview, light](images/console_overview_desktop_light.png)
 - [Quality, dark](images/console_quality_desktop_dark.png)
 - [Receipt, light](images/console_receipt_desktop_light.png)
-- [Mobile activity](images/console_activity_mobile_dark.png)
+- [Mobile current stage](images/console_swara_quality_mobile_light.png)
+- [Navigation after scrolling](images/console_navigation_scrolled_mobile_light.png)
 
 ## Explicit limits
 

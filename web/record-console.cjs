@@ -25,6 +25,24 @@ const root=path.resolve(__dirname,'..'),images=path.join(root,'docs/images');
    await tab('activity');await page.locator('#toggle-events').click();await page.screenshot({path:path.join(images,`console_events_${size}_${theme}.png`),fullPage:true});await page.locator('#toggle-events').click();
   }
  }
+ // Preserve the user's exact long-running quality-review case and navigation-on-scroll proof.
+ const swara='25aa2681-6207-4782-b1ab-8b557008bf78';
+ await page.setViewportSize({width:1280,height:950});
+ await page.locator(`#run-history [data-run="${swara}"]`).click();
+ await page.waitForFunction(id=>document.querySelector('#console-run-id').textContent===id,swara);
+ await page.locator('#replay-position').fill('386');
+ assert.equal(await page.locator('.stage-item[aria-current=step]').getAttribute('data-stage'),'judge');
+ for(const [width,height,size] of [[1280,950,'desktop'],[390,844,'mobile']]){
+  await page.setViewportSize({width,height});
+  for(const theme of ['dark','light']){
+   await page.locator('.rail [data-screen=settings]').click();await page.locator('#theme').selectOption(theme);await tab('activity');
+   await page.screenshot({path:path.join(images,`console_swara_quality_${size}_${theme}.png`)});
+   const before=await page.locator('.rail nav').boundingBox();
+   await page.locator('#main').evaluate(el=>el.scrollTop=el.scrollHeight);
+   assert.deepEqual(await page.locator('.rail nav').boundingBox(),before);
+   await page.screenshot({path:path.join(images,`console_navigation_scrolled_${size}_${theme}.png`)});
+  }
+ }
  assert.deepEqual(errors,[]);await context.close();
  const vc=await browser.newContext({viewport:{width:1280,height:900},colorScheme:'dark',recordVideo:{dir:path.join(images,'.recording'),size:{width:1280,height:900}}});
  const v=await vc.newPage();await v.route('**/*',route=>{assert.equal(new URL(route.request().url()).origin,'http://127.0.0.1:8000');return route.continue();});
@@ -33,6 +51,6 @@ const root=path.resolve(__dirname,'..'),images=path.join(root,'docs/images');
  for(const view of ['trace','overview','billing','quality','evidence','tokens']){await v.locator(`[data-console-tab=${view}]`).click();if(view==='trace')await v.locator('.trace-step>summary').first().click();await v.waitForTimeout(8500);}
  await v.locator('[data-console-tab=activity]').click();await v.locator('#toggle-events').click();await v.waitForTimeout(5000);
  const video=v.video();await vc.close();await video.saveAs(path.join(images,'console_replay.webm'));fs.rmSync(path.join(images,'.recording'),{recursive:true,force:true});
- fs.appendFileSync(path.join(root,'logs/sample/console_validation.jsonl'),JSON.stringify({event:'console_proof_captured',timestamp:new Date().toISOString(),ok:true,run_id:run,screenshots:64,replay_speed:4,recording:'docs/images/console_replay.webm',note:'Original 34-second saved replay at 4x, followed by result inspection. Legacy logs disclose missing call timings.'})+'\n');
- console.log('Captured 64 console screenshots and console_replay.webm from the real offline API.');await browser.close();
+ fs.appendFileSync(path.join(root,'logs/sample/console_validation.jsonl'),JSON.stringify({event:'console_proof_captured',timestamp:new Date().toISOString(),ok:true,run_id:run,screenshots:72,replay_speed:4,recording:'docs/images/console_replay.webm',note:'Original 34-second saved replay at 4x, followed by result inspection. Legacy logs disclose missing call timings.'})+'\n');
+ console.log('Captured 72 console screenshots and console_replay.webm from the real offline API.');await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});
