@@ -62,7 +62,7 @@ def apparatus(tmp_path, logger):
                 why = 'Rank expected savings using billed counts and verified prices.' if step == 'hypothesise' else 'Use the stored evidence for this step.'
                 text = json.dumps(dict(why=why, tool=step, args=args, done=step == 'report'))
             elif 'Judge semantic equivalence' in prompt:
-                pair = json.loads(prompt.split('\n', 1)[1])
+                pair = json.loads(prompt.split('\n', 1)[1].split('\nYour previous output')[0])
                 claim = lambda v: [dict(claim='Facts match', quote_id=pair['quote_catalog'][v][0]['id'], material=True, status='present', grounding='supported')]
                 text = json.dumps(dict(chat_id=pair['chat_id'], reason='Facts match.', original_claims=claim('original'), changed_claims=claim('changed')))
             else:
@@ -763,3 +763,29 @@ def test_judge_cache_preserves_valid_outcomes_and_requires_exact_context(apparat
     t.agent_model = 'different/nemotron'
     t.quality_judge(experiment['pairs'])
     assert t.budget.counts['judge'] == 20
+
+
+def test_judge_repair_explains_wrong_reply_excerpt(apparatus):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    t.measure('samudra', config, ids)
+    experiment = t.fix_experiment('samudra', 'english_system')
+    original = t.generate
+    bad = []
+    repaired = []
+    def mistaken_reference(prompt, **kwargs):
+        result = original(prompt, **kwargs)
+        if not bad:
+            bad.append(True)
+            row = json.loads(result['text'])
+            row['original_claims'][0]['quote_id'] = 'changed:1'
+            result['text'] = json.dumps(row)
+        elif 'Validation error:' in prompt:
+            repaired.append(prompt)
+        return result
+    t.generate = mistaken_reference
+    quality = t.quality_judge(experiment['pairs'])
+    assert len(repaired) == 1
+    assert 'original_claims: quote_id must be one of' in repaired[0]
+    assert all(r['same_facts'] is True for r in quality['pairs'])
+    assert t.budget.counts['judge'] == 21

@@ -59,7 +59,7 @@ def resolve_quotes(answer, pair):
             raise ValueError('Missing claim inventory')
         for claim in answer[variant + '_claims']:
             if not isinstance(claim, dict) or claim.get('quote_id') not in sources:
-                raise ValueError('Unknown source excerpt')
+                raise ValueError(f'Unknown source excerpt for {variant}_claims: quote_id must be one of {list(sources)}')
             claim['quote'] = sources[claim['quote_id']]
     return answer
 
@@ -131,9 +131,9 @@ def contextual_judge(t, pairs, comparison='ab'):
                     t.logger.write('quality', 'cache_hit', comparison=comparison, chat_id=pair['chat_id'], ok=True, evidence_id=parent)
                 except (KeyError, ValueError, TypeError):
                     hit = None
-            # A bounded repair only when the output cannot be validated. The shared
+            # Up to five attempts only for invalid output, with concrete feedback. The shared
             # 45-attempt counter includes HTTP retries and these repairs.
-            for attempt in range(0 if hit else 2):
+            for attempt in range(0 if hit else 5):
                 raw = None
                 started = now()
                 try:
@@ -150,14 +150,16 @@ def contextual_judge(t, pairs, comparison='ab'):
                 except Exception as exc:
                     ok = False
                     row['reason'] = 'Unjudged: ' + type(exc).__name__
+                    validation_error = t.logger.redact(str(exc))[:1000]
                 payload = {'ok': ok, 'comparison': comparison, 'chat_id': pair['chat_id'],
                            'attempt': attempt + 1, 'judge_format': 'excerpt_ids_v1', 'result': raw, 'prompt': prompt, 'base_prompt': base_prompt,
+                           'validation_error': validation_error if not ok else None,
                            'supports': [t.last_experiment_id]}
                 call_ids.append(t.observe('quality_verdict', payload, {'operation': 'contextual pair judge'}, 'NVIDIA Nemotron', started))
                 t.logger.write('quality', 'pair_judged', comparison=comparison, chat_id=pair['chat_id'], ok=ok)
                 if ok or t.budget.reason:
                     break
-                prompt += REPAIR
+                prompt += REPAIR + ' Validation error: ' + validation_error
         verdicts.append({**row, 'review_status': 'pending',
                          'reply_texts': {v: {'text': pair[v]['text']} for v in ('original', 'changed')} if complete else {}})
         t.emit('quality_progress', comparison=comparison, done=len(verdicts), total=len(pairs))
