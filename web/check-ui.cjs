@@ -23,7 +23,9 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   await page.route('**/*',async route=>{
    const url=new URL(route.request().url());assert.equal(url.origin,'http://polytoken.test','No external origins allowed');
    const respond=(data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
-   if(url.pathname==='/model-fits')return respond([]);
+   if(url.pathname==='/launcher/options')return respond({demo:false,models:['fixture/model'],samples:[{company:'samudra',language:'te',channel:'chat',monthly_chats:200000}],max_bytes:1048576});
+  if(url.pathname==='/token-samples')return respond([]);
+  if(url.pathname==='/model-fits')return respond([]);
    if(url.pathname==='/companies')return respond(companiesFail?{detail:'Test company lookup unavailable'}:companies,companiesFail?503:200);
    if(url.pathname==='/currencies')return respond(currencies);
    if(url.pathname==='/tokens'){
@@ -44,7 +46,7 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
    }
    if(url.pathname.endsWith('/report'))return respond(finishReport?samudra:{...samudra,status:'running',jobs:{...samudra.jobs,status:'running'}},finishReport?200:202);
    if(url.pathname.startsWith('/evidence/')){const e=world.get(decodeURIComponent(url.pathname.slice(10)));return respond(e || {detail:'Evidence not found'},e?200:404);}
-   const filename={'/':'index.html','/model-fit.js':'model-fit.js','/app.js':'app.js','/styles.css':'styles.css','/console.css':'console.css','/console.js':'console.js'}[url.pathname];
+   const filename={'/':'index.html','/launcher.js':'launcher.js','/model-fit.js':'model-fit.js','/app.js':'app.js','/styles.css':'styles.css','/console.css':'console.css','/console.js':'console.js'}[url.pathname];
    return filename?route.fulfill({path:path.join(__dirname,filename),contentType:filename.endsWith('.js')?'application/javascript':filename.endsWith('.css')?'text/css':'text/html'}):route.fulfill({status:404,body:'Not found'});
   });
   await page.goto('http://polytoken.test/');await page.locator('.company-card').first().waitFor();
@@ -169,13 +171,13 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   }
   await page.emulateMedia({colorScheme:'light'});
   // Live EventSource replay, duplicate protection, POST and final report polling.
-  await page.locator('.rail [data-screen=ask]').click();await page.locator('#monthly-chats').fill('120000');await page.locator('#latency-target').fill('2.5');await page.locator('#investigate').click();
+  await page.locator('.rail [data-screen=launcher]').click();await page.locator('#monthly-chats').fill('120000');await page.locator('#latency-target').fill('2.5');await page.locator('#investigate').click();
   await page.locator('#investigation:not([hidden]) .timeline .running').waitFor({state:'attached'});await page.waitForFunction(()=>document.querySelector('#experiment-progress').textContent.includes('done ·'));
-  assert.deepEqual({company:posted.company,monthly_chats:posted.monthly_chats,latency_target_s:posted.latency_target_s},{company:'samudra',monthly_chats:120000,latency_target_s:2.5});
+  assert.deepEqual({company:posted.company,monthly_chats:posted.launch.monthly_chats,latency_target_s:posted.launch.latency_target_s},{company:'samudra',monthly_chats:120000,latency_target_s:2.5});
   const evidenceCount=await page.locator('.evidence-card').count();finishReport=true;
   await page.waitForFunction(()=>document.querySelector('#stream-status').textContent.includes('Investigation complete'),{},{timeout:20000});assert.equal(await page.locator('.evidence-card').count(),evidenceCount);
-  companiesFail=true;await page.reload();await page.locator('#retry-companies:not([hidden])').waitFor();assert.equal(await page.locator('#investigate').isDisabled(),true);
-  companiesFail=false;await page.locator('#retry-companies').click();await page.locator('.company-card').first().waitFor();postFail=true;await page.locator('#investigate').click();await page.locator('#notice:not([hidden])').waitFor();assert.equal(await page.locator('#investigate').isEnabled(),true);
+  companiesFail=true;await page.reload();await page.locator('#retry-companies:not([hidden])').waitFor();assert.equal(await page.locator('#connection').textContent(),'Company lookup unavailable');
+  companiesFail=false;await page.locator('#retry-companies').click();await page.locator('.company-card').first().waitFor();postFail=true;await page.locator('.rail [data-screen=launcher]').click();await page.locator('#investigate').click();await page.locator('#notice:not([hidden])').waitFor();assert.equal(await page.locator('#investigate').isEnabled(),true);
   assert.deepEqual(errors,[]);
   console.log(`UI checks passed: ${fixtures.length} saved reports; USD/INR persistence; signed fix grouping; non-zero intervals; readable dropped claims; billing and token receipts; 20-screen matrix; 390px light/dark contrast; what-if reset; optional A/A dots; native SSE; failure recovery. Chromium ${browser.version()}`);
  }finally{await browser.close();}

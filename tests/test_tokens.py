@@ -31,3 +31,25 @@ def test_local_tokenizer_uses_real_indictax(tmp_path):
     tk.save(str(path))
     assert tokens.count(f"file:{path}", "తెలుగు hello") == 2
     assert tokens.fragment_rate(f"file:{path}", "తెలుగు hello") == 0.0
+
+
+def test_paired_saved_token_samples_are_checked_and_review_label_is_honest(tmp_path):
+    import copy
+    from pathlib import Path
+    from types import SimpleNamespace
+    from polytoken.token_samples import samples
+    from polytoken.logs import JsonlLogger
+    from polytoken.billing_view import EventWorld
+    from polytoken.checker import Checker
+    root=Path(__file__).resolve().parents[1]
+    data=samples(root/'logs',JsonlLogger(tmp_path))
+    assert {s['variant'] for s in data}=={'native','tenglish'}
+    for s in data:
+        assert s['review_status']=='unreviewed' and s['models']
+        for model in s['models']:
+            world=EventWorld(model['evidence'])
+            assert Checker(SimpleNamespace(world=world)).check(model['claims'])[1]==[]
+            values={c['id']:c['value'] for c in model['claims']}
+            assert values['token_pair/ratio']==values['token_pair/native_tokens']/values['token_pair/english_tokens']
+            corrupt=copy.deepcopy(model['evidence']);corrupt[0]['payload']['count']+=1
+            assert Checker(SimpleNamespace(world=EventWorld(corrupt))).check(model['claims'])[0]==[]

@@ -51,7 +51,7 @@ def historical_runs(log_dir, agent_model=None):
 
 
 def investigate(company, *, question='', monthly_chats=None, latency_target_s=None,
-                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None, report_sink=None, cancel_event=None, test_answer_length=False):
+                env_file='.env', run_id=None, event_sink=None, log_dir='logs', state_dir='.cache/state', catalogue=None, report_sink=None, cancel_event=None, test_answer_length=False, launch=None):
     guard = BudgetGuard(cancel_event=cancel_event)
     guard.check()
     settings = load_settings(env_file)
@@ -63,6 +63,9 @@ def investigate(company, *, question='', monthly_chats=None, latency_target_s=No
         world = stack.enter_context(WorldModel(Path(state_dir) / 'world.sqlite', logger=logger))
         memory = stack.enter_context(HMem(path=Path(state_dir) / 'memory.sqlite', logger=logger))
         client = stack.enter_context(ZetarisClient(settings, logger=logger, timeout_s=20.))
+        if launch is not None:
+            from ..launcher import Launch, ingest
+            company = ingest(Launch.model_validate(launch), settings, client, logger, run_id=logger.run_id)
         generator = stack.enter_context(NvidiaGenerator(settings, logger=logger, max_tokens=640, timeout_s=35.))
         guard.check()
         toolset = InvestigationTools(client, generator.generate, EvidenceStore(world), guard, logger, catalogue=catalogue, agent_model=settings.agent_model)

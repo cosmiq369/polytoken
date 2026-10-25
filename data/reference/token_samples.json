@@ -1,0 +1,10 @@
+{
+  "id": "video-deevi",
+  "language": "te",
+  "native": "నేను దీవి ప్లాన్ వాడుతున్నాను. బిల్లులో ఖర్చు అర్థం కాలేదు.",
+  "english": "I use the Deevi plan. I do not understand a charge on my bill.",
+  "tenglish": "Nenu Deevi plan use chestunna. Bill lo charge ardham kaledu.",
+  "review_status": "unreviewed",
+  "review_note": "Existing video receipts; equivalence of this native / Tenglish / English triplet has not been approved by Mohan. The available native review concerns generated reply pairs, not this sentence.",
+  "source": "logs/sample/video_token_strip.jsonl"
+}

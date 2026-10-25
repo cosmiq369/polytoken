@@ -143,7 +143,7 @@ def calculate_fit(snapshot, prices, timings=None):
             'Next lowest quoted cost for a different model; verify quality and any unmeasured latency.' if role=='runner_up' else
             'Lowest quoted content cost on this workload; verify quality before changing models.')),
             reason_claim_ids=[*reason_ids,row['cost_claim'],row['ratio_claim'],*([row['latency_claim']] if row['latency_claim'] else [])])
-    view=dict(profile=dict(company=config['company'],language=language,role=config.get('role',''),channel=config.get('channel','chat'),
+    view=dict(profile=dict(company=config['company'],display_name=config.get('display_name', config['company']),language=language,role=config.get('role',''),channel=config.get('channel','chat'),
         current_model=config.get('current_model',config['model_in_use']),dominant_script=dominant,
         classifier='Unicode native blocks + versioned Indic Latin and English domain lexicons; unknown retained. User-turn shares; English term share over all conversation words, excluding numbers.',
         answer_share_basis='New output tokens / total billed content tokens on the current tokenizer; replayed answers remain input.',
@@ -153,7 +153,7 @@ def calculate_fit(snapshot, prices, timings=None):
         recommendation=decision(primary,'recommendation'),cost_candidate=decision(candidate,'candidate'),runner_up=decision(runner,'runner_up'),avoid=decision(avoid,'avoid'),
         status='Conditional on quality verification' if primary else 'No model has verified latency for this voice workload' if candidate else 'No verified price available',
         serving_note='Only GPT-OSS passed the recorded serving probe. Stand-in results do not establish quality or latency for another model/provider.',
-        limitations=['Fictional paired text; translations and native review pending.',
+        limitations=[('Uploaded paired text; translations and native review pending.' if config['company'].startswith('upload_') else 'Fictional paired text; translations and native review pending.'),
             'Content-token estimate with completed history replay; excludes model chat templates, retries, taxes and unpublished caching prices.',
             'Model/provider quotes retain their fetched-at date; no invoice or accuracy guarantee.',
             'Observed timing ranges are sample checks, not latency SLAs.'])

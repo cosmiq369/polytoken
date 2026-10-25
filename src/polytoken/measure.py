@@ -32,7 +32,8 @@ def tokenizer_specs(path=ROOT / 'configs/tokenizers.yaml'):
 
 
 def read_inputs(client, company):
-    if company not in COMPANIES:
+    from .launcher import valid_company
+    if not valid_company(company):
         raise ValueError('Unknown company')
     queries = [f'SELECT * FROM company_systems.{company}__bot_config',
                f'SELECT * FROM company_systems.{company}__chats ORDER BY chat_id, turn']

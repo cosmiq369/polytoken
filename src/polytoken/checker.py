@@ -80,6 +80,12 @@ class Checker:
                     elif op == 'model_fit':
                         from .model_fit import calculate_fit
                         result, _ = calculate_fit(args['snapshot'], args['prices']['rows'], args['timings'])
+                    elif op == 'ask_volume':
+                        from .ask import volume_metrics
+                        result = volume_metrics(**args)
+                    elif op == 'token_pair':
+                        from .token_samples import pair_metrics
+                        result = pair_metrics(args['native'], args['english'])
                     elif op == 'experiment':
                         result = experiment_metrics(args['experiment'], args['snapshot'], args['prices']['rows'], args['fx'])
                     elif op == 'quality':

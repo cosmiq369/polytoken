@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel, Field
+from .launcher import Launch, MAX_BYTES
 
 from .agent.runtime import investigate
 from .logs import JsonlLogger
@@ -22,7 +23,8 @@ from .tools import now
 
 class InvestigationRequest(BaseModel):
     company: str
-    question: str = ''
+    question: str = Field(default='', max_length=1000)
+    launch: Launch | None = None
     monthly_chats: int | None = Field(default=None, gt=0)
     latency_target_s: float | None = Field(default=None, gt=0, allow_inf_nan=False)
 
@@ -73,6 +75,9 @@ class Manager:
 
 
 def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log_dir='logs', demo=False):
+    if run is investigate:
+        from functools import partial
+        run = partial(investigate, log_dir=log_dir, state_dir=state_dir)
     manager = Manager(run, log_dir)
     @asynccontextmanager
     async def lifespan(app):
@@ -93,6 +98,33 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
     app.add_middleware(CORSMiddleware, allow_origin_regex=r'http://localhost(?::[0-9]+)?',
                        allow_methods=['GET', 'POST'], allow_headers=['Content-Type', 'Last-Event-ID'])
     app.state.manager = manager
+    from fastapi.exceptions import RequestValidationError
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid_payload(request, exc):
+        # Validation must never echo uploaded conversations or arbitrary values.
+        errors = '; '.join('.'.join(str(p) for p in e['loc'][1:]) + ': ' + e['msg'] for e in exc.errors())
+        return JSONResponse({'detail': errors}, status_code=422)
+
+    @app.middleware('http')
+    async def bound_request(request, call_next):
+        if request.method == 'POST':
+            size = 0
+            chunks = []
+            async for chunk in request.stream():
+                size += len(chunk)
+                if size > MAX_BYTES * 2:
+                    return JSONResponse({'detail': 'Request too large; sample limit is one MiB.'}, status_code=413)
+                chunks.append(chunk)
+            request._body = b''.join(chunks)
+        return await call_next(request)
+
+    @app.get('/launcher/options')
+    def launcher_options():
+        from .launcher import priced_models
+        from .console_api import demo_companies
+        return {'demo': demo, 'models': priced_models(), 'samples': demo_companies(log_dir), 'max_bytes': MAX_BYTES}
+
 
     def state(identifier):
         if identifier not in manager.runs:
@@ -102,10 +134,27 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
     @app.post('/investigations', status_code=202)
     def start(payload: InvestigationRequest):
         if demo:
-            raise HTTPException(409, 'Demo mode is offline. Replay a saved run, or restart without --demo for live calls.')
+            if payload.launch is None or not payload.launch.sample:
+                raise HTTPException(409, 'Live mode needed. Uploaded data cannot run in demo mode.')
+            from .console_api import reports
+            saved = [r for r in reports(log_dir).values() if r.get('company') == payload.launch.sample and r.get('model_fit') and r.get('status') == 'complete']
+            if not saved:
+                raise HTTPException(409, 'No checked saved run is available for this bundled sample')
+            preferred = Path(log_dir) / 'sample' / f'agent_{payload.launch.sample}_model_fit_report.json'
+            identifier = json.loads(preferred.read_text())['id'] if preferred.exists() else saved[-1]['id']
+            bundle = app.state.load_replay(identifier)
+            with manager.lock:
+                manager.runs[identifier] = {'company': payload.launch.sample, 'events': bundle['events'],
+                    'report': bundle['report'], 'finished': True, 'cancel_event': threading.Event(), 'replay': True}
+            JsonlLogger(log_dir).write('launcher', 'replay_started', ok=True, investigation_id=identifier,
+                note='Saved configuration and numbers retained; form edits do not modify archived evidence')
+            return {'id': identifier, 'mode': 'replay', 'label': 'Replay of a saved run',
+                    'note': 'Uses the saved company, models and volume. Form edits do not change this replay.'}
+        if payload.launch:
+            return {'id': manager.start({'company': payload.company, 'launch': payload.launch.model_dump()}), 'mode': 'live'}
         if payload.company not in ('samudra', 'swara', 'raitu', 'paisa'):
             raise HTTPException(422, 'Unknown company')
-        return {'id': manager.start(payload.model_dump())}
+        return {'id': manager.start(payload.model_dump(exclude={'launch'})), 'mode': 'live'}
 
     @app.post('/investigations/{identifier}/stop', status_code=202)
     def stop(identifier: str):
@@ -166,6 +215,9 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
     def evidence(identifier: str):
         with WorldModel(Path(state_dir) / 'world.sqlite', logger=JsonlLogger(log_dir)) as world:
             result = next((row for row in world.events() if row['event_id'] == identifier), None)
+        if result is None:
+            from .billing_view import archived_events
+            result = next((r for r in archived_events(log_dir) if r['event_id'] == identifier), None)
         if result is None:
             raise HTTPException(404, 'Evidence not found')
         return result
@@ -257,6 +309,11 @@ def mount_billing_api(app, manager, state_dir, log_dir):
             reason = logger.redact(str(exc))
             logger.write('billing', 'unavailable', ok=False, reason=reason)
             return {'id': identifier, 'status': 'not measured', 'reason': reason, 'claims': []}
+
+    @app.get('/token-samples')
+    def token_samples():
+        from .token_samples import samples
+        return samples(log_dir, JsonlLogger(log_dir))
 
     @app.get('/tokens')
     def tokens(text: str = Query(min_length=1, max_length=2000), tokenizer: str = Query(min_length=1, max_length=200)):

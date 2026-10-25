@@ -11,6 +11,7 @@
   <script src="/app.js" defer></script>
   <script src="/console.js" defer></script>
   <script src="/model-fit.js" defer></script>
+  <script src="/launcher.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -21,6 +22,7 @@
   <div class="notice" id="notice" role="alert" hidden></div>
   <aside class="rail" aria-label="Workspace navigation">
     <p class="eyebrow">WORKSPACE</p>
+    <button class="primary new-investigation" data-screen="launcher">＋ New investigation</button>
     <nav aria-label="Workspace"><button data-screen="history"><span aria-hidden="true">◫</span> Investigations</button><button data-screen="ask"><span aria-hidden="true">▦</span> Companies</button><button data-screen="tokens"><span aria-hidden="true">⌗</span> Token strip</button><button data-screen="settings"><span aria-hidden="true">⚙</span> Settings</button></nav>
     <div class="rail-heading">RECENT RUNS <button id="refresh-history" aria-label="Refresh history">↻</button></div><div id="run-history"></div>
     <p class="rail-foot">Zetaris · NVIDIA · Meterless<br>Evidence before advice.</p>
@@ -28,34 +30,37 @@
   <div id="run-shell" hidden>
     <div class="run-bar"><div><strong id="run-company"></strong><code id="console-run-id"></code></div><span id="run-status" role="status" class="tag">Queued</span><span id="elapsed" aria-label="Elapsed run time">00:00</span><button id="stop-run">Stop</button><button id="rerun">Re-run</button></div>
     <nav class="run-tabs" aria-label="Run views"><button data-console-tab="fit">Model fit</button><button data-console-tab="activity">Activity</button><button data-console-tab="trace">Trace</button><button data-console-tab="overview" data-screen="report">Overview</button><button data-console-tab="billing">Billing</button><button data-console-tab="quality">Quality</button><button data-console-tab="evidence">Evidence</button><button data-console-tab="tokens" data-screen="tokens">Token strip</button><button id="toggle-events" aria-expanded="false">Events</button></nav>
-    <div class="replay-controls" id="replay-controls" hidden><span class="tag">REPLAY</span><button id="replay-play">Pause</button><label>Speed <select id="replay-speed"><option value="1">1×</option><option value="2">2×</option><option value="4" selected>4×</option><option value="16">16×</option></select></label><input id="replay-position" aria-label="Replay position" type="range" step="any" min="0" max="1000" value="0"><output id="replay-time">00:00 / 00:00</output></div>
+    <div class="replay-controls" id="replay-controls" hidden><span class="tag">Replay of a saved run</span><button id="replay-play">Pause</button><label>Speed <select id="replay-speed"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="16">16×</option></select></label><input id="replay-position" aria-label="Replay position" type="range" step="any" min="0" max="1000" value="0"><output id="replay-time">00:00 / 00:00</output></div>
   </div>
   <main id="main" tabindex="-1">
-    <section id="ask" class="screen" aria-labelledby="ask-title">
+    <section id="ask" class="screen" aria-labelledby="fit-comparison-title">
       <div class="empty-actions"><button class="primary" id="demo-run">Run a demo investigation</button><button id="replay-saved">Replay a saved run</button><span class="hint">Offline playback from recorded evidence</span></div>
       <section class="fit-comparison" aria-labelledby="fit-comparison-title"><p class="eyebrow">Four fictional workloads · measured evidence</p><h1 id="fit-comparison-title">The cheapest model depends on how your users write.</h1><p class="intro">Native speech, romanized messages, long answers, short chats. Compare the same workload across model prices and tokenizers.</p><div id="company-fit-grid" class="fit-company-grid"><p>Loading checked comparisons…</p></div></section>
-      <div class="ask-grid">
-        <div>
-          <p class="eyebrow">New investigation</p>
-          <h1 id="ask-title">Investigate a workload</h1>
-          <p class="intro">Find the model that fits your language mix, conversation shape and budget. Open the evidence behind every comparison.</p>
-          <form id="ask-form">
-            <fieldset><legend>Which product?</legend><div id="companies" class="company-grid"><p class="muted">Loading from Zetaris…</p></div></fieldset>
-            <label for="question">Your question</label>
-            <textarea id="question" name="question" rows="3" required>Our bot works in an Indian language. Which model fits our users and our budget, and why?</textarea>
-            <div class="two-columns fields">
-              <div><label for="monthly-chats">Chats per month <span class="optional">optional</span></label><input id="monthly-chats" name="monthly_chats" type="number" min="1" step="1" inputmode="numeric"><p class="hint">Leave blank to use the company configuration.</p></div>
-              <div><label for="latency-target">Reply-time target, seconds <span class="optional">optional</span></label><input id="latency-target" name="latency_target_s" type="number" min="0.001" step="any" inputmode="decimal"><p class="hint">Leave blank to use the configured target.</p></div>
-            </div>
-            <div class="actions"><button class="primary" type="submit" id="investigate" disabled>Investigate <span aria-hidden="true">→</span></button><button type="button" id="retry-companies" hidden>Retry company lookup</button><span class="hint">Findings are checked before they reach the report.</span></div>
-          </form>
-        </div>
-        <aside class="ask-aside">
-          <section class="panel source-panel"><p class="eyebrow">Evidence-backed investigation</p><h2>Account for every reply.</h2><ol class="questions"><li>What do we pay per month, conversation and reply?</li><li>What do we pay above the same content in English?</li><li>How much comes from prompts and history sent again?</li><li>Which fix saves money and preserves meaning?</li><li>What changes with volume, price or the model?</li></ol><p class="hint">Company chats, measured tokens and quoted prices are sourced through Zetaris.</p></section>
-          <section class="panel archive-panel"><h2>Open a saved investigation</h2><p>Choose a report JSON. Add its event and World Model JSONL or JSONL.gz files to inspect the recorded steps and raw evidence.</p><label class="file-label" for="saved-files">Report and supporting files</label><input id="saved-files" type="file" accept=".json,.jsonl,.gz" multiple><p class="hint">Files stay in this browser. Saved reports retain their recorded checker verdicts.</p></section>
-        </aside>
-      </div>
+      <div id="companies-ask" class="evidence-ask panel"></div>
+      <details class="panel" open><summary>Bundled sample configurations</summary><div id="companies" class="company-grid"></div><button id="retry-companies" hidden>Retry company lookup</button></details>
+      <section class="panel archive-panel"><h2>Open a saved investigation</h2><p>Choose a report JSON with its event and World Model JSONL or JSONL.gz files.</p><label for="saved-files">Report and supporting files</label><input id="saved-files" type="file" accept=".json,.jsonl,.gz" multiple><p class="hint">Files stay in this browser. Imported files cannot answer questions until their evidence is available on the local server.</p></section>
     </section>
+    <section id="launcher" class="screen" aria-labelledby="launcher-title" hidden>
+      <p class="eyebrow">New investigation / workload brief</p><h1 id="launcher-title">Bring your conversations. Follow the evidence.</h1>
+      <p class="intro">Define the workload, choose the models, and see how the agent reaches its findings.</p>
+      <form id="ask-form" class="launcher-grid">
+        <section class="panel"><h2>Your workload</h2><label for="company-name">Company name</label><input id="company-name" maxlength="100" required value="Samudra Telecom">
+          <label for="industry">Industry</label><input id="industry" maxlength="100" required value="Telecom customer service">
+          <div class="two-columns"><div><label for="channel">Channel</label><select id="channel"><option value="chat">Chat</option><option value="voice">Voice</option></select></div><div><label for="language">Main language</label><select id="language"><option value="te">Telugu</option><option value="hi">Hindi</option></select></div></div>
+          <div class="two-columns"><div><label for="monthly-chats">Monthly conversations</label><input id="monthly-chats" type="number" min="1" max="1000000000" step="1" value="200000" required></div><div><label for="launch-currency">Currency</label><select id="launch-currency"><option value="INR">INR</option><option value="USD">USD</option></select></div></div>
+          <label for="latency-target">Full-reply target, seconds</label><input id="latency-target" type="number" min="0.01" max="300" step="any" value="2" required>
+          <details><summary>System instructions</summary><label for="system-prompt">Shared instructions for both language variants</label><textarea id="system-prompt" maxlength="4000" rows="3" required>Help the customer using the supplied conversation context.</textarea><p class="hint">Used unchanged in both paired variants. Review the assumption for your workload.</p></details>
+        </section>
+        <section class="panel"><h2>Conversation sample</h2><p class="data-warning">Use anonymised or synthetic conversations. Data stays on this machine.</p><p class="hint">Live reasoning sends workload summaries to NVIDIA. If you configure remote Zetaris, imported data goes to that server.</p>
+          <label for="launch-source">Source</label><select id="launch-source"><option value="samudra">Samudra Telecom · Telugu chat</option><option value="swara">Swara Care · Hindi voice</option><option value="raitu">Raitu Mitra · Telugu voice</option><option value="paisa">Paisa Saathi · Hindi chat</option><option value="upload">Upload JSONL or CSV</option></select>
+          <div id="upload-fields" hidden><label for="sample-file">Paired conversations</label><input id="sample-file" type="file" accept=".jsonl,.csv"><p class="hint">Up to one MiB. Each turn needs native text and an English baseline. <a href="/sample-template.jsonl" download>Download template</a> · <a href="/sample-schema.html" target="_blank" rel="noreferrer">Schema</a></p></div>
+          <fieldset><legend>Candidate models · verified price list</legend><div id="candidate-models" class="model-choices"><p>Loading model choices…</p></div></fieldset>
+          <p id="launcher-mode" class="mode-disclosure"></p><p id="launcher-error" role="alert" hidden></p>
+          <button class="primary" id="investigate" type="submit" disabled>Run investigation →</button><p class="hint">Checked findings only. Missing measurements remain unavailable.</p>
+        </section>
+      </form>
+    </section>
+    <section id="run-ask" class="evidence-ask panel" hidden></section>
     <section id="model-fit" class="screen" aria-labelledby="model-fit-title" hidden><div id="model-fit-content"></div></section>
     <section id="investigation" class="screen" aria-labelledby="investigation-title" hidden>
       <div class="activity-heading"><div><p class="eyebrow" id="run-context">Investigation</p><h1 id="investigation-title">Investigation in progress</h1></div><button type="button" data-screen="report" id="view-report" disabled>View findings ↗</button></div>
@@ -77,6 +82,7 @@
     <section id="tokens" class="screen" aria-labelledby="tokens-title" hidden>
       <p class="eyebrow">Inspect the language tax / token boundaries</p><h1 id="tokens-title">Why does this sentence cost more?</h1>
       <p class="intro">Compare the same text across local tokenizers. Hatched pieces are lone bytes or partial characters.</p>
+      <section class="panel token-samples"><label for="token-sample">Existing paired sample</label><select id="token-sample"><option value="native">Telugu (native script)</option><option value="tenglish">Tenglish (Telugu in English letters + English words)</option></select><div class="actions"><button id="use-token-sample">Inspect selected sample</button><button id="compare-token-samples">Compare both with English</button></div><p id="token-review" class="hint"></p><div id="token-comparison"></div></section>
       <form id="token-form"><label for="token-text">Sentence from the company’s chats, or your own text</label><textarea id="token-text" rows="3" maxlength="2000" required></textarea><div class="actions"><button class="primary" type="submit">Inspect tokens</button><button type="button" id="token-native">Use company sentence</button><button type="button" id="token-english">Use English translation</button></div></form>
       <p id="token-status" class="hint" role="status"></p><div id="token-rows"></div>
     </section>

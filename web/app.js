@@ -40,7 +40,7 @@
   function show(screen, focus=true) {
     if (screen==='report' && !state.report) return;
     if (screen==='investigation' && !state.runId) return;
-    if(screen==='tokens' && !state.report)return;
+
     state.screen=screen;
     window.dispatchEvent(new CustomEvent('polytoken:screen',{detail:screen}));
     document.querySelectorAll('.screen').forEach(el=>el.hidden=el.id!==screen);
@@ -54,7 +54,7 @@
   function enableViews() {
     document.querySelectorAll('[data-screen="investigation"]').forEach(b=>b.disabled=!state.runId);
     document.querySelectorAll('[data-screen="report"],[data-console-tab="billing"],[data-console-tab="quality"]').forEach(b=>b.disabled=!state.report);
-    document.querySelectorAll('[data-screen="tokens"]').forEach(b=>b.disabled=!state.report);
+
   }
   async function fetchJSON(url, options) {
     const response=await fetch(url, options);
@@ -64,7 +64,7 @@
   }
   function renderCompanies() {
     $('#companies').innerHTML=state.companies.map(c=>`<button type="button" class="company-card" data-company="${escape(c.company)}" aria-pressed="${state.company===c.company}"><strong>${escape(names[c.company] || c.company)}</strong><span class="language">${escape(({te:'Telugu · తెలుగు',hi:'Hindi · हिन्दी'})[c.language] || c.language || 'Language not supplied')}</span><small>${escape(c.model_in_use || 'Model not supplied')}</small><small class="company-volume">${finite(c.monthly_chats)?number(c.monthly_chats,0)+' conversations / month':'Volume not supplied'}</small></button>`).join('');
-    $('#investigate').disabled=!state.company || state.posting || state.demo;
+    $('#investigate').disabled=state.posting;
   }
   async function loadCompanies() {
     $('#retry-companies').hidden=true;
@@ -514,20 +514,7 @@
   $('#saved-files').addEventListener('change',async event=>{
     try {await importFiles([...event.target.files]);}catch(error){notice('Could not open saved investigation: '+error.message);}finally{event.target.value='';}
   });
-  $('#ask-form').addEventListener('submit',async event=>{
-    event.preventDefault(); if(!state.company || state.posting) return;
-    const body={company:state.company,question:$('#question').value.trim()};
-    if($('#monthly-chats').value) body.monthly_chats=Number($('#monthly-chats').value);
-    if($('#latency-target').value) body.latency_target_s=Number($('#latency-target').value);
-    state.posting=true;$('#investigate').disabled=true;notice();
-    try {
-      const {data}=await fetchJSON('/investigations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(typeof data.id!=='string') throw new Error('The server did not return an investigation ID.');
-      resetRun('live',data.id);renderInvestigation();show('investigation');$('#stream-status').textContent='Investigation queued. Waiting for the worker…';connectEvents();
-    }catch(error){notice('Could not start the investigation: '+error.message);}
-    finally{state.posting=false;$('#investigate').disabled=!state.company || state.demo;}
-  });
   window.addEventListener('beforeunload',stopStream);
-  window.polyConsole={money,rateNote,state,show,resetRun,setReport,renderInvestigation,renderReport,fetchJSON,metric,format,escape,notice,inspectTokens,connectEvents,stopStream,openEvidence,enableViews};
+  window.polyConsole={money,rateNote,state,show,resetRun,setReport,renderInvestigation,renderReport,fetchJSON,metric,format,escape,notice,inspectTokens,connectEvents,stopStream,openEvidence,enableViews,renderTokens};
   loadCompanies();loadCurrencies();
 })();

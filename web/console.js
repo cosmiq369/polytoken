@@ -51,7 +51,7 @@
   $('#run-shell').hidden=!s.runId;
   if(!s.runId)return;
   if(c.lastRun!==s.runId){c.lastRun=s.runId;c.started=Date.now();}
-  $('#run-company').textContent=({samudra:'Samudra Telecom',swara:'Swara Care',raitu:'Raitu Mitra',paisa:'Paisa Saathi'})[s.report?.company || c.loaded?.report.company || s.company] || 'Investigation';
+  $('#run-company').textContent=({samudra:'Samudra Telecom',swara:'Swara Care',raitu:'Raitu Mitra',paisa:'Paisa Saathi'})[s.report?.company || c.loaded?.report.company || s.company] || s.report?.model_fit?.profile?.display_name || s.launchName || 'Investigation';
   $('#console-run-id').textContent=s.runId;
   const st=status();$('#run-status').textContent=st;$('#run-status').dataset.status=st;
   $('#stop-run').disabled=!c.replay && (s.mode!=='live' || ['Complete','Partial','Failed'].includes(st));
@@ -199,7 +199,7 @@
   if(b.id==='toggle-events'){$('#event-console').hidden=!$('#event-console').hidden;b.setAttribute('aria-expanded',String(!$('#event-console').hidden));tail();}
   if(b.id==='replay-play'){if(c.replay){if(c.replay.position>=c.replay.duration)applyReplay(0);c.replay.playing=!c.replay.playing;c.replay.last=performance.now();clock();}}
   if(b.id==='stop-run'){if(c.replay){c.replay.playing=false;clock();}else try{await a.fetchJSON(`/investigations/${encodeURIComponent(s.runId)}/stop`,{method:'POST'});b.textContent='Stopping…';b.disabled=true;}catch(error){a.notice(error.message);}}
-  if(b.id==='rerun'){if(s.mode==='saved' && c.loaded)replay(c.loaded);else{c.replay=null;c.loaded=null;$('#ask-form').requestSubmit();}}
+  if(b.id==='rerun'){if(s.mode==='saved' && c.loaded)replay(c.loaded);else{c.replay=null;c.loaded=null;a.show('launcher');}}
   if(b.id==='replay-saved'){if(c.loaded?.events.length)replay(c.loaded);else{await history();a.show('history');}}
   if(b.id==='demo-run'){await history();const run=c.history.find(r=>r.company==='samudra' && r.demo) || c.history.find(r=>r.company==='samudra' && r.saved && r.status==='complete') || c.history.find(r=>r.saved);if(run)openRun(run.id);else a.notice('No saved demo found. Import a report with its event log.');}
  });
@@ -209,10 +209,24 @@
  window.addEventListener('polytoken:reset',()=>{c.open.clear();c.activeStage=null;if(s.mode==='live'){c.replay=null;c.loaded=null;}});
  window.addEventListener('polytoken:update',update);window.addEventListener('polytoken:report',reportTabs);window.addEventListener('polytoken:import',imported);
  window.addEventListener('polytoken:screen',event=>{$('#main').scrollTop=0;if(event.detail==='report' && !['overview','billing','quality'].includes(c.tab))c.tab='overview';if(event.detail==='history')history();reportTabs();});
- document.addEventListener('keydown',event=>{if(!event.altKey || event.ctrlKey || event.metaKey)return;const key=event.key.toLowerCase();if(key==='r'){event.preventDefault();if(s.runId)$('#rerun').click();else $('#ask-form').requestSubmit();}if(key==='s'){event.preventDefault();$('#stop-run').click();}if(/^[1-9]$/.test(key)){event.preventDefault();if(key==='9')$('#toggle-events').click();else select(['fit','activity','trace','overview','billing','quality','evidence','tokens'][Number(key)-1]);}});
+ document.addEventListener('keydown',event=>{if(!event.altKey || event.ctrlKey || event.metaKey)return;const key=event.key.toLowerCase();if(key==='r'){event.preventDefault();if(s.runId)$('#rerun').click();else a.show('launcher');}if(key==='s'){event.preventDefault();$('#stop-run').click();}if(/^[1-9]$/.test(key)){event.preventDefault();if(key==='9')$('#toggle-events').click();else select(['fit','activity','trace','overview','billing','quality','evidence','tokens'][Number(key)-1]);}});
  setInterval(()=>{const r=c.replay;if(r?.playing){const now=performance.now(),delta=now-r.last;r.last=now;applyReplay(r.position+delta*Number($('#replay-speed').value));}else if(r)r.last=performance.now();clock();},100);
- a.fetchJSON('/console/config').then(({data})=>{c.demo=s.demo=data.demo;$('#mode-note').textContent=c.demo?'Offline demo. Saved runs are ready; live provider calls are disabled.':'Live mode. Start a configured investigation or replay a saved run.';if(c.demo){$('#connection').textContent='Offline demo · recorded Zetaris evidence';$('#investigate').textContent='Live calls disabled in demo';$('#investigate').disabled=true;}}).catch(()=>{});
+ a.fetchJSON('/console/config').then(({data})=>{c.demo=s.demo=data.demo;$('#mode-note').textContent=c.demo?'Offline demo. Saved runs are ready; live provider calls are disabled.':'Live mode. Start a configured investigation or replay a saved run.';if(c.demo){$('#connection').textContent='Offline demo · recorded Zetaris evidence';}}).catch(()=>{});
  window.polyConsole.openRun=openRun;
+ window.polyConsole.openLaunched=async result=>{
+  if(result.mode==='replay'){
+   const {data}=await a.fetchJSON(`/investigations/${encodeURIComponent(result.id)}/replay`);
+   // Replay and live both consume the server's ordered SSE contract.
+   const response=await fetch(`/investigations/${encodeURIComponent(result.id)}/events`);
+   if(!response.ok)throw new Error('Saved event stream is unavailable');
+   const stream=await response.text();
+   data.events=stream.split('\n').filter(line=>line.startsWith('data: ')).map(line=>JSON.parse(line.slice(6)));
+   c.loaded=data;replay(data);a.notice(result.label+'. '+result.note);
+  }else{
+   c.replay=null;c.loaded=null;a.resetRun('live',result.id);a.renderInvestigation();select('activity');a.connectEvents();
+  }
+ };
+
  window.polyConsole.loadCompleted=data=>{c.loaded=data;replay(data);applyReplay(c.replay.duration);select('fit');};
  history();
 })();

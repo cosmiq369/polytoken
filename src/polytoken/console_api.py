@@ -166,3 +166,20 @@ def mount_console(app, manager, log_dir, state_dir, demo):
         logger.write('console', 'replay_loaded', ok=True, event_count=len(cleaned), checked_claims=len(checked))
         return logger.redact({'report': report, 'events': cleaned, 'evidence': evidence,
                               'legacy': not any(e.get('span_id') for e in events)})
+
+    app.state.load_replay = replay
+
+    from pydantic import BaseModel, Field
+    class AskRequest(BaseModel):
+        question: str = Field(min_length=1, max_length=1000)
+        compare_id: str | None = Field(default=None, max_length=100)
+
+    @app.post('/investigations/{identifier}/ask')
+    def ask(identifier: str, payload: AskRequest):
+        from .ask import answer
+        try:
+            report = find_report(identifier, manager, log_dir)
+            other = find_report(payload.compare_id, manager, log_dir) if payload.compare_id else None
+        except FileNotFoundError:
+            raise HTTPException(404, 'Saved run not found') from None
+        return answer(payload.question, report or {}, fit_records(), JsonlLogger(log_dir), other=other)

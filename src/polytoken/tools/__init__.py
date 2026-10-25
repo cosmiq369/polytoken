@@ -91,7 +91,8 @@ class InvestigationTools:
         return {'rows': rows, 'evidence_ids': [eid]}
 
     def load_company(self, company, overrides=None):
-        if company not in ('samudra', 'swara', 'raitu', 'paisa'):
+        from ..launcher import valid_company
+        if not valid_company(company):
             raise ValueError('Unknown company')
         config_result = self.sql(f'SELECT * FROM company_systems.{company}__bot_config')
         if len(config_result['rows']) != 1:
@@ -119,7 +120,8 @@ class InvestigationTools:
                                'variant': variant, 'tokenizer_spec': tokenizer, 'rows': rows},
                                {'operation': 'indictax.count', 'tokenizer': tokenizer}, 'indictax tokenizer')
             return {'rows': rows, 'evidence_ids': [eid]}
-        if company not in ('samudra', 'swara', 'raitu', 'paisa'):
+        from ..launcher import valid_company
+        if not valid_company(company):
             raise ValueError('Unknown company')
         result = self.sql("SELECT * FROM company_systems.measurements__latest_token_counts WHERE company='" + company + "'")
         rows = [r for r in result['rows'] if (part == 'all' or r['part'] == part)
@@ -148,7 +150,10 @@ class InvestigationTools:
             except Exception as exc:
                 self.emit('price_unavailable', error_class=type(exc).__name__, retry=attempt,
                           next_action='Retry price read' if attempt == 0 else 'Continue with money unavailable')
+        selected = json.loads(config['candidate_models']) if config.get('candidate_models') else None
         for reference in self.reference_prices:
+            if selected is not None and reference['model'] not in selected:
+                continue
             for row in quoted['rows']:
                 if row.get('model') == reference['model'] and row.get('provider') == reference['provider']:
                     # The live federation must agree with the unchanged verified reference.
