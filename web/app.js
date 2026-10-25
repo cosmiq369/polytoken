@@ -63,14 +63,14 @@
     return {data,status:response.status};
   }
   function renderCompanies() {
-    $('#companies').innerHTML=state.companies.map(c=>`<button type="button" class="company-card" data-company="${escape(c.company)}" aria-pressed="${state.company===c.company}"><strong>${escape(names[c.company] || c.company)}</strong><span class="language">${escape(({te:'Telugu · తెలుగు',hi:'Hindi · हिन्दी'})[c.language] || c.language || 'Language not supplied')}</span><small>${escape(c.model_in_use || 'Model not supplied')}</small><small class="company-volume">${finite(c.monthly_chats)?number(c.monthly_chats,0)+' conversations / month':'Volume not supplied'}</small></button>`).join('');
+    $('#companies').innerHTML=state.companies.map(c=>`<button type="button" class="company-card" data-company="${escape(c.company)}" aria-pressed="${state.company===c.company}"><strong>${escape(names[c.company] || c.display_name || c.company)}</strong><span class="language">${escape(({te:'Telugu · తెలుగు',hi:'Hindi · हिन्दी'})[c.language] || c.language || 'Language not supplied')}</span><small>${escape(c.model_in_use || 'Model not supplied')}</small><small class="company-volume">${finite(c.monthly_chats)?number(c.monthly_chats,0)+' conversations / month':'Volume not supplied'}</small></button>`).join('');
     $('#investigate').disabled=state.posting;
   }
   async function loadCompanies() {
     $('#retry-companies').hidden=true;
     try {
       const {data}=await fetchJSON('/companies');
-      state.companies=list(data).filter(c=>c && ['samudra','swara','raitu','paisa'].includes(c.company));
+      state.companies=list(data).filter(c=>c && typeof c.company==='string');
       if(!state.companies.length) throw new Error('No supported company configuration was returned.');
       state.company=state.companies[0].company;
       renderCompanies(); $('#connection').textContent=state.demo?'Offline demo · recorded Zetaris evidence':'Company configuration loaded · Zetaris';

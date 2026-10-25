@@ -53,12 +53,14 @@ class Manager:
                 def publish(report):
                     with self.lock:
                         state['report'] = report
+                        state['company'] = report.get('company', state['company'])
                 import inspect
                 extra = {'report_sink': publish} if 'report_sink' in inspect.signature(self.run).parameters else {}
                 if 'cancel_event' in inspect.signature(self.run).parameters:
                     extra['cancel_event'] = state['cancel_event']
                 report, _ = self.run(**payload, run_id=identifier, event_sink=emit, **extra)
                 state['report'] = report
+                state['company'] = report.get('company', state['company'])
             except Exception as exc:
                 state['report'] = {'id': identifier, 'status': 'partial', 'partial_reason': 'Stopped by user' if state['cancel_event'].is_set() else 'startup failed: ' + type(exc).__name__,
                                    'claims': [], 'dropped_claims': []}
@@ -229,10 +231,14 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
             return demo_companies(log_dir)
         from .config import load_settings
         from .zetaris import ZetarisClient
+        from .console_api import reports
+        from .launcher import valid_company
+        known = {'samudra', 'swara', 'raitu', 'paisa'}
+        known.update(r['company'] for r in reports(log_dir).values() if valid_company(r.get('company', '')))
         with ZetarisClient(load_settings()) as client:
             return [{k: v for k, v in client.query(f'SELECT * FROM company_systems.{company}__bot_config')[0].items()
-                     if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s', 'role', 'channel', 'current_model', 'dataset_version')}
-                    for company in ('samudra', 'swara', 'raitu', 'paisa')]
+                     if k in ('company', 'language', 'model_in_use', 'monthly_chats', 'latency_target_s', 'role', 'channel', 'current_model', 'dataset_version', 'display_name')}
+                    for company in sorted(known)]
     mount_billing_api(app, manager, state_dir, log_dir)
     from .console_api import mount_console
     mount_console(app, manager, log_dir, state_dir, demo)

@@ -136,5 +136,7 @@ def test_ingestion_to_real_agent_with_fake_sql_generator(tmp_path,settings,monke
         assert all(not q.startswith(('DELETE FROM samudra', 'UPDATE samudra', 'DROP ')) for q in writes)
         assert report['company'].startswith('upload_')
         assert report['model_fit']['models']
+        assert c.get('/model-fits').json()[0]['company']==report['company']
+        assert c.get('/investigations').json()[0]['company']==report['company']
         assert any('__chats' in q for q in queries) and any('latest_token_counts' in q for q in queries)
         assert (tmp_path/'logs/launcher.jsonl').exists()

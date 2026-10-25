@@ -159,7 +159,7 @@
   renderHistory();
  }
  function renderHistory(){
-  const html=c.history.slice().reverse().sort((a,b)=>Number(b.demo || false)-Number(a.demo || false)).map(r=>`<button class="history-run" data-status="${esc(r.status)}" data-run="${esc(r.id)}"><strong>${esc(({samudra:'Samudra Telecom',swara:'Swara Care',raitu:'Raitu Mitra',paisa:'Paisa Saathi'})[r.company] || r.company || 'Investigation')}</strong><span class="tag">${esc(r.status)}</span><code>${esc(r.id)}</code><small>${r.saved?'Replay saved run':'Open live run'}</small></button>`).join('');
+  const html=c.history.slice().reverse().sort((a,b)=>Number(b.demo || false)-Number(a.demo || false)).map(r=>`<button class="history-run" data-status="${esc(r.status)}" data-run="${esc(r.id)}"><strong>${esc(({samudra:'Samudra Telecom',swara:'Swara Care',raitu:'Raitu Mitra',paisa:'Paisa Saathi'})[r.company] || r.display_name || r.company || 'Investigation')}</strong><span class="tag">${esc(r.status)}</span><code>${esc(r.id)}</code><small>${r.saved?'Replay saved run':'Open live run'}</small></button>`).join('');
   $('#run-history').innerHTML=html || '<p class="hint">No saved runs yet.</p>';$('#history-list').innerHTML=html || '<p>No saved runs found. Import a report and its event log from Companies.</p>';
  }
  async function openRun(id){

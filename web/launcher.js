@@ -17,7 +17,7 @@
   $('#launcher-mode').textContent=options?.demo?(upload?'Live mode needed. Uploaded data cannot run in demo mode.':'Replay of a saved run. Uses its original company, models and volume; edits above do not change the saved findings.'):'Live mode: new measurements and a bounded investigation require configured Zetaris, cached tokenizers and NVIDIA. Full uploaded-data integration is not yet verified.';
  }
  $('#launch-source').addEventListener('change',()=>sourceChanged());
- document.addEventListener('click',e=>{const b=e.target.closest('[data-company]');if(b){$('#launch-source').value=b.dataset.company;sourceChanged();a.show('launcher');}});
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-company]');if(b){const company=b.dataset.company;if(names[company]){$('#launch-source').value=company;sourceChanged();}else{const c=s.companies.find(c=>c.company===company);$('#launch-source').value='upload';sourceChanged(false);$('#company-name').value=c?.display_name || company;$('#language').value=c?.language || 'te';}a.show('launcher');}});
  $('#ask-form').addEventListener('submit',async e=>{
   e.preventDefault();if(s.posting || !options)return;
   const error=$('#launcher-error');error.hidden=true;
@@ -82,6 +82,6 @@
  $('#token-sample').addEventListener('change',()=>tokenSample());$('#use-token-sample').addEventListener('click',()=>tokenSample());$('#compare-token-samples').addEventListener('click',()=>tokenSample(true));
  window.addEventListener('polytoken:screen',e=>{if(e.detail==='tokens' && !$('#token-text').value && samples.length)tokenSample();});
  a.fetchJSON('/token-samples').then(({data})=>{samples=data;$('#token-review').textContent=data[0]?.review_note || 'No authenticated sample receipts available.';}).catch(()=>{$('#token-review').textContent='Saved sample evidence unavailable.';});
- a.fetchJSON('/model-fits').then(({data})=>{runs=data;const opts=runs.map(r=>`<option value="${esc(r.id)}">${esc(names[r.company] || r.company)}</option>`).join('');$('#companies-ask .ask-run').innerHTML=opts;$('#companies-ask .ask-compare').innerHTML='<option value="">Choose for comparison</option>'+opts;const r=runs.find(r=>r.company==='raitu');if(r)$('#companies-ask .ask-run').value=r.id;}).catch(()=>{});
+ a.fetchJSON('/model-fits').then(({data})=>{runs=data;const opts=runs.map(r=>`<option value="${esc(r.id)}">${esc(names[r.company] || r.model_fit?.profile?.display_name || r.company)}</option>`).join('');$('#companies-ask .ask-run').innerHTML=opts;$('#companies-ask .ask-compare').innerHTML='<option value="">Choose for comparison</option>'+opts;const r=runs.find(r=>r.company==='raitu');if(r)$('#companies-ask .ask-run').value=r.id;}).catch(()=>{});
  a.fetchJSON('/launcher/options').then(({data})=>{options=data;$('#candidate-models').innerHTML=data.models.map(m=>`<label><input type="checkbox" value="${esc(m)}" checked>${esc(m)}</label>`).join('');$('#investigate').disabled=false;sourceChanged();}).catch(()=>{$('#launcher-mode').textContent='Launcher options unavailable. Reload after checking the local server.';$('#investigate').disabled=true;});
 })();

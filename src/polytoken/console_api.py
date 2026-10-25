@@ -51,11 +51,12 @@ def mount_console(app, manager, log_dir, state_dir, demo):
             path = Path(log_dir) / 'sample' / name
             if path.exists():
                 preferred.add(json.loads(path.read_text())['id'])
-        result = {key: {'demo': key in preferred, 'id': key, 'company': r.get('company'), 'status': r.get('status'), 'saved': True}
+        result = {key: {'demo': key in preferred, 'id': key, 'company': r.get('company'), 'display_name': (r.get('model_fit') or {}).get('profile', {}).get('display_name'), 'status': r.get('status'), 'saved': True}
                   for key, r in found.items()}
         with manager.lock:
             for key, entry in manager.runs.items():
                 result[key] = {'id': key, 'company': entry.get('company'),
+                               'display_name': ((entry.get('report') or {}).get('model_fit') or {}).get('profile', {}).get('display_name'),
                                'status': (entry.get('report') or {}).get('status', 'running' if entry['events'] else 'queued'),
                                'saved': entry.get('finished', False)}
         return list(result.values())
@@ -85,7 +86,8 @@ def mount_console(app, manager, log_dir, state_dir, demo):
             company = report['company']
             if company not in selected or stamp > selected[company]['fetched_at']:
                 selected[company] = dict(company=company, id=report['id'], model_fit=view, claims=claims, fetched_at=stamp)
-        return [selected[c] for c in ('samudra', 'swara', 'raitu', 'paisa') if c in selected]
+        order = [c for c in ('samudra', 'swara', 'raitu', 'paisa') if c in selected]
+        return [selected[c] for c in [*order, *sorted(set(selected) - set(order))]]
 
     @app.get('/investigations/{identifier}/model-fit')
     def model_fit(identifier: str):
