@@ -69,8 +69,12 @@ class EventWorld:
 def archived_events(log_dir):
     """Archived rows are recorded SQL evidence, never substitute company fixtures."""
     records = {}
-    for path in sorted((Path(log_dir) / 'sample').glob('agent*world_events.jsonl')):
-        for line in path.read_text().splitlines():
+    for path in sorted((Path(log_dir) / 'sample').glob('*world_events.jsonl*')):
+        import gzip
+        opener = gzip.open if path.suffix == '.gz' else open
+        with opener(path, 'rt') as handle:
+            lines = handle.readlines()
+        for line in lines:
             row = json.loads(line)
             e = row.get('world_event', row)
             if 'event_id' in e:
@@ -90,7 +94,7 @@ def find_report(identifier, manager, log_dir):
     path = Path(log_dir) / 'investigations' / (identifier + '.json')
     if path.is_file():
         return json.loads(path.read_text())
-    for path in sorted((Path(log_dir) / 'sample').glob('agent_*_report.json')):
+    for path in sorted((Path(log_dir) / 'sample').glob('*_report.json')):
         row = json.loads(path.read_text())
         if row.get('id') == identifier:
             return row

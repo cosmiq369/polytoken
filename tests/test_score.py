@@ -48,3 +48,15 @@ def test_complete_selection_uses_evidence_time_not_filename(score_source):
     partial = {**report, 'id': 'partial-newer', 'status': 'partial'}
     chosen = latest_complete([(Path('zzz.json'), older), (Path('aaa.json'), report), (Path('new.json'), partial)], records)
     assert chosen['samudra'][1]['id'] == report['id']
+
+
+def test_compressed_demo_evidence_is_used_for_latest_run(score_source):
+    _, records = score_source
+    sample = ROOT / 'logs/sample'
+    demo = json.loads((sample / 'demo_samudra_report.json').read_text())
+    reports = [(p, json.loads(p.read_text())) for p in sample.glob('*_report.json')]
+    selected = latest_complete(reports, records)
+    assert selected['samudra'][1]['id'] == demo['id']
+    ids = {row['event_id'] for row in records}
+    budget = next(c for c in demo['claims'] if c['id'] == 'budget/duration_s')
+    assert budget['recompute']['inputs']['budget'] in ids
