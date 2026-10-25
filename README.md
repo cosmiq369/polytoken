@@ -112,7 +112,7 @@ polytoken score                     # offline contract evaluation
 UI_SCREENSHOTS=1 python -m pytest -q tests/test_ui_static.py
 ```
 
-The harness is installed from its pinned public Git dependency. A sibling checkout is unnecessary. [Pin and pre-existing work](docs/DECLARATIONS.md) · [Browser-test setup](web/README.md) · [Shipping validation](logs/sample/ship_checkpoint.jsonl).
+The harness is installed from its pinned public Git dependency. A sibling checkout is unnecessary. [Pin and pre-existing work](docs/DECLARATIONS.md) · [Browser-test setup](web/README.md) · [Shipping validation](logs/sample/ship_completion_report.md).
 
 ## Evidence and submission
 
