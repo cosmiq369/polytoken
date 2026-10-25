@@ -193,3 +193,22 @@ def test_display_endpoints_and_local_token_boundaries(billing_source, monkeypatc
         assert client.get('/tokens',params={'text':'x'*2001,'tokenizer':'fixture/model'}).status_code==422
         assert client.get('/tokens',params={'text':'  ','tokenizer':'fixture/model'}).status_code==422
     assert (s['tmp_path']/'logs/token_strip.jsonl').is_file()
+
+
+def test_byte_labels_reconstruct_telugu_utf8(tmp_path, monkeypatch):
+    from polytoken import tokens
+    from tokenizers import Tokenizer, models, pre_tokenizers, decoders
+    alphabet = pre_tokenizers.ByteLevel.alphabet()
+    tokenizer = Tokenizer(models.BPE(vocab={c: i for i, c in enumerate(alphabet)}, merges=[]))
+    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
+    tokenizer.decoder = decoders.ByteLevel()
+    path = tmp_path / 'tokenizer.json'
+    tokenizer.save(str(path))
+    monkeypatch.setattr(tokens, 'local_tokenizer_files', lambda: {'test/bytes': str(path)})
+    result = tokens.token_pieces('test/bytes', 'త')
+    assert result['count'] == 3
+    assert all(p['fragment'] for p in result['pieces'])
+    assert ' '.join(p['byte_hex'] for p in result['pieces']) == 'E0 B0 A4'
+    assert {p['tokenizer_start'] for p in result['pieces']} == {0}
+    assert {p['tokenizer_end'] for p in result['pieces']} == {1}
+    assert ''.join(p['text'] for p in result['pieces']) == 'త'

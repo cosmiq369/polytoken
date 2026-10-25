@@ -21,7 +21,7 @@ for path in sorted((root/'logs/sample').rglob('agent_*_report.json')):
         view=dict(id=report['id'],status='not measured',reason=str(exc),claims=[])
     target=out/(report['id']+'.json');target.write_text(json.dumps(view,ensure_ascii=False))
     views[report['id']]=str(target)
-    if path.name=='agent_samudra_v2_report.json':samudra=view
+    if path.name=='agent_samudra_v3_report.json':samudra=view
 (out/'index.json').write_text(json.dumps(views))
 (out/'currencies.json').write_text(json.dumps(load_currencies()))
 strips={}

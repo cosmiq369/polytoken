@@ -162,7 +162,8 @@ def mount_ui(app):
     """Mount the checkout's no-build interface after the API routes."""
     from fastapi.staticfiles import StaticFiles
 
-    app.mount('/', StaticFiles(directory=Path(__file__).resolve().parents[2] / 'web', html=True), name='ui')
+    from .paths import ROOT
+    app.mount('/', StaticFiles(directory=ROOT / 'web', html=True), name='ui')
 
 
 def mount_billing_api(app, manager, state_dir, log_dir):

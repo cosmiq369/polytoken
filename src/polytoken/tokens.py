@@ -25,7 +25,8 @@ def local_tokenizer_files():
     from pathlib import Path
     import yaml
     from huggingface_hub import try_to_load_from_cache
-    config = Path(__file__).resolve().parents[2] / 'configs/tokenizers.yaml'
+    from .paths import ROOT
+    config = ROOT / 'configs/tokenizers.yaml'
     result = {}
     for row in yaml.safe_load(config.read_text())['tokenizers']:
         spec = row['spec']
@@ -65,12 +66,27 @@ def token_pieces(spec, text):
     encoded = metadata.encode(text, add_special_tokens=False)
     if ids != encoded.ids or ids != adapter.encode(text):
         raise ValueError('Tokenizer IDs differ on independent encoding')
+    import json
+    import re
+    decoder = json.loads(metadata.to_str()).get('decoder')
+    byte_level = 'ByteLevel' in json.dumps(decoder)
+    # Invert the reversible byte-to-Unicode alphabet used by ByteLevel BPE.
+    direct = list(range(33, 127)) + list(range(161, 173)) + list(range(174, 256))
+    alphabet = {chr(b): b for b in direct}
+    alphabet.update({chr(256 + i): b for i, b in enumerate(b for b in range(256) if b not in direct)})
+    def hex_bytes(raw):
+        fallback = re.fullmatch(r'<0x([0-9A-Fa-f]{2})>', raw)
+        if fallback:
+            return fallback[1].upper()
+        if byte_level and all(c in alphabet for c in raw):
+            return ' '.join(f'{alphabet[c]:02X}' for c in raw)
+        return None
     pieces, cursor = [], 0
     for tid, raw, (start, end) in zip(encoded.ids, encoded.tokens, encoded.offsets):
         end = min(len(text), max(cursor, end))
         pieces.append(dict(id=tid, raw=raw, text=text[cursor:end], start=cursor, end=end,
                            tokenizer_start=start, tokenizer_end=encoded.offsets[len(pieces)][1],
-                           fragment=adapter.is_fragment(tid), kind='token'))
+                           fragment=adapter.is_fragment(tid), byte_hex=hex_bytes(raw), kind='token'))
         cursor = end
     if cursor < len(text):
         pieces.append(dict(id=None, raw='', text=text[cursor:], start=cursor, end=len(text),
@@ -87,4 +103,4 @@ def token_pieces(spec, text):
                 tokenizer_sha256=digest, source='Local tokenizer.json through indictax',
                 formula={'tokens_per_word':'token count / whitespace word count',
                          'lone_byte_share':'lone-byte or partial-character token count / all token IDs'},
-                boundary_note='Byte pieces may share a Unicode character span. Raw labels identify those tokens; gap spans are not tokens.')
+                boundary_note='Byte pieces may share a Unicode character span. Hex bytes identify byte tokens, grouped by their source character span; gap spans are not tokens.')

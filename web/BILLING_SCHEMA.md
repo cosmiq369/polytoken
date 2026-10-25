@@ -161,3 +161,18 @@ never replace checked headline claims, quality, timing or recorded savings.
 SVG coordinates and dot placement encode existing values; they create no new
 measurements or confidence intervals. Degenerate intervals are suppressed, with
 an explanation for a company having one system prompt.
+
+### Shipping display refinements
+
+Indian demo companies initially display INR; a remembered explicit selection takes
+precedence. Money shares and billed-token shares are labelled separately. The
+language comparison uses the checked cost multiplier, rounded only for display.
+The v3 interpretation determines the inconclusive stamp while the literal A/B
+contract verdict remains unchanged in the source report. Horizontal resend bars
+encode system/history/new-user input, with an adjacent cumulative-input line.
+
+Token pieces now include `byte_hex`, derived from the actual tokenizer's ByteLevel
+alphabet or byte-fallback label. Overlapping source spans group their byte cells
+under the source character; raw labels and IDs remain in the receipt. Saved-file
+import accepts `.jsonl.gz` through browser-native gzip decompression. Archive and
+billing readers support the same compressed evidence format.

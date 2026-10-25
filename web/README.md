@@ -60,3 +60,10 @@ A standalone browser run can use `web/prepare-ui-fixtures.py <directory>` with
 `PYTHONPATH=src`, then set `UI_BILLING_FIXTURES` and run `node web/check-ui.cjs`.
 Use `NODE_PATH` for an existing nonstandard Playwright installation; no npm step
 is needed. Empty local tokenizer caches produce explicit unavailable rows.
+
+PROMPT-06 refreshes the screenshot matrix using the contextual v3 Samudra report.
+INR is the initial demo currency. Byte fragments show hex bytes, grouped by source
+character. Saved evidence imports accept `.jsonl.gz`; decompression stays local.
+`record-demo.cjs` performs a real UI investigation against a running local server
+and archives its report/events and screen captures. It makes live model calls;
+run it only when intentionally recording a new investigation.

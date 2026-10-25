@@ -4,9 +4,9 @@ const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..'),samples=path.join(root,'logs/sample');
 const readJSON=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const lines=file=>fs.readFileSync(file,'utf8').trim().split('\n').map(JSON.parse);
-const samudraPath=path.join(samples,'agent_samudra_v2_report.json'),samudra=readJSON(samudraPath);
-const events=lines(path.join(samples,'agent_samudra_v2.jsonl')).filter(e=>e.investigation_id===samudra.id);
-const world=new Map(['agent_world_events.jsonl','agent_v2_world_events.jsonl'].flatMap(file=>lines(path.join(samples,file)).map(row=>[row.world_event.event_id,row.world_event])));
+const samudraPath=path.join(samples,'agent_samudra_v3_report.json'),samudra=readJSON(samudraPath);
+const events=lines(path.join(samples,'agent_samudra_v3.jsonl')).filter(e=>e.investigation_id===samudra.id);
+const world=new Map(['agent_world_events.jsonl','agent_v2_world_events.jsonl','agent_v3_world_events.jsonl'].flatMap(file=>lines(path.join(samples,file)).map(row=>[row.world_event.event_id,row.world_event])));
 const companies=['samudra','swara'].map(c=>[...world.values()].filter(e=>e.payload?.config?.company===c).at(-1)?.payload.config).filter(Boolean).map(c=>Object.fromEntries(['company','language','model_in_use','monthly_chats','latency_target_s'].map(k=>[k,c[k]])));
 const fixtureRoot=process.env.UI_BILLING_FIXTURES || path.join(root,'.cache/ui-browser-fixtures');
 const index=readJSON(path.join(fixtureRoot,'index.json')),tokenFixtures=readJSON(path.join(fixtureRoot,'tokens.json'));
@@ -94,9 +94,13 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   assert.match(await page.locator('.speed-row').first().innerText(),/openai\/gpt-oss-20b/);
   assert.match(await page.locator('.speed-row').first().innerText(),/stand-in/);
   assert.ok(!(await page.locator('.trust-line').innerText()).includes('speed/output_tokens_per_s/'));
+  const legacyPath=path.join(samples,'agent_samudra_v2_report.json');await importReport(legacyPath,readJSON(legacyPath).id);
   await page.locator('[data-dropped]').first().click();assert.match(await page.locator('#evidence').innerText(),/speed\/output_tokens_per_s/);
   await page.locator('#back-evidence').click();
+  await importReport(samudraPath,samudra.id);
   // Currency conversion is explicit, precise, and remembered after reload.
+  assert.equal(await page.locator('#currency').inputValue(),'INR');
+  await page.locator('#currency').selectOption('USD');
   const usdText=await page.locator('.headline-cell').first().innerText();assert.match(usdText,/\$116\.02/);
   await page.locator('#currency').selectOption('INR');assert.match(await page.locator('.headline-cell').first().innerText(),/11,015\.34/);
   assert.match(await page.locator('#currency-source').innerText(),/FBIL.*2026-10-23/);
@@ -112,25 +116,37 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   assert.equal(await page.locator('.headline-cell').first().innerText(),recorded);
   await page.locator('[data-scenario-record]').click();assert.match(await page.locator('#evidence').innerText(),/Scenario, not a measurement/);assert.match(await page.locator('#evidence').innerText(),/assumed_input_price_usd/);await page.locator('#back-evidence').click();
   await page.locator('#reset-what-if').click();assert.equal(await page.locator('#what-if-result').innerText(),scenarioBefore);
+  assert.match(await page.locator('.quality-line').innerText(),/A\/A floor 7 \/ 20 judged/);
+  assert.match(await page.locator('.quality-line').innerText(),/A\/B change 3 \/ 20 judged/);
+  assert.match(await page.locator('.fix.tested .fix-heading').innerText(),/Inconclusive/i);
+  assert.match(await page.locator('.interpretation').innerText(),/the bar cannot be met by this judge and stand-in model/);
+  assert.match(await page.locator('#report-title').innerText(),/of the money/);
+  assert.match(await page.locator('.composition-grid').innerText(),/of billed tokens/);
+  assert.match(await page.locator('.tax-cell').innerText(),/what the same content costs in English/);
+  assert.ok(!(await page.locator('#report').innerText()).includes('820.65%'));
+  for(const fix of await page.locator('.fix.estimate').all()) assert.equal(await fix.getByText('Untested estimate',{exact:true}).count(),1);
   // Optional A/A and A/B rows use recorded pair order, null verdicts stay unjudged.
   const source=samudra.claims[0],view=readJSON(index[samudra.id]),aaId='test-aa';
-  const synthetic={...samudra,id:aaId,quality_interpretation:'Test A/A floor is inconclusive',claims:[...samudra.claims,{...source,id:'quality/aa/passed',value:17},{...source,id:'quality/aa/judged',value:20}],fixes:samudra.fixes.map(f=>f.experiment_evidence_ids?{...f,status:'inconclusive; native review pending'}:f)};
+  const synthetic={...samudra,id:aaId,quality_interpretation:'Test A/A floor is inconclusive',claims:[...samudra.claims.filter(c=>!c.id.startsWith('quality/aa/')),{...source,id:'quality/aa/passed',value:17},{...source,id:'quality/aa/judged',value:20}],fixes:samudra.fixes.map(f=>f.experiment_evidence_ids?{...f,status:'inconclusive; native review pending'}:f)};
   billingOverride={...view,id:aaId,quality:{...view.quality,aa:{pairs:Array.from({length:20},(_,i)=>({chat_id:'test-'+i,same_facts:i<17,reason:'Test-only verdict'}))}},fixes:view.fixes.map(f=>f.tested?{...f,status:'inconclusive; native review pending'}:f)};
   await importObject(synthetic);assert.match(await page.locator('.quality-line').innerText(),/A\/A floor 17 \/ 20 judged/);assert.equal(await page.locator('.quality-line .threshold').count(),2);assert.match(await page.locator('.quality-line').innerText(),/18-of-20/);
   billingOverride=null;
+  const zlib=require('node:zlib');await importReport([{name:'report.json',mimeType:'application/json',buffer:fs.readFileSync(samudraPath)},{name:'evidence.jsonl.gz',mimeType:'application/gzip',buffer:zlib.gzipSync(JSON.stringify({world_event:world.values().next().value})+'\n')}],samudra.id);
+  assert.equal(await page.locator('#notice').isVisible(),false);
   // Source escaping, missing values, dropped claims, malformed imports.
   await importObject({id:'test-partial',status:'partial',partial_reason:'Test budget exhausted',claims:[{...source,id:'unverified',value:987654321,verified:false},{...source,id:'dropped',value:987654321}],dropped_claims:[{id:'dropped',reason:'Test checker rejection'}],top_finding:'<img src=x onerror="window.injected=true">',unknown_future_field:{anything:true}});
   assert.ok(!(await page.locator('#report').innerText()).includes('987654321'));assert.equal(await page.locator('#report img').count(),0);assert.equal(await page.evaluate(()=>window.injected),undefined);
   billingUnavailable=true;await importReport(samudraPath,samudra.id);await page.locator('#report-title .metric').click();await page.getByText('Raw evidence not loaded.',{exact:false}).first().waitFor();
   await page.getByRole('button',{name:'1 Ask',exact:true}).click();await page.locator('#saved-files').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{')});await page.locator('#notice:not([hidden])').waitFor();
   billingUnavailable=false;
+  await page.locator('#currency').selectOption('INR');
   // Screenshots use the saved Samudra report and actual cached tokenizer outputs.
-  await importReport([samudraPath,path.join(samples,'agent_samudra_v2.jsonl'),path.join(samples,'agent_world_events.jsonl'),path.join(samples,'agent_v2_world_events.jsonl')],samudra.id);
+  await importReport([samudraPath,path.join(samples,'agent_samudra_v3.jsonl'),path.join(samples,'agent_world_events.jsonl'),path.join(samples,'agent_v2_world_events.jsonl'),path.join(samples,'agent_v3_world_events.jsonl')],samudra.id);
   await page.getByRole('button',{name:'4 Token strip',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#token-status').textContent.startsWith('Local inspection complete'));
   assert.equal(await page.locator('.token-row').count(),8);
   const successful=Object.values(tokenFixtures).filter(r=>r.ok);
   successful.forEach(row=>assert.equal(row.pieces.map(p=>p.text).join(''),row.text));
-  if(successful.some(r=>r.fragments>0))assert.ok(await page.locator('.token-piece.fragment').count()>0);
+  if(successful.some(r=>r.fragments>0)){assert.ok(await page.locator('.token-piece.fragment').count()>0);for(const cell of await page.locator('.token-piece.fragment').all())assert.match(await cell.innerText(),/^[0-9A-F]{2}( [0-9A-F]{2})*$/);assert.ok(await page.locator('.byte-character').count()>0);}
   await page.locator('#token-english').click();await page.waitForFunction(()=>document.querySelector('#token-status').textContent.startsWith('Local inspection complete'));
   assert.ok(tokenRequests.some(([text])=>text===view.default_text.english));
   await page.locator('#token-native').click();await page.waitForFunction(()=>document.querySelector('#token-status').textContent.startsWith('Local inspection complete'));

@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 from urllib.parse import urlsplit
 
-ROOT = Path(__file__).resolve().parents[2]
+from .paths import ROOT
 
 
 def load_currencies(path=None):

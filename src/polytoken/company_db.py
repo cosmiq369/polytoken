@@ -15,7 +15,7 @@ from .logs import JsonlLogger
 from .prices import load_prices
 
 # Source checkout, or a non-editable installation invoked from the cloned repo.
-ROOT = Path(__file__).resolve().parents[2]
+from .paths import ROOT
 if not (ROOT / 'data/demo').is_dir():
     ROOT = Path.cwd()
 COMPANIES = ('samudra', 'swara')
