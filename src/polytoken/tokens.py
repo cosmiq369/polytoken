@@ -18,3 +18,73 @@ def fragment_rate(spec: str, text: str) -> float:
     tokenizer = _tokenizer(spec)
     ids = tokenizer.encode(text)
     return sum(tokenizer.is_fragment(tid) for tid in ids) / len(ids) if ids else 0.0
+
+
+def local_tokenizer_files():
+    """Resolve only the measured allowlist in the local HF cache, without download."""
+    from pathlib import Path
+    import yaml
+    from huggingface_hub import try_to_load_from_cache
+    config = Path(__file__).resolve().parents[2] / 'configs/tokenizers.yaml'
+    result = {}
+    for row in yaml.safe_load(config.read_text())['tokenizers']:
+        spec = row['spec']
+        cached = try_to_load_from_cache(spec.removeprefix('hf:'), 'tokenizer.json')
+        result[spec] = cached if isinstance(cached, str) and Path(cached).is_file() else None
+    return result
+
+
+@lru_cache(maxsize=16)
+def _local_metadata(path, mtime_ns):
+    from pathlib import Path
+    import hashlib
+    from tokenizers import Tokenizer
+    return Tokenizer.from_file(path), hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def token_pieces(spec, text):
+    """Return lossless display spans plus real IDs, raw labels and fragment flags.
+
+    Byte tokens can share a Unicode offset. The first consumes the display span;
+    subsequent pieces have empty text but retain their actual raw token labels.
+    Gaps discarded by a tokenizer's normalizer are explicitly non-token spans.
+    """
+    from pathlib import Path
+    from indictax.textstats import word_count
+    if not isinstance(text, str) or not text.strip() or len(text) > 2000:
+        raise ValueError('Supply nonempty text of at most 2000 characters')
+    files = local_tokenizer_files()
+    if spec not in files:
+        raise ValueError('Unknown tokenizer; choose a measured tokenizer')
+    if not files[spec]:
+        return dict(ok=False, tokenizer=spec, reason='Tokenizer is not available in the local cache; no download attempted.')
+    path = Path(files[spec])
+    metadata, digest = _local_metadata(str(path), path.stat().st_mtime_ns)
+    adapter = _tokenizer('file:' + str(path))
+    ids = adapter.encode(text)
+    encoded = metadata.encode(text, add_special_tokens=False)
+    if ids != encoded.ids or ids != adapter.encode(text):
+        raise ValueError('Tokenizer IDs differ on independent encoding')
+    pieces, cursor = [], 0
+    for tid, raw, (start, end) in zip(encoded.ids, encoded.tokens, encoded.offsets):
+        end = min(len(text), max(cursor, end))
+        pieces.append(dict(id=tid, raw=raw, text=text[cursor:end], start=cursor, end=end,
+                           tokenizer_start=start, tokenizer_end=encoded.offsets[len(pieces)][1],
+                           fragment=adapter.is_fragment(tid), kind='token'))
+        cursor = end
+    if cursor < len(text):
+        pieces.append(dict(id=None, raw='', text=text[cursor:], start=cursor, end=len(text),
+                           fragment=False, kind='gap'))
+    if ''.join(p['text'] for p in pieces) != text:
+        raise ValueError('Token display pieces do not reproduce input')
+    fragments = sum(adapter.is_fragment(tid) for tid in ids)
+    if fragments != sum(p['fragment'] for p in pieces):
+        raise ValueError('Fragment counts differ on recomputation')
+    words = word_count(text)
+    return dict(ok=True, tokenizer=spec, text=text, pieces=pieces, count=len(ids), words=words,
+                fragments=fragments, tokens_per_word=len(ids)/words if words else None,
+                lone_byte_share=fragments/len(ids) if ids else None,
+                tokenizer_sha256=digest, source='Local tokenizer.json through indictax',
+                formula={'tokens_per_word':'token count / whitespace word count',
+                         'lone_byte_share':'lone-byte or partial-character token count / all token IDs'},
+                boundary_note='Byte pieces may share a Unicode character span. Raw labels identify those tokens; gap spans are not tokens.')

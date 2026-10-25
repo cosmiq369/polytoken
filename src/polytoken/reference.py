@@ -22,7 +22,18 @@ def _read(name, path):
 
 
 def load_fx(path=None):
-    row = _read('fx.json', path)
+    # Keep the agent's historical INR contract while display currencies grow by row.
+    data = json.loads(Path(path or ROOT / 'fx.json').read_text())
+    if isinstance(data, dict) and 'rates' in data:
+        from .currencies import load_currencies
+        rates = load_currencies(path or ROOT / 'fx.json')['rates']
+        found = next((r for r in rates if r['currency'] == 'INR'), None)
+        if found is None:
+            raise ValueError('Verified USD/INR rate required by historical accounting')
+        row = {k: v for k, v in found.items() if k not in ('currency', 'per_usd')}
+        row.update(pair='USD/INR', inr_per_usd=found['per_usd'])
+    else:
+        row = _read('fx.json', path)
     value = row.get('inr_per_usd')
     if (row.get('verified') is not True or row.get('pair') != 'USD/INR'
             or type(value) not in (int, float) or not math.isfinite(value) or value <= 0):
