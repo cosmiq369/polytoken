@@ -42,7 +42,7 @@ class Investigation:
         self.step, self.why = 'clarify', DEFAULT_WHY['clarify']
         self.context, self.metrics, self.candidates, self.remembered = {}, {}, [], []
         self.remembered_findings = []
-        self.experiment = self.quality = self.speed = None
+        self.experiment = self.quality = self.control_quality = self.speed = None
         self.partial_reason = None
         self.needs_input = []
         self.checker = Checker(tools.store, self.logger)
@@ -192,14 +192,17 @@ class Investigation:
         elif step == 'judge':
             if self.background or not self.experiment:
                 return
+            control = [{**p, 'changed': p['control']} for p in self.experiment['pairs']]
+            self.control_quality = t.quality_judge(control, 'aa')
+            self.add_metrics(quality_metrics(self.control_quality), 'quality', {'quality': self.control_quality['evidence_ids'][0]})
             self.quality = t.quality_judge(self.experiment['pairs'])
             self.add_metrics(quality_metrics(self.quality), 'quality', {'quality': self.quality['evidence_ids'][0]})
             self.context['quality'] = quality_metrics(self.quality)
         elif step == 'speed':
-            if self.background or not self.experiment:
+            if self.background or not self.experiment or not self.experiment['pairs']:
                 return
             pair = self.experiment['pairs'][0]
-            variants = {v: {'system': self.experiment['systems'][v], 'user': pair['user'], 'chat_id': pair['chat_id'], 'model': self.experiment['models'][v]}
+            variants = {v: {'system': self.experiment['systems'][v], 'user': pair['user'], 'conversation': pair['conversation'], 'chat_id': pair['chat_id'], 'model': self.experiment['models'][v]}
                         for v in ('original', 'changed')}
             self.speed = t.speed_probe(self.experiment['models']['original'], variants)
             self.add_metrics(speed_metrics(self.speed), 'speed', {'speed': self.speed['evidence_ids'][0]})
@@ -334,6 +337,11 @@ class Investigation:
     def build_report(self, company, verified):
         insufficient = verified.get('quality/judged') != 20
         quality_pass = verified.get('quality/passed', 0) >= 18 and verified.get('quality/judged') == 20
+        from .quality import INCONCLUSIVE
+        contextual = self.experiment and self.experiment.get('protocol_version') == 3
+        aa_complete = verified.get('quality/aa/judged') == 20
+        aa_low = aa_complete and verified.get('quality/aa/passed', 0) < 18
+        interpretation = (INCONCLUSIVE if aa_low else ('A/A incomplete; result inconclusive' if not aa_complete else 'A/A meets the bar; A/B remains subject to native review.')) if contextual else None
         tested = self.experiment['lever'] if self.experiment else None
         fixes = []
         for candidate in self.candidates:
@@ -348,6 +356,9 @@ class Investigation:
                 if quality_pass and verified.get(c['claim_id'], 0) <= 0:
                     c['status'] = 'quality passed; no demonstrated cost saving'
                     c['reason'] = 'Same-facts check passed, but the comparable historical cost scenario does not establish a saving.'
+                if contextual and (aa_low or not aa_complete):
+                    c['status'] = 'inconclusive; native review pending'
+                    c['reason'] = interpretation
                 c['model_label'] = self.experiment['model_label']
                 c['experiment_evidence_ids'] = self.experiment['evidence_ids']
             fixes.append(c)
@@ -375,11 +386,14 @@ class Investigation:
                                  if k in ('model', 'provider', 'source_url', 'fetched_at')} if hasattr(self, 'config') else None,
                 'claims': self.claims, 'dropped_claims': self.dropped, 'fixes': fixes,
                 'quality_status': 'running' if self.job_status in ('queued', 'running') else ('automated pass; native review pending' if quality_pass else ('insufficient sample' if insufficient else 'failed')),
+                'quality_interpretation': interpretation,
+                'quality_evidence_ids': (self.quality or {}).get('evidence_ids', []),
+                'control_quality_evidence_ids': (self.control_quality or {}).get('evidence_ids', []),
                 'review_status': 'pending', 'speed_status': speed_status,
                 'throughput_status': ('measured from provider usage' if 'speed/output_tokens_per_s/original_median' in verified else 'unavailable; missing or inseparable reasoning usage'),
                 'remembered': self.remembered, 'remembered_fields': ['volume', 'target', 'model', 'reply-language constraints'] if self.remembered else [],
                 'remembered_findings': self.remembered_findings,
-                'experiment': {k: self.experiment.get(k) for k in ('lever', 'models', 'model_label', 'accounting', 'accounting_version', 'target_tokenizer', 'evidence_ids')} if self.experiment else None,
+                'experiment': {k: self.experiment.get(k) for k in ('protocol_version', 'lever', 'models', 'model_label', 'accounting', 'accounting_version', 'target_tokenizer', 'evidence_ids')} if self.experiment else None,
                 'markovian_runs': [{'log_index': i, 'token_label': r['tokenLabel'], 'claim_prefix': f'markovian/{i}/'} for i, r in enumerate([*self.history])]
                     + [{'log_index': len(self.history), 'token_label': self.current_run['tokenLabel'], 'claim_prefix': f'markovian/{len(self.history)}/'}],
                 'limitations': ['Synthetic paired translations and all native reviews remain pending.',

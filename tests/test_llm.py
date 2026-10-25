@@ -86,7 +86,7 @@ def test_429_retry_after_then_success(settings, logger, clock):
 
     generate = make_generator(settings, logger, clock, handler, max_tokens=8).generate
     result = generate("private prompt", system_prompt="private system")
-    assert result == {"text": "సరే", "usage": completion()["usage"], "latency_s": 3, "model": settings.agent_model}
+    assert result == {"text": "సరే", "usage": completion()["usage"], "latency_s": 3, "model": settings.agent_model, "finish_reason": "stop"}
     assert clock.sleeps == [3]
     body = json.loads(requests[-1].content)
     assert body["max_tokens"] == 8
@@ -214,3 +214,16 @@ def test_retry_after_date_and_invalid_values():
     assert 28 <= llm._retry_after(future) <= 30
     for value in (None, "junk", "nan", "inf", "-1"):
         assert llm._retry_after(value) == 0
+
+
+def test_full_conversation_and_finish_reason_preserved(settings, logger, clock):
+    requests = []
+    def handler(request):
+        requests.append(json.loads(request.content))
+        return httpx.Response(200, text=sse({'choices': [{'delta': {'content': 'unfinished'}, 'finish_reason': 'length'}]}))
+    history = [{'role': 'user', 'content': 'first'}, {'role': 'assistant', 'content': 'reply'}, {'role': 'user', 'content': 'last'}]
+    result = make_generator(settings, logger, clock, handler).generate('last', system_prompt='policy', conversation=history,
+                                                                      reasoning_effort='low', max_tokens=1024, on_stream=lambda _: None)
+    assert requests[0]['messages'] == [{'role': 'system', 'content': 'policy'}] + history
+    assert requests[0]['reasoning_effort'] == 'low'
+    assert result['finish_reason'] == rows(logger)[0]['finish_reason'] == 'length'

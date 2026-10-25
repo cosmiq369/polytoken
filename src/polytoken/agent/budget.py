@@ -9,7 +9,7 @@ class BudgetExceeded(LLMError):
 
 
 class BudgetGuard:
-    LIMITS = {'nemotron': 25, 'hosted': 70, 'sql': 60}
+    LIMITS = {'nemotron': 25, 'judge': 45, 'hosted': 70, 'sql': 60}
 
     def __init__(self, *, clock=time.monotonic, wall_s=360):
         self.clock, self.wall_s = clock, wall_s

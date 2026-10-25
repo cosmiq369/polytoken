@@ -93,3 +93,47 @@ separately. Served models must pass recorded probes; catalogue listing alone is
 insufficient. Successful generation evidence is reused by model, system hash and
 chat identity (with user text and generation settings included to avoid stale hits).
 The quality threshold, human review requirement and expected findings are unchanged.
+
+### 25 Oct 2026 — contextual quality protocol and A/A floor (PROMPT-04C)
+
+Registered before any v3 generation or judging. Historical scores and evidence
+remain unchanged. Generation sends the full native conversation through its last
+user turn as role messages, omitting subsequent replies. Both variants use
+max_tokens=1024 and temperature=0; GPT-OSS uses reasoning_effort=low (Reasoning:
+low). Record finish_reason. A length-truncated reply is regenerated once with the
+same settings. If still truncated, exclude the chat from both comparisons and
+replace it with the next chat in the fixed-seed order; disclose all exclusions.
+Other failed or unterminated replies are also excluded, never treated as complete.
+
+For each company generate original A1, independently generated original A2, and
+changed B for the same twenty accepted chats. A1 is shared by A/A and A/B;
+A2 has a separate replicate cache identity and is never copied from A1. Cache
+identities include the full history, protocol, replicate and generation settings.
+The fixed seed is 20261024, applied to a permutation of sorted chat IDs; replacement
+never depends on a judge verdict. Successful v3 calls may be reused in a bounded
+recovery investigation; every attempt and every report remains in history.
+
+One pair per Nemotron call receives the original company policy, full conversation
+and both replies, with identical judging instructions for A/A and A/B. It lists
+customer-facing claims (plans, amounts, steps, safety instructions) in each reply,
+with exact supporting quotes and present/missing/contradicted/added classifications.
+Policy grounding is annotated separately: correcting an unsupported claim may be
+non-equivalent without being worse. Material missing, contradicted or added claims
+make same_facts false. Invalid evidence or incomplete judging is unjudged, not a
+failure or pass. The deterministic checker derives verdicts and category counts
+from validated claim lists. Native review is still mandatory.
+
+Forty pair judgments exceed the previous 25-call allowance. The limits are now
+25 physical Nemotron reasoning attempts plus 45 physical Nemotron judging attempts
+per investigation, including repairs and retries. The existing 70 hosted attempts,
+60 SQL queries, six-minute reasoning deadline, thirty-minute background deadline,
+concurrency four and shared rate limiter are unchanged. The minimum hosted design
+uses 60 generations plus eight speed trials; exhausted budgets produce partial
+reports, never fabricated replacements. Judge output allowance is 4096 tokens.
+
+Report A/A and A/B n/20 side by side, preserving the 18/20 contract verdict.
+If A/A is complete and below 18/20, the interpretation is exactly: "the bar cannot
+be met by this judge and stand-in model; result inconclusive". An incomplete A/A
+also prevents interpreting A/B as a demonstrated fix. Automated pass alone never
+replaces the native spot check. Cost accounting and speed uncertainty rules remain
+unchanged; speed trials now use the same full conversation and generation settings.

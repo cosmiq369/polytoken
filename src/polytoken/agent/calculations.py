@@ -89,6 +89,9 @@ def experiment_metrics(experiment, snapshot, prices, fx):
     pairs = experiment['pairs']
     ok = [p for p in pairs if p['original']['ok'] and p['changed']['ok']]
     metrics = {'experiment/completed_pairs': len(ok)}
+    if experiment.get('protocol_version') == 3:
+        metrics['experiment/exclusions'] = len(experiment['excluded_pairs'])
+        metrics['experiment/truncation_exclusions'] = sum(any(p[v].get('error_class') == 'TruncatedReply' for v in ('original', 'control', 'changed')) for p in experiment['excluded_pairs'])
     if experiment.get('accounting_version') == 2:
         return reconstructed_experiment_metrics(experiment, snapshot, prices, fx, metrics)
     if len(ok) != 20:
@@ -116,9 +119,26 @@ def quality_metrics(verdict):
     rows = verdict['pairs']
     if len({r['chat_id'] for r in rows}) != len(rows):
         raise ValueError('Duplicate quality pair')
-    return {'quality/passed': sum(r.get('same_facts') is True for r in rows),
-            'quality/judged': sum(type(r.get('same_facts')) is bool for r in rows),
-            'quality/queued_for_review': len(rows)}
+    prefix = 'quality/aa' if verdict.get('comparison') == 'aa' else 'quality'
+    if verdict.get('protocol_version') == 3:
+        from .quality import validate_claims
+        recomputed = []
+        for row in rows:
+            if row.get('same_facts') is not None:
+                same = validate_claims(row, {'chat_id': row['chat_id'], **row['reply_texts']})
+                recomputed.append({**row, 'same_facts': same})
+            else:
+                recomputed.append(row)
+        rows = recomputed
+    metrics = {prefix + '/passed': sum(r.get('same_facts') is True for r in rows),
+               prefix + '/judged': sum(type(r.get('same_facts')) is bool for r in rows),
+               prefix + '/queued_for_review': len(rows)}
+    if verdict.get('protocol_version') == 3:
+        for status in ('missing', 'contradicted', 'added'):
+            metrics[prefix + '/' + status] = sum(
+                c['material'] and c['status'] == status for r in rows if r.get('same_facts') is not None
+                for variant in ('original', 'changed') for c in r[variant + '_claims'])
+    return metrics
 
 
 def speed_metrics(probe):

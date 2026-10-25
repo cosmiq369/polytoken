@@ -9,6 +9,7 @@ import threading
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel, Field
 
@@ -81,6 +82,8 @@ def create_app(*, run=investigate, reference=True, state_dir='.cache/state', log
                 server.shutdown()
                 server.server_close()
     app = FastAPI(title='PolyToken', lifespan=lifespan)
+    app.add_middleware(CORSMiddleware, allow_origin_regex=r'http://localhost(?::[0-9]+)?',
+                       allow_methods=['GET', 'POST'], allow_headers=['Content-Type', 'Last-Event-ID'])
     app.state.manager = manager
 
     def state(identifier):

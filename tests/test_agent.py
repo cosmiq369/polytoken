@@ -62,12 +62,13 @@ def apparatus(tmp_path, logger):
                 why = 'Rank expected savings using billed counts and verified prices.' if step == 'hypothesise' else 'Use the stored evidence for this step.'
                 text = json.dumps(dict(why=why, tool=step, args=args, done=step == 'report'))
             elif 'Judge semantic equivalence' in prompt:
-                pairs = json.loads(prompt.split('\n', 1)[1])
-                text = json.dumps([dict(chat_id=p['chat_id'], same_facts=True, reason='Facts match.') for p in pairs])
+                pair = json.loads(prompt.split('\n', 1)[1])
+                claim = lambda v: [dict(claim='Facts match', quote=pair[v], material=True, status='present', grounding='supported')]
+                text = json.dumps(dict(chat_id=pair['chat_id'], reason='Facts match.', original_claims=claim('original'), changed_claims=claim('changed')))
             else:
                 text = 'సరే same facts'
                 kwargs['on_stream'](text)
-            return dict(text=text, usage={'prompt_tokens': 100, 'completion_tokens': 25},
+            return dict(text=text, finish_reason='stop', usage={'prompt_tokens': 100, 'completion_tokens': 25},
                         latency_s=1.5, ttft_s=.2, request_latency_s=1.4)
     world = WorldModel(storage='memory', logger=logger)
     memory = HMem(logger=logger)
@@ -87,7 +88,7 @@ def test_scripted_production_size_and_memory(apparatus):
     assert report['quality_status'] == 'automated pass; native review pending'
     assert report['speed_status'] == 'inconclusive'
     assert report['top_fix'] == 'english_system'
-    assert a['tools'].budget.counts == {'nemotron': 13, 'hosted': 48, 'sql': 4}
+    assert a['tools'].budget.counts == {'nemotron': 9, 'judge': 40, 'hosted': 68, 'sql': 4}
     assert all(c['verified'] for c in report['claims'])
     assert len(a['tools'].snapshot['items']) == 201
     # A fresh guard and the same H-MEM must expose recalled fields.
@@ -117,7 +118,7 @@ def test_no_hidden_file_reads_in_investigation(apparatus, monkeypatch):
     assert report['status'] == 'complete'
 
 
-@pytest.mark.parametrize('kind', ['nemotron', 'hosted', 'sql'])
+@pytest.mark.parametrize('kind', ['nemotron', 'judge', 'hosted', 'sql'])
 def test_every_count_budget(kind):
     guard = BudgetGuard()
     for _ in range(guard.LIMITS[kind]):
@@ -247,7 +248,7 @@ def test_stand_in_label_and_temperature(apparatus):
     assert experiment['model_label'] == 'tested on a stand-in model'
     assert experiment['tokenizer_spec'] == 'fixture/model'
     calls = [kwargs for _, kwargs in apparatus['generator'].calls if kwargs.get('model')]
-    assert len(calls) == 40 and all(c['temperature'] == 0 and c['model'] == 'standin/hosted' for c in calls)
+    assert len(calls) == 60 and all(c['temperature'] == 0 and c['model'] == 'standin/hosted' for c in calls)
     assert all(p['review_status'] == 'pending' for p in experiment['pairs'])
 
 
@@ -397,10 +398,10 @@ def test_background_jobs_publish_running_then_verified(apparatus):
     assert all(c['verified'] for c in final['claims'])
     values = {c['id']: c['value'] for c in final['claims']}
     assert values['budget/hosted'] == 0
-    assert values['jobs/hosted'] == 48
+    assert values['jobs/hosted'] == 68
     progress = [e for e in agent.events if e['event'] == 'experiment_progress']
-    assert [e['done'] + e['failed'] for e in progress] == list(range(41))
-    assert all(e['total'] == 40 for e in progress)
+    assert [e['done'] + e['failed'] for e in progress] == list(range(61))
+    assert all(e['total'] == 60 for e in progress)
     assert [e['event'] for e in agent.events[-2:]] == ['experiment_done', 'done']
 
 
@@ -418,7 +419,9 @@ def test_cache_reuses_successful_calls_and_retries_failed_only(apparatus):
         return original(prompt, **kwargs)
     t.generate = fail_one
     first = t.fix_experiment('samudra', 'english_system')
-    assert sum(p[v]['ok'] for p in first['pairs'] for v in ('original', 'changed')) == 39
+    assert len(first['pairs']) == 20
+    assert len(first['excluded_pairs']) == 1
+    assert first['excluded_pairs'][0]['original']['ok'] is False or first['excluded_pairs'][0]['control']['ok'] is False or first['excluded_pairs'][0]['changed']['ok'] is False
     t.generate = original
     t.budget = BudgetGuard()
     second = t.fix_experiment('samudra', 'english_system')
@@ -595,3 +598,116 @@ def test_offline_throughput_recheck_keeps_raw_report_and_other_claims(apparatus,
     assert all(c['verified'] for c in revised['claims'])
     assert json.loads((tmp_path / 'report_before_throughput_correction.json').read_text()) == report
     assert len(a['generator'].calls) == before_calls
+
+
+def test_context_history_independent_control_and_judge_evidence(apparatus):
+    a = apparatus
+    agent = Investigation(a['tools'], a['memory'], background=True)
+    agent.run('samudra')
+    report = agent.finish_jobs('samudra', lambda _: None)
+    generated = [(p, k) for p, k in a['generator'].calls if k.get('model')]
+    assert len(generated) == 68
+    assert all(k['max_tokens'] == 1024 and len(k['conversation']) == 3 for _, k in generated)
+    assert all([m['role'] for m in k['conversation']] == ['user', 'assistant', 'user'] for _, k in generated)
+    pair = agent.experiment['pairs'][0]
+    assert pair['original']['cache_key'] != pair['control']['cache_key']
+    judged = [p for p, k in a['generator'].calls if p.startswith('Judge semantic equivalence')]
+    assert len(judged) == 40
+    # Identical instructions and contextual inputs across A/A and A/B.
+    assert len({p.split('\n', 1)[0] for p in judged}) == 1
+    for prompt in judged:
+        data = json.loads(prompt.split('\n', 1)[1])
+        assert data['company_policy'] == a['config']['system_prompt_native']
+        assert len(data['conversation']) == 3
+    assert {c['id']: c['value'] for c in report['claims']}['quality/aa/passed'] == 20
+
+
+def test_truncation_regeneration_exclusion_and_fixed_order(apparatus):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    t.measure('samudra', config, ids)
+    original = t.generate
+    # All three variants of the first chat truncate twice; the next chat replaces it.
+    import random
+    ordered = random.Random(20261024).sample(sorted({i['chat_id'] for i in t.snapshot['items'] if i['part'] == 'user'}), 50)
+    chat_index = int(ordered[0].split('_')[1])
+    def truncate(prompt, **kwargs):
+        row = original(prompt, **kwargs)
+        if prompt == f'native text {chat_index} 3':
+            row['finish_reason'] = 'length'
+        return row
+    t.generate = truncate
+    result = t.fix_experiment('samudra', 'english_system')
+    assert [p['chat_id'] for p in result['pairs']] == ordered[1:21]
+    assert len(result['excluded_pairs']) == 1
+    assert all(result['excluded_pairs'][0][v]['error_class'] == 'TruncatedReply' for v in ('original', 'control', 'changed'))
+    assert t.budget.counts['hosted'] == 66
+    attempts = [e['payload'] for e in apparatus['world'].events() if 'generation_attempt' in str(e['provenance']['query'])]
+    assert sum(r.get('finish_reason') == 'length' for r in attempts) == 6
+    quality = t.quality_judge(result['pairs'])
+    assert len(quality['pairs']) == 20
+
+
+def test_one_truncation_recovers_and_history_changes_cache_identity(apparatus):
+    t = apparatus['tools']
+    config, ids = t.load_company('samudra')
+    t.measure('samudra', config, ids)
+    original = t.generate
+    calls = []
+    def once(prompt, **kwargs):
+        row = original(prompt, **kwargs)
+        calls.append(True)
+        row['finish_reason'] = 'length' if len(calls) == 1 else 'stop'
+        return row
+    t.generate = once
+    row = t._hosted_call('user', 'system', 'fixture/hosted', 'fixture/model')
+    assert row['ok'] and len(row['generation_attempts']) == 2
+    t.generate = original
+    t.budget = BudgetGuard()
+    result = t.fix_experiment('samudra', 'english_system')
+    chat = result['pairs'][0]['chat_id']
+    next(i for i in t.snapshot['items'] if i['chat_id'] == chat and i['part'] == 'assistant')['native'] += ' new history'
+    t.budget = BudgetGuard()
+    t.fix_experiment('samudra', 'english_system')
+    assert t.budget.counts['hosted'] == 3
+
+
+def test_aa_floor_inconclusive_keeps_contract_verdict(apparatus):
+    from polytoken.agent.quality import INCONCLUSIVE
+    a = apparatus
+    agent = Investigation(a['tools'], a['memory'], background=True)
+    agent.run('samudra')
+    report = agent.finish_jobs('samudra', lambda _: None)
+    values = {c['id']: c['value'] for c in report['claims']}
+    values.update({'quality/aa/passed': 17, 'quality/passed': 0})
+    result = agent.build_report('samudra', values)
+    assert result['quality_status'] == 'failed'
+    assert result['quality_interpretation'] == INCONCLUSIVE
+    assert result['top_fix'] is None
+    values['quality/passed'] = 20
+    result = agent.build_report('samudra', values)
+    assert result['quality_status'] == 'automated pass; native review pending'
+    assert result['top_fix'] is None
+    assert result['quality_interpretation'] == INCONCLUSIVE
+
+
+def test_claim_checker_recomputes_boolean_and_rejects_invented_quote():
+    from polytoken.agent.calculations import quality_metrics
+    claim = dict(claim='step', quote='real words', status='present', material=True, grounding='supported')
+    row = dict(chat_id='one', reason='diff', same_facts=True, original_claims=[{**claim, 'status': 'missing'}], changed_claims=[claim],
+               reply_texts={v: {'text': 'real words'} for v in ('original', 'changed')})
+    verdict = {'protocol_version': 3, 'pairs': [row]}
+    assert quality_metrics(verdict)['quality/passed'] == 0
+    assert quality_metrics(verdict)['quality/missing'] == 1
+    row['original_claims'][0]['quote'] = 'invented'
+    with pytest.raises(ValueError, match='quote'):
+        quality_metrics(verdict)
+
+
+def test_localhost_cors_only():
+    with TestClient(create_app(reference=False)) as client:
+        for origin, accepted in [('http://localhost:5173', True), ('http://localhost:3001', True),
+                                 ('http://localhost.evil:5173', False), ('https://elsewhere.test', False)]:
+            response = client.options('/investigations', headers={'Origin': origin, 'Access-Control-Request-Method': 'POST',
+                                                                 'Access-Control-Request-Headers': 'content-type'})
+            assert (response.headers.get('access-control-allow-origin') == origin) == accepted

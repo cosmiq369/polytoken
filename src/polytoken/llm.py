@@ -144,12 +144,21 @@ class NvidiaGenerator:
 
     def generate(self, prompt, system_prompt=None, attachments=None, on_stream=None, abort=None,
                  *, model=None, temperature=None, before_attempt=None, remaining=None,
-                 enable_thinking=None, max_tokens=None, timeout_s=None, max_retries=3, retry_timeouts=False, reasoning_effort=None) -> dict:
+                 enable_thinking=None, max_tokens=None, timeout_s=None, max_retries=3, retry_timeouts=False, reasoning_effort=None, conversation=None) -> dict:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
         content = [{"type": "text", "text": prompt}, *attachments] if attachments else prompt
-        messages.append({"role": "user", "content": content})
+        if conversation is not None:
+            if attachments or not conversation or conversation[-1].get("role") != "user" or any(
+                m.get("role") not in ("user", "assistant") or not isinstance(m.get("content"), str)
+                for m in conversation
+            ):
+                raise ValueError("Conversation must contain user/assistant text through the last user")
+            messages.extend({"role": m["role"], "content": m["content"]} for m in conversation)
+        else:
+            messages.append({"role": "user", "content": content})
+        prompt_audit = json.dumps(conversation, ensure_ascii=False, sort_keys=True) if conversation is not None else prompt
         body = {
             "model": model or self.settings.agent_model, "messages": messages,
             "max_tokens": max_tokens or self.max_tokens, "stream": on_stream is not None,
@@ -165,8 +174,8 @@ class NvidiaGenerator:
         if on_stream is not None:
             body["stream_options"] = {"include_usage": True}
         metadata = {
-            "model": body["model"], "prompt_length": len(prompt),
-            "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:12],
+            "model": body["model"], "prompt_length": len(prompt_audit),
+            "prompt_hash": hashlib.sha256(prompt_audit.encode("utf-8")).hexdigest()[:12],
             "system_prompt_length": len(system_prompt or ""),
             "attachments_count": len(attachments or []),
             "enable_thinking": enable_thinking, "max_tokens": body["max_tokens"],
@@ -175,6 +184,7 @@ class NvidiaGenerator:
         total_start = self._clock()
         for attempt in range(1, max_retries + 2):  # One initial request and at most three retries.
             usage = {}
+            finish_reason = None
             first_token = None
             attempted = False
             start = self._clock()
@@ -197,7 +207,7 @@ class NvidiaGenerator:
                             if first_token is None:
                                 first_token = self._clock()
                             on_stream(text)
-                        text, usage = self._read_stream(response, receive, abort)
+                        text, usage, finish_reason = self._read_stream(response, receive, abort)
                     else:
                         response.read()
                         _check_abort(abort)
@@ -208,10 +218,11 @@ class NvidiaGenerator:
                         if not isinstance(text, str):
                             raise ProtocolError("Completion content is not text")
                         usage = data.get("usage") or {}
+                        finish_reason = data["choices"][0].get("finish_reason")
                 if not isinstance(usage, dict):
                     raise ProtocolError("Completion usage is not an object")
-                self._log(metadata, usage, start, attempt, True, None, attempted=attempted)
-                result = {"text": text, "usage": usage,
+                self._log({**metadata, "finish_reason": finish_reason}, usage, start, attempt, True, None, attempted=attempted)
+                result = {"text": text, "usage": usage, "finish_reason": finish_reason,
                           "latency_s": self._clock() - total_start, "model": body["model"]}
                 if on_stream is not None:
                     result.update(request_latency_s=self._clock() - start,
@@ -263,7 +274,7 @@ class NvidiaGenerator:
     @staticmethod
     def _read_stream(response, on_stream, abort):
         parts, usage = [], {}
-        finished = False
+        finished = None
         for line in response.iter_lines():
             _check_abort(abort)
             if not line.startswith("data:"):
@@ -285,7 +296,7 @@ class NvidiaGenerator:
                     on_stream(text)
                     _check_abort(abort)
                 if choice.get("finish_reason"):
-                    finished = True
+                    finished = choice["finish_reason"]
         if not finished:
             raise ProtocolError("NVIDIA stream ended without finish_reason")
-        return "".join(parts), usage
+        return "".join(parts), usage, finished

@@ -8,7 +8,7 @@ from .budget import BudgetGuard
 class JobBudget(BudgetGuard):
     def __init__(self, reasoning, *, wall_s=1800):
         super().__init__(clock=reasoning.clock, wall_s=wall_s)
-        # One investigation still has only 25 Nemotron / 70 hosted attempts.
+        # Share physical reasoning, judge, hosted and SQL attempt counters.
         self.counts = reasoning.counts
         self.lock = reasoning.lock
 
