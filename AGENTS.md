@@ -32,3 +32,9 @@ Open Agent Hackathon 2026, Track 02 "The Agent That Can Explain Why". Hard deadl
 - Work on feature branches with small commits. No force-push to main. No tags or releases.
 - Tests use pytest. Network tests are marked `live` and skipped by default. Run the full suite before reporting, and include exact commands and results.
 - When a task is done, stop and report. Do not start the next task unasked.
+
+## Setup from a clone
+For setup and installation requests, read the canonical
+[`skills/polytoken-setup/SKILL.md`](skills/polytoken-setup/SKILL.md).
+Interview the user first and follow its demo/live boundaries. The identical Claude
+copy lives at `.claude/skills/polytoken-setup/SKILL.md`.

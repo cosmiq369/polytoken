@@ -1,53 +1,49 @@
 import json
+from contextlib import nullcontext
 from unittest.mock import Mock
 
 import pytest
-
-from polytoken import cli
-from polytoken.config import ConfigError
+from polytoken import cli, doctor
 
 
-def test_doctor_pass_output_and_audit(settings, tmp_path, monkeypatch, capsys):
+@pytest.fixture
+def local_doctor(monkeypatch):
+    distribution=Mock()
+    distribution.read_text.return_value=json.dumps({'url':'https://github.com/cosmiq369/indic-inference-tax','vcs_info':{'commit_id':doctor.INDICTAX_PIN}})
+    monkeypatch.setattr(doctor.importlib.metadata,'distribution',lambda name:distribution)
+    monkeypatch.setattr(doctor.socket,'socket',lambda *args:nullcontext(Mock()))
+    return distribution
+
+
+def test_offline_doctor_without_env_or_network(tmp_path,monkeypatch,capsys,local_doctor):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(cli, "load_settings", lambda path: settings)
-    for name in ("check_zetaris", "check_nvidia", "check_tokenizer"):
-        monkeypatch.setattr(cli, name, lambda settings, logger, name=name: name + " passed")
-    assert cli.main(["doctor"]) == 0
-    output = capsys.readouterr().out
-    assert sum(line.startswith("  PASS  ") for line in output.splitlines()) == 4
-    assert "All 4 checks passed." in output
-    assert settings.nvidia_api_key not in output
-    assert settings.zetaris_password not in output
-    rows = [json.loads(line) for line in (tmp_path / "logs/doctor.jsonl").read_text().splitlines()]
-    assert len(rows) == 4
-    assert len({r["run_id"] for r in rows}) == 1
+    monkeypatch.delenv('NVIDIA_API_KEY',raising=False)
+    for name in ('check_zetaris','check_nvidia'):
+        monkeypatch.setattr(cli,name,Mock(side_effect=AssertionError('No network probes offline')))
+    assert cli.main(['doctor'])==0
+    output=capsys.readouterr().out
+    assert 'WARN' in output and 'Not probed in offline mode' in output
+    rows=[json.loads(l) for l in (tmp_path/'logs/doctor.jsonl').read_text().splitlines()]
+    assert {r['check'] for r in rows}>={'Python','SQLite','Meterless','Pinned indictax','Price source','App port','Disk space'}
+    assert len({r['run_id'] for r in rows})==1
+    cli.check_zetaris.assert_not_called();cli.check_nvidia.assert_not_called()
 
 
-def test_doctor_reports_failures_and_nonzero(settings, tmp_path, monkeypatch, capsys):
+def test_doctor_bad_pin_and_missing_live_config(tmp_path,monkeypatch,capsys,local_doctor):
+    monkeypatch.chdir(tmp_path);local_doctor.read_text.return_value='{}'
+    monkeypatch.setattr(doctor,'load_settings',Mock(side_effect=ValueError('do-not-print-secret')))
+    assert cli.main(['doctor','--live'])==1
+    output=capsys.readouterr().out
+    assert 'FAIL  Pinned indictax' in output and 'FAIL  Live configuration' in output
+    assert 'do-not-print-secret' not in output
+
+
+def test_doctor_port_failure_has_fix(tmp_path,monkeypatch,capsys,local_doctor):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(cli, "load_settings", lambda path: settings)
-    monkeypatch.setattr(cli, "check_zetaris", Mock(side_effect=OSError(settings.zetaris_password)))
-    monkeypatch.setattr(cli, "check_nvidia", Mock(return_value="NVIDIA passed"))
-    monkeypatch.setattr(cli, "check_tokenizer", Mock(return_value="tokenizer passed"))
-    assert cli.doctor() == 1
-    output = capsys.readouterr().out
-    assert "FAIL  Zetaris: OSError" in output
-    assert "1 of 4 checks failed." in output
-    assert settings.zetaris_password not in output
-
-
-def test_missing_config_does_not_call_services(tmp_path, monkeypatch, capsys):
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(cli, "load_settings", Mock(side_effect=ConfigError("Missing required environment variables: AGENT_MODEL")))
-    zetaris = Mock()
-    nvidia = Mock()
-    monkeypatch.setattr(cli, "check_zetaris", zetaris)
-    monkeypatch.setattr(cli, "check_nvidia", nvidia)
-    monkeypatch.setattr(cli, "check_tokenizer", Mock(return_value="tokenizer passed"))
-    assert cli.doctor() == 1
-    zetaris.assert_not_called()
-    nvidia.assert_not_called()
-    assert "AGENT_MODEL" in capsys.readouterr().out
+    monkeypatch.setattr(doctor.socket,'socket',Mock(side_effect=OSError('do-not-print-secret')))
+    assert doctor.run_doctor()==1
+    output=capsys.readouterr().out
+    assert 'FAIL  App port' in output and '--port' in output and 'do-not-print-secret' not in output
 
 
 def test_nvidia_probe_uses_generator_and_eight_token_cap(settings, logger, monkeypatch):

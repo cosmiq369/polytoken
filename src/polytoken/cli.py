@@ -45,54 +45,18 @@ def check_tokenizer(settings: Settings | None, logger: JsonlLogger) -> str:
     return f"indictax: {TOKENIZER_SPEC} loaded; Telugu sentence = {value} tokens"
 
 
-def doctor(env_file=".env") -> int:
-    print("PolyToken -- doctor")
-    logger = JsonlLogger(env_file=env_file)
-    settings = None
-    passed, failed = 0, 0
-    try:
-        settings = load_settings(env_file)
-        logger.add_secrets(*settings.secrets)
-        detail = "environment: " + ", ".join(REQUIRED_VARIABLES)
-        print(f"  PASS  {detail}")
-        logger.write("doctor", "check", check="environment", ok=True)
-        passed += 1
-    except ConfigError as exc:
-        print(f"  FAIL  environment: {exc}")
-        logger.write("doctor", "check", check="environment", ok=False, error_class=type(exc).__name__)
-        failed += 1
-
-    for name, probe in (("Zetaris", check_zetaris), ("NVIDIA", check_nvidia), ("indictax", check_tokenizer)):
-        try:
-            if settings is None and name != "indictax":
-                raise RuntimeError("requires valid environment settings")
-            detail = probe(settings, logger)
-            print(f"  PASS  {detail}")
-            logger.write("doctor", "check", check=name, ok=True)
-            passed += 1
-        except Exception as exc:
-            # Other libraries can put URLs, credentials or response text in errors.
-            # Only known-safe client errors and our validation messages are printed.
-            from .llm import LLMError
-            from .zetaris import ZetarisError
-
-            detail = str(exc) if isinstance(exc, (LLMError, ZetarisError)) or type(exc) is RuntimeError else type(exc).__name__
-            detail = logger.redact(detail)
-            print(f"  FAIL  {name}: {detail}")
-            logger.write("doctor", "check", check=name, ok=False, error_class=type(exc).__name__)
-            failed += 1
-    if failed:
-        print(f"{failed} of {passed + failed} checks failed.")
-    else:
-        print(f"All {passed} checks passed.")
-    return 1 if failed else 0
+def doctor(env_file=".env", *, live=False, port=8000):
+    from .doctor import run_doctor
+    return run_doctor(env_file, live=live, port=port)
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="polytoken")
     subparsers = parser.add_subparsers(dest="command", required=True)
-    command = subparsers.add_parser("doctor", help="check configuration and the three live dependencies")
+    command = subparsers.add_parser("doctor", help="check installation offline; opt into service probes with --live")
     command.add_argument("--env-file", default=".env")
+    command.add_argument("--live", action="store_true")
+    command.add_argument("--port", type=int, default=8000)
     command = subparsers.add_parser("measure", help="measure paired demo text through all configured tokenizers")
     command.add_argument("--company", choices=("samudra", "swara", "raitu", "paisa", "all"), required=True)
     command.add_argument("--env-file", default=".env")
@@ -176,7 +140,7 @@ def main(argv=None) -> int:
             logger.write("measurements", "run_failed", ok=False, error_class=type(exc).__name__)
             print(f"Measurement failed: {logger.redact(str(exc))[:600]}")
             return 1
-    return doctor(args.env_file)
+    return doctor(args.env_file, live=args.live, port=args.port)
 
 
 def engines_demo(*, live=False, env_file=None) -> int:

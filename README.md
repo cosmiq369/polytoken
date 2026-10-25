@@ -78,7 +78,7 @@ python scripts/seed_company_db.py
 python scripts/serve_reference.py  # keep running in a separate terminal
 python scripts/register_zetaris_sources.py
 polytoken measure --company all
-polytoken doctor
+polytoken doctor --live
 polytoken serve
 ```
 
@@ -98,3 +98,11 @@ Script detection is a Unicode/lexicon heuristic with an unclassified bucket; Eng
 All audit and provenance records go to `logs/`, with curated evidence committed in [logs/sample](logs/sample/). [Complete model-fit evidence closure](logs/sample/model_fit_v1_world_events.jsonl.gz) includes the first partial run as well as all four completed runs. Previous datasets and logs remain archived. Model-fit scoring is offline; the agent never reads the contract or scorer.
 
 Cursor was not used. Codex and Claude assisted development. [Submission](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Deck text](docs/DECK_TEXT.md). The submission video URL remains empty until a public upload is available.
+
+## Set up with your coding agent
+
+Paste: **“Read skills/polytoken-setup/SKILL.md and set up this PolyToken clone with me; ask the setup questions first.”**
+
+The [setup skill](skills/polytoken-setup/SKILL.md) covers the key-free demo, the sponsor's local Zetaris distribution, the app database, local secret entry, and diagnostics. `polytoken doctor` checks the installation offline; `polytoken doctor --live` adds bounded service probes. Meterless engines are local implementations of a pinned reference architecture, not an extra package to install. Remote Docker over SSH remains an explicitly unverified roadmap path.
+
+Use **New investigation** to enter a workload and choose a bundled sample or a paired JSONL/CSV file ([schema and template](docs/SAMPLE_SCHEMA.md)). Demo runs replay checked saved evidence and retain its original settings; uploaded files require live mode. Ask the evidence answers a limited set of questions from authenticated saved claims and refuses unsupported requests.
