@@ -27,5 +27,20 @@
   ],
   "repository_url": "https://github.com/cosmiq369/polytoken",
   "license": "MIT",
-  "demo_video_url": ""
+  "demo_video_url": "",
+  "description": "Evidence-backed model-fit advisor for Indian-language bots and voice agents.",
+  "demo_question": "Which model fits our users and our budget, and why?",
+  "demo_companies": [
+    "Samudra Telecom",
+    "Swara Care",
+    "Raitu Mitra",
+    "Paisa Saathi"
+  ],
+  "results_evidence": "logs/sample/model_fit_score.jsonl",
+  "limitations": [
+    "Fictional data; translations pending review.",
+    "Quality: verify on your sample.",
+    "Voice candidate latency unverified.",
+    "Only GPT-OSS passed the serving probe; stand-in evidence does not transfer."
+  ]
 }

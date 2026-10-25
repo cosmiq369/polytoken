@@ -1,131 +1,96 @@
 # PolyToken
 
-**Understand the bill. Keep the meaning.** PolyToken investigates why a team's Telugu or Hindi AI workload costs more than the same content in English, traces the extra tokens to their source, and tests a fix before recommending it. The motivating, pre-existing experiment counted **18 parallel sentences**: Telugu used **7.59×** English tokens on Llama 3.2 and **1.58×** on Gemma 3. Those are token ratios, not measured latency or quality improvements. [Original results](logs/sample/experiment01/fertility.md) · [Raw counts](logs/sample/experiment01/fertility.csv) · [Provenance and recomputation](logs/sample/experiment01_provenance.jsonl).
+**Which model fits your Indian-language users and your budget—and why?** PolyToken profiles the team's own conversations, measures their token counts, compares verified model/provider quotes, and explains a conditional recommendation with evidence you can inspect.
 
-Built by **Mohan Chelluru**, solo, for **Track 02 — The Agent That Can Explain Why**. The companies, policies and customer chats in this demo are fictional. Native translation and quality reviews remain pending.
+Built by **Mohan Chelluru** for Open Agent Hackathon 2026, **Track 02: The Agent That Can Explain Why**. All four companies and their forty conversations each are fictional. Translations and native review remain pending.
 
-![PolyToken billing report](docs/images/demo_report_summary.png)
+![Four workload profiles and their model-fit candidates](docs/images/model_fit_companies_desktop_dark.png)
 
-## Who it is for
+## The users change the fit
 
-Product and engineering teams operating Indian-language support bots or voice assistants. The Token Ledger answers five practical questions:
+A voice agent usually receives native script from speech recognition. An app can receive romanized Telugu, Tenglish or Hinglish, with English product names and numbers. That mixture, conversation history and answer length change the bill.
 
-1. What do we pay per month, conversation and reply?
-2. What do we pay above the same content in English?
-3. How much comes from prompts and history sent again?
-4. Which fix saves money while preserving meaning, and what happens to reply time?
-5. What changes with volume, quoted price or model?
+The pre-existing Experiment 01 measured eighteen parallel sentences. Telugu / English token ratios were:
 
-The separate [pre-registered contract](docs/CONTRACT.md) groups these into four research questions. `polytoken score` evaluates the results offline; the agent never imports that evaluator or reads the planted expectations.
+| Written as | Llama 3.2 | Gemma 3 |
+| --- | ---: | ---: |
+| Telugu script | 7.59× | 1.58× |
+| Romanized | 1.68× | 1.57× |
+| Tenglish | 1.09× | 1.06× |
 
-## What happened
+For Hindi, the corresponding Llama / Gemma ratios were 2.44× / 1.18× in Devanagari, 1.87× / 1.59× romanized, and 1.21× / 1.04× code-mixed. These are token ratios on that reference corpus, not quality, latency or current-company measurements. [Raw counts](logs/sample/experiment01/fertility.csv) · [Original results](logs/sample/experiment01/fertility.md) · [Provenance](logs/sample/experiment01_provenance.jsonl).
 
-| Fictional company | Finding reached by the agent | Tested change | Monthly quoted content cost, before → after | Quality and decision |
-| --- | --- | --- | --- | --- |
-| Samudra Telecom, Telugu support | Repeated system instructions dominate the money | English instructions; Telugu replies retained | **₹11,015.34 → ₹2,229.74** at **100,000 chats/month** | A/A **7/20**; A/B **3/20**; **inconclusive**, no recommendation |
-| Swara Care, Hindi voice assistant | New answer tokens dominate cost | Concise spoken answers / answer cap | **₹2,386.55 → ₹2,447.46** at its configured volume | A/A **3/20**; A/B **1/20**; **inconclusive**, no recommendation |
+## Four fresh live investigations
 
-Every table number comes from the checked [Samudra demo report](logs/sample/demo_samudra_report.json), [Swara v3 report](logs/sample/agent_swara_v3_report.json) and [contextual experiment summary](logs/sample/agent_v3_completion_report.md). Rupees use the dated [FX source](data/reference/fx.json); model prices have their own [provider URLs and fetch dates](data/reference/prices.json). These are content-only quoted scenarios, not invoices.
+| Company / channel | Actual user mix | Cheapest cost candidate | USD / 1,000 conversations | Decision |
+| --- | --- | --- | ---: | --- |
+| Samudra Telecom / chat | 10.6% native, 16.0% romanized, 73.4% mixed | Llama-3.1-8B-Instruct | $0.009283 | Conditional on quality verification |
+| Swara Care / voice | 100.0% native | gemma-3-4b-it | $0.024124 | Latency unverified; no qualified voice recommendation |
+| Raitu Mitra / voice | 100.0% native | gemma-3-4b-it | $0.018329 | Latency unverified; no qualified voice recommendation |
+| Paisa Saathi / chat | 100.0% mixed | Llama-3.1-8B-Instruct | $0.005411 | Conditional on quality verification |
 
-The Samudra prompt substitution reduces reconstructed cost by **79.8%**, with historical replies and replay held fixed. That does **not** establish that the changed bot preserves meaning. The unchanged A/A control itself falls below the contract's **18/20** bar, so the interpretation is: **“the bar cannot be met by this judge and stand-in model; result inconclusive.”** The literal A/B contract verdict remains failed. [Checked cost and quality evidence](logs/sample/demo_samudra_report.json) · [Contract and diagnostics](logs/sample/contract_score.md).
+These dated provider scenarios reconstruct completed conversations with each model's own tokenizer and price, including history replay. They exclude provider chat templates, retries, taxes and unpublished cache discounts; the small totals are content-token estimates, not invoices. USD prices retain their original fetch dates. All eight tokenizers completed on all four workloads. Eight priced models are ranked separately, with all eleven provider quotes available for inspection; four unpriced families show **tokenizer fit only**.
 
-Samudra's timing is inconclusive because the run reuses cached timing evidence with its original time windows. Swara's changed stand-in reply was faster in the recorded trials: median complete-reply time **13.24 s → 2.09 s**. This is an original-versus-changed prompt comparison, not a deployed-model Telugu/Hindi-versus-English speed benchmark. Output throughput is unavailable when provider usage cannot separate hidden reasoning. [Timing observations and limits](logs/sample/agent_v3_completion_report.md).
+The predictions registered in the [25 October addendum](docs/CONTRACT.md) passed for each company's dominant script, cost candidate and constraint handling. Quality remains **verify on your sample**. Neither voice candidate has exact-model/provider/workload latency evidence, so neither receives a voice-qualified recommendation. [Recomputed score and top-three rankings](logs/sample/model_fit_score.md) · [Machine-readable score](logs/sample/model_fit_score.jsonl) · [Full completion report](docs/MODEL_FIT_COMPLETION.md).
 
-Both expected top findings pass the offline contract check. Cost coverage, speed coverage and validated fixes remain partial; neither expected fix is recommended. [Full score, claim IDs and budgets](logs/sample/contract_score.md) · [Machine-readable score](logs/sample/contract_score.jsonl).
+The Model fit tab shows the script mix, conversation shape, answer share, ranked models, runner-up, and a higher-cost model to avoid on cost alone. Every figure opens a source receipt. The Companies view makes the different recommendations visible together. [Replay recording](docs/images/model_fit_replay.webm).
 
-The new UI demo uses fresh Nemotron reasoning and Zetaris reads, then reuses authenticated prior generations and judgments under exact cache identities. It is not a fresh independent quality replication. [Demo events](logs/sample/demo_samudra.jsonl) · [Physical calls](logs/sample/demo_samudra_audit_llm_calls.jsonl) · [Cache audit](logs/sample/demo_samudra_audit_experiment_jobs.jsonl). [Native Telugu review sheet](logs/sample/native_review_samudra.md); a Hindi reviewer is still required.
+## How the evidence becomes advice
 
-## How it works
+**Zetaris is the data layer.** Configuration, chats, measurements, reference sentences and prices are read through SQL. Public projections handle this connector's single-schema restriction; the price table uses a locally served REST source. PostgreSQL access is confined to setup and measurement writes. [Federation query](sql/token_ratio_by_part.sql) · [New federation evidence](logs/sample/model_fit_measurements/federation.jsonl) · [Live SQL audit](logs/sample/model_fit_v1_audit_zetaris_queries.jsonl).
 
-![PolyToken system architecture](docs/images/architecture.svg)
+**NVIDIA Nemotron is the brain.** One injected generator handles planning and contextual judging; model name, base URL and rate limit come from `.env`. The loop uses physical-attempt budgets, bounded retries and one shared limiter. Only GPT-OSS passed the recorded serving probe. The retained A/A-controlled protocol can test an answer-length hypothesis on that stand-in, but cannot establish quality or latency for a different model/provider. Fresh model-fit runs collect reasoning and service-call timings; they do not pretend to be new quality experiments. [Generator](src/polytoken/llm.py) · [Serving evidence](logs/sample/hosted_probe.jsonl) · [Fresh calls](logs/sample/model_fit_v1_audit_llm_calls.jsonl).
 
-The exported system diagram comes from the [architecture reference](docs/design/reference/architecture.html). The investigation proceeds through clarify, measure, locate, hypothesise, experiment, judge, speed, check and report. Long generation and judging work runs as a bounded background job; the UI streams its events and displays the final checked report. [Implementation](src/polytoken/agent/runner.py) · [Report contract](docs/REPORT_SCHEMA.md).
+**Meterless reference architectures are implemented here.** World Model stores observations with source, query, time window and fetch time. H-MEM retains sourced company profiles and historical findings; replaced datasets do not inherit old findings. Markovian carries compressed state across bounded chunks and records projected versus actual token accounting. Its savings are a history-replay counterfactual, not a measured second execution. [Attribution and conformance](docs/METERLESS.md) · [New chunk accounting](logs/sample/model_fit_v1_audit_agent_markovian.jsonl).
 
-The [deterministic checker](src/polytoken/checker.py) authenticates content-addressed evidence and its supporting records, then recomputes every reported number from source rows. Unsupported or inconsistent claims are dropped. The [billing projection](src/polytoken/billing_view.py) independently reconstructs native and English bills, supplies clickable receipts, and separates observed results from explicit price/volume what-ifs. [Billing formulas](web/BILLING_SCHEMA.md). Arithmetic and quote validation cannot establish that a model's semantic judgment is correct.
-
-### Zetaris
-
-Zetaris is the data layer for all investigation reads: company configuration and chats, measured tokens, reference sentences, and a locally served REST price source. The [federation SQL](sql/token_ratio_by_part.sql) joins across those sources; [saved SQL results](logs/sample/p04_federation.jsonl) demonstrate the query. Direct PostgreSQL access is confined to seeding and measurement writes. [Client](src/polytoken/zetaris.py) · [Tool layer](src/polytoken/tools/__init__.py).
-
-The installed JDBC connector exposes one schema per source. [Registration](scripts/register_zetaris_sources.py) uses explicit public views over the company, measurement and reference schemas. [Reference serving](src/polytoken/reference_server.py) refreshes the REST table when its earlier empty-price schema lacks current columns. This workaround is recorded, not a silent switch to local price reads. [Registration decisions](docs/DECISIONS.md) · [SQL audit](logs/sample/demo_samudra_audit_zetaris_queries.jsonl).
-
-### Meterless
-
-PolyToken independently implements the reference architectures in Python, with **29 ported conformance checks**, rather than presenting them as a hosted service. [Attribution, pinned specification and check IDs](docs/METERLESS.md).
-
-- [World Model](src/polytoken/meterless/world_model.py): observations and claims carry source, query, time window and fetch time; evidence remains replayable.
-- [H-MEM](src/polytoken/meterless/hmem.py): sourced company profiles and prior findings persist across investigations, with an audited trust ledger.
-- [Markovian](src/polytoken/meterless/markovian.py): bounded reasoning chunks compress carried state; projected and actual token accounting remain distinct. Signed savings expose cases where compression costs extra tokens. [Signed audit](logs/sample/meterless_signed_audit.jsonl).
-
-The history-replay comparison is a reference counterfactual, not an independently measured second agent run. [Scope and limitations](docs/METERLESS.md).
-
-### NVIDIA
-
-Nemotron plans the investigation and judges contextual reply pairs through **one injected generator**, configured by `.env`. [Generator](src/polytoken/llm.py) · [Composition root](src/polytoken/agent/runtime.py) · [Quality protocol](src/polytoken/agent/quality.py). Calls use a shared rate limiter, bounded retries and separate reasoning/judge/hosted budgets. [Contract limits](docs/CONTRACT.md) · [Measured budget score](logs/sample/contract_score.md).
-
-Hosted models generate paired experiments and speed trials. Catalogue membership alone is insufficient: eligibility also requires a recorded serving probe. Successful and failed probes are preserved in [probe results](logs/sample/hosted_probe.jsonl), with the [verified allowlist](data/reference/nvidia_hosted.json). The demonstrated GPT-OSS model is a stand-in, not either company's deployed model. Model names, base URL and rate limit come from configuration; the planner is not hardcoded to a deployment name.
-
-### Cursor
-
-Cursor was not used in this project. Coding assistance came from Codex and Claude, as declared in [DECLARATIONS.md](docs/DECLARATIONS.md).
-
-## Honest limits
-
-The data is synthetic, some answer openings are template-like, and translations have not passed native review. The unchanged control can vary even at temperature zero. Claim-level judging can mark added details as non-equivalent without establishing that the new answer is worse. Source-excerpt validation catches invented citations, not incorrect semantic classification. [Quality protocol, recovery history and limitations](logs/sample/agent_v3_completion_report.md).
-
-The configured Samudra model is a low-priced **3B** model, so a large percentage saving produces modest absolute money. The UI can rescale checked input and output counts at explicit hypothetical prices and volume; it does not predict quality or latency at those prices. Content accounting excludes provider chat templates, retries and unpublished cache discounts. [Independent review](docs/review/2026-10-24/REVIEW.md) · [Accounting formulas](web/BILLING_SCHEMA.md).
+**The deterministic checker gates every reported number.** It authenticates evidence and recomputes profiles, token ratios and per-model costs. Recommendations are rebuilt from those checked claims on replay. Missing prices never become zero cost; missing or mismatched timing never satisfies a voice constraint. [Calculator](src/polytoken/model_fit.py) · [Checker](src/polytoken/checker.py) · [Checker audit](logs/sample/model_fit_v1_audit_checker.jsonl).
 
 ## Run it
 
-Prerequisites: Python 3.10+, `uv`, Git, Docker, the hackathon Zetaris distribution, a configured NVIDIA account, and local Hugging Face tokenizer files (or network access for initial measurement). Node and Playwright are optional for the browser tests, not application dependencies. Run from the cloned repository root, including after a non-editable installation: the UI and reviewed reference data live in the checkout.
+Python 3.10+, Git and the pinned `indictax` dependency are required. For live investigations, configure the local Zetaris stack, PostgreSQL demo source, and NVIDIA account. Node/Playwright are browser-test tools, not application dependencies. Run from the repository root.
 
 ```sh
 uv venv .venv
 source .venv/bin/activate
 uv pip install '.[dev]'
 cp .env.example .env
-export HF_HOME="$PWD/.cache/huggingface"
 ```
 
-Fill `.env` locally. Names only: `NVIDIA_API_KEY`, `NVIDIA_BASE_URL`, `AGENT_MODEL`, `NVIDIA_RPM`, `HF_TOKEN`, `ZETARIS_URL`, `ZETARIS_USER`, `ZETARIS_PASSWORD`, `COMPANY_DB_USER`, `COMPANY_DB_PASSWORD`. Use an accessible Nemotron model for `AGENT_MODEL`. Never commit `.env`. [Validated settings](src/polytoken/config.py).
+Fill the variable names in `.env.example` locally; never commit credentials. The harness is imported from the pinned public Git dependency, with an optional editable development override. [Declarations](docs/DECLARATIONS.md).
 
-Start the sponsor's Zetaris stack using its supplied instructions, then run `./verify.sh` in that distribution (locally, `~/zetaris-platform`). Back in PolyToken:
+For the saved, offline demo:
+
+```sh
+polytoken serve --demo
+```
+
+Open [PolyToken](http://127.0.0.1:8000). All four replays include fresh recorded call timings. Older archives explicitly say “Timing unavailable” where no spans were captured.
+
+For live setup, start the sponsor's Zetaris distribution and run its `./verify.sh`, then:
 
 ```sh
 docker compose --env-file .env -f infra/docker-compose.yml up -d --wait
 python scripts/seed_company_db.py
-# Separate terminal; keep the REST price source running:
-python scripts/serve_reference.py
-# Back in the first terminal:
+python scripts/serve_reference.py  # keep running in a separate terminal
 python scripts/register_zetaris_sources.py
 polytoken measure --company all
 polytoken doctor
 polytoken serve
 ```
 
-Open [the local UI](http://127.0.0.1:8000), select a fictional company and click **Investigate**. `serve` reuses or starts the price endpoint and checks its registration. The client reads the returned Zetaris organization ID rather than assuming one. Existing archived reports can be opened without rerunning model calls.
-
 ```sh
-python -m pytest -q                  # offline; live checks skipped
-python -m pytest -q -m live          # explicitly contacts configured services
-polytoken score                     # offline contract evaluation
-UI_SCREENSHOTS=1 python -m pytest -q tests/test_ui_static.py
+polytoken investigate --company raitu --sample-suffix model_fit
+# Optional, separately bounded controlled stand-in experiment:
+polytoken investigate --company swara --test-answer-length --sample-suffix quality_sample
+python -m pytest -q
+python -m pytest -q -m live
+polytoken score
 ```
 
-The harness is installed from its pinned public Git dependency. A sibling checkout is unnecessary. [Pin and pre-existing work](docs/DECLARATIONS.md) · [Browser-test setup](web/README.md) · [Shipping validation](logs/sample/ship_completion_report.md).
+## Limits and history
 
-## Evidence and submission
+Script detection is a Unicode/lexicon heuristic with an unclassified bucket; English-term share means recognized domain terms. The data is synthetic and template-based, and translations remain unreviewed. Shared tokenizer families imply neither equal model quality nor equal latency. Observed latency samples are not SLAs. No unpublished cache discount or generated-answer improvement is invented.
 
-All audit and provenance records go to `logs/`; curated judge-facing samples are committed under [`logs/sample/`](logs/sample/). The live demo's new World Model archive is [gzip-compressed](logs/sample/demo_samudra_world_events.jsonl.gz) and includes the transitive evidence closure, including reused observations. The offline scorer and billing loader read compressed archives directly.
+All audit and provenance records go to `logs/`, with curated evidence committed in [logs/sample](logs/sample/). [Complete model-fit evidence closure](logs/sample/model_fit_v1_world_events.jsonl.gz) includes the first partial run as well as all four completed runs. Previous datasets and logs remain archived. Model-fit scoring is offline; the agent never reads the contract or scorer.
 
-The reviewer accepted these existing evidence files above the release size threshold; their bytes and Git history are preserved:
-
-| Existing archive | Bytes | Decimal MB |
-| --- | ---: | ---: |
-| [Original agent evidence](logs/sample/agent_world_events.jsonl) | 15,921,942 | 15.92 |
-| [v2 evidence](logs/sample/agent_v2_world_events.jsonl) | 15,536,266 | 15.54 |
-| [v3 evidence](logs/sample/agent_v3_world_events.jsonl) | 40,470,818 | 40.47 |
-
-[Size and history audit](logs/sample/ship_secret_scan.jsonl). New archives exceeding 5 MB are gzipped. `.cache/`, `.venv/` and runtime logs outside the curated sample directory remain ignored.
-
-[Submission explanation and summary](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Declarations](docs/DECLARATIONS.md) · [Independent review](docs/review/2026-10-24/REVIEW.md). The demo video URL is intentionally empty for Mohan to fill. Repository publication is Mohan's step.
+Cursor was not used. Codex and Claude assisted development. [Submission](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Deck text](docs/DECK_TEXT.md). The submission video URL remains empty until a public upload is available.

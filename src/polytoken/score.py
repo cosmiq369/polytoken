@@ -86,6 +86,8 @@ def score(sample_dir='logs/sample', output=None):
     for r in rows:
         if 'expected_model' not in r:lines.append(f"| {r['company']} | no complete run | | | |");continue
         lines.append(f"| {r['company']} | {r['top_finding']['status']} | {r['expected_model']['status']} | {r['constraints']['status']} | {r['expected_model']['actual']} |")
+    for r in rows:
+        if 'expected_model' not in r:continue
         lines.extend(['',f"## {r['company']}",'',f"Report: [{Path(r['report_file']).name}]({Path(r['report_file']).name}). Quality: verify on your sample. {r['constraints']['reason']}.",'',
             '| Model | Provider | USD / 1,000 conversations | Tokens / English |','| --- | --- | ---: | ---: |'])
         for m in r['top_three']:lines.append(f"| {m['model']} | {m['provider']} | {m['usd_per_1000']:.6f} | {m['token_ratio']:.3f}× |")

@@ -326,3 +326,29 @@ visible events and clears future claims. Old logs without start/finish spans sho
 observed tool activity with **timing unavailable**; no duration or physical call is
 invented. Their checked claims appear with the final report. Raw file imports
 retain the existing recorded-verdict behavior and can also replay their events.
+
+
+## Model fit — schema version 3 (25 Oct 2026)
+
+`model_fit` is present only when all profile and ranking claims pass. Its profile
+contains sourced role/channel/current-model labels and a disclosed Unicode/lexicon
+classifier. Numeric profile values live in `profile/*` claims. Model rows name
+`cost_claim`, `ratio_claim`, and optional `latency_claim`; all are recomputed by
+operation `model_fit` from snapshot, prices and timing evidence IDs.
+
+`models` ranks each distinct model at its cheapest verified provider quote;
+`provider_quotes` preserves every quote. `tokenizer_fit_only` has ratios and no
+money. `cost_candidate` is the cheapest quote without a latency qualification.
+`recommendation` is null for voice when no exact-model/provider/workload sample
+passes its full-reply target. At least four independent uncached completed calls
+are required; the sample maximum must be within target. Quality is explicitly
+unverified without a qualifying controlled experiment and native review.
+`runner_up` differs by model; `avoid` means higher cost on the same content, not
+poor quality. Decision reasons reference checked profile and model claim IDs.
+
+`/model-fits` rechecks completed reports and returns the newest supported result
+per company for the comparison screen. `/investigations/{id}/model-fit` and replay
+rebuild labels and decisions from evidence; they do not trust saved ranking text.
+New demo reports and event streams use `agent_{company}_model_fit` prefixes.
+Historical reports keep their original schema and evidence. They do not acquire
+model-fit measurements or invented service timings.
