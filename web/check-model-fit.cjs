@@ -18,12 +18,30 @@ const root=path.resolve(__dirname,'..'),images=path.join(root,'docs/images'),ori
    return [...document.querySelectorAll('#ask h1,#ask h2,#ask h3,#ask .hint,#ask .eyebrow,#ask .fit-status,#ask .fit-metric,#model-fit h1,#model-fit h2,#model-fit .hint,#model-fit .tag,#model-fit .fit-metric')].filter(e=>e.getClientRects().length&&!e.closest('[hidden]')).flatMap(e=>{let p=e,bg;while(p){bg=getComputedStyle(p).backgroundColor;if(bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent')break;p=p.parentElement;}if(!p)return[];const a=lum(getComputedStyle(e).color),b=lum(bg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);return ratio<4.5?[{text:e.textContent.slice(0,50),ratio}]:[];});
   });assert.deepEqual(bad,[],'Text contrast >= 4.5:1');
  };
+ // Whole rupees, cents, and two significant digits below one unit.
+ await page.locator('#currency').selectOption('USD');
+ assert.deepEqual(await page.evaluate(()=>[12.345,.9,.01833,.000123,0].map(window.polyConsole.money)),['$12.35','$0.90','$0.018','$0.00012','$0.00']);
+ await page.locator('#currency').selectOption('INR');
+ assert.equal(await page.evaluate(()=>window.polyConsole.money(12.345)), '₹1,172');
+ assert.equal(await page.evaluate(()=>window.polyConsole.money(0)), '₹0');
  let shots=0;
  for(const [width,height,size] of [[1600,1050,'desktop'],[390,844,'mobile']]){
   await page.setViewportSize({width,height});
   for(const theme of ['dark','light']){
    await page.locator('.rail [data-screen=settings]').click();await page.locator('#theme').selectOption(theme);
    await page.locator('.rail [data-screen=ask]').click();await noOverflow();await contrast();
+   for(const currency of ['USD','INR']){
+    await page.locator('#currency').selectOption(currency);
+    for(const r of fits){
+     const card=page.locator(`.fit-company[data-fit-company=${r.company}]`),f=r.model_fit;
+     for(const m of [f.cost_candidate,f.lowest_unit_price]){
+      const n=r.claims.find(c=>c.id===m.cost_claim).value*r.claims.find(c=>c.id==='profile/monthly_conversations').value/1000;
+      const expected=await page.evaluate(n=>window.polyConsole.money(n),n);
+      assert.ok((await card.innerText()).includes(expected),'Company monthly comparison follows currency');
+     }
+     assert.match(await card.innerText(),currency==='USD'?/USD · quoted/:/INR per USD.*FBIL/s);
+    }
+   }
    await page.screenshot({path:path.join(images,`model_fit_companies_${size}_${theme}.png`)});shots++;
    for(const r of fits){
     await page.locator(`.fit-company[data-fit-company=${r.company}] [data-fit-open]`).click();
@@ -32,10 +50,25 @@ const root=path.resolve(__dirname,'..'),images=path.join(root,'docs/images'),ori
     assert.equal(await page.locator('.run-tabs button').first().textContent(),'Model fit');
     assert.equal(await page.locator('.fit-ranking tbody tr').count(),8);
     const m=r.model_fit.models[0],cl=r.claims.find(c=>c.id===m.cost_claim);
-    assert.equal(await page.locator('.fit-ranking tbody tr').first().locator('td').first().innerText(),'$'+cl.value.toFixed(5));
+    const vol=r.claims.find(c=>c.id==='profile/monthly_conversations').value;
+    for(const currency of ['USD','INR']){
+     await page.locator('#currency').selectOption(currency);
+     const first=page.locator('.fit-ranking tbody tr').first();
+     const expected=await page.evaluate(n=>window.polyConsole.money(n),cl.value*vol/1000);
+     assert.equal(await first.locator('td').first().locator('button').first().innerText(),expected);
+     assert.equal(await first.locator('td').nth(1).innerText(),'1.00×');
+     for(let i=0;i<r.model_fit.models.length;i++){
+      const m=r.model_fit.models[i],cost=r.claims.find(c=>c.id===m.cost_claim).value;
+      assert.equal(await page.locator('.fit-ranking tbody tr').nth(i).locator('td').nth(1).innerText(),(cost/cl.value).toFixed(2)+'×');
+     }
+     assert.match(await page.locator('#model-fit .fit-header').innerText(),currency==='USD'?/USD · quoted/:/INR per USD.*FBIL/s);
+     assert.equal(await page.locator('#model-fit .fit-metric').allTextContents().then(ts=>ts.some(t=>currency==='USD'?t.includes('₹'):t.includes('$'))),false,'Every money metric follows currency');
+    }
+    assert.match(await page.locator('.fit-insight').innerText(),/lowest price.*English tokens/);
     if(r.model_fit.profile.channel==='voice')assert.match(await page.locator('.fit-recommendation').innerText(),/No model has verified latency/);
     await noOverflow();await contrast();
     await page.screenshot({path:path.join(images,`model_fit_${r.company}_${size}_${theme}.png`)});shots++;
+    if(size==='desktop'){await page.locator('.fit-ranking').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(images,`model_fit_${r.company}_ranking_${theme}.png`)});shots++;}
     await page.locator('[data-console-tab=activity]').click();
     assert.ok(await page.locator('#service-map .service-state').allTextContents().then(a=>a.some(t=>/\d+ ms/.test(t))),'New replay contains measured timings');
     await page.locator('[data-console-tab=fit]').click();
@@ -69,6 +102,6 @@ const root=path.resolve(__dirname,'..'),images=path.join(root,'docs/images'),ori
   await v.locator('.rail [data-screen=ask]').click();
  }
  const video=v.video();await videoContext.close();await video.saveAs(path.join(images,'model_fit_replay.webm'));fs.rmSync(path.join(images,'.model-fit-recording'),{recursive:true,force:true});
- const record={event:'model_fit_browser_validation',timestamp:new Date().toISOString(),ok:true,screenshots:shots,companies:fits.map(r=>r.company),run_ids:fits.map(r=>r.id),checks:['four companies','eight models each','four unpriced families','checked costs','voice abstention','evidence receipts','fresh timings','dark/light contrast','320px reflow','keyboard navigation','no external requests','no page errors'],recording:'docs/images/model_fit_replay.webm'};
+ const record={event:'model_fit_browser_validation',timestamp:new Date().toISOString(),ok:true,screenshots:shots,companies:fits.map(r=>r.company),run_ids:fits.map(r=>r.id),checks:['four companies','eight models each','four unpriced families','checked monthly costs','USD/INR on both screens','rounding','checked cost multiples','tokenizer avoid rule','voice abstention','evidence receipts','fresh timings','dark/light contrast','320px reflow','keyboard navigation','no external requests','no page errors'],recording:'docs/images/model_fit_replay.webm'};
  fs.appendFileSync(path.join(root,'logs/sample/model_fit_validation.jsonl'),JSON.stringify(record)+'\n');console.log(JSON.stringify(record));await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});

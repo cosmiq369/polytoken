@@ -101,11 +101,11 @@ function reportFiles(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMa
   await tab('evidence');await page.locator('#evidence-ledger [data-dropped]').first().click();assert.match(await page.locator('#evidence').innerText(),/speed\/output_tokens_per_s/);
   await page.locator('#back-evidence').click();
   await importReport(samudraPath,samudra.id);
-  // Currency conversion is explicit, precise, and remembered after reload.
+  // Currency conversion is sourced, rounds INR to whole rupees, and is remembered after reload.
   assert.equal(await page.locator('#currency').inputValue(),'INR');
   await page.locator('#currency').selectOption('USD');
   const usdText=await page.locator('.headline-cell').first().innerText();assert.match(usdText,/\$116\.02/);
-  await page.locator('#currency').selectOption('INR');assert.match(await page.locator('.headline-cell').first().innerText(),/11,015\.34/);
+  await page.locator('#currency').selectOption('INR');assert.match(await page.locator('.headline-cell').first().innerText(),/₹11,015$/);
   assert.match(await page.locator('#currency-source').innerText(),/FBIL.*2026-10-23/);
   await page.locator('#currency-source').click();assert.match(await page.locator('#evidence').innerText(),/94\.9432/);await page.locator('#back-evidence').click();
   await page.reload();await page.locator('.company-card').first().waitFor();await page.waitForFunction(()=>document.querySelector('#currency').value==='INR');

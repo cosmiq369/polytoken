@@ -22,18 +22,18 @@ For Hindi, the corresponding Llama / Gemma ratios were 2.44× / 1.18× in Devana
 
 ## Four fresh live investigations
 
-| Company / channel | Actual user mix | Cheapest cost candidate | USD / 1,000 conversations | Decision |
-| --- | --- | --- | ---: | --- |
-| Samudra Telecom / chat | 10.6% native, 16.0% romanized, 73.4% mixed | Llama-3.1-8B-Instruct | $0.009283 | Conditional on quality verification |
-| Swara Care / voice | 100.0% native | gemma-3-4b-it | $0.024124 | Latency unverified; no qualified voice recommendation |
-| Raitu Mitra / voice | 100.0% native | gemma-3-4b-it | $0.018329 | Latency unverified; no qualified voice recommendation |
-| Paisa Saathi / chat | 100.0% mixed | Llama-3.1-8B-Instruct | $0.005411 | Conditional on quality verification |
+| Company / monthly volume | Best content-cost fit / month | Cheapest per token / month | × best fit |
+| --- | --- | --- | ---: |
+| [Samudra Telecom](logs/sample/agent_samudra_model_fit_report.json) / 200,000 | Llama-3.1-8B-Instruct: ₹176 ($1.86) | Llama-3.1-8B-Instruct: ₹176 ($1.86) | 1.00× |
+| [Swara Care](logs/sample/agent_swara_model_fit_report.json) / 120,000 | gemma-3-4b-it: ₹275 ($2.89) | Llama-3.1-8B-Instruct: ₹359 ($3.78) | 1.31× |
+| [Raitu Mitra](logs/sample/agent_raitu_model_fit_report.json) / 80,000 | gemma-3-4b-it: ₹139 ($1.47) | Llama-3.1-8B-Instruct: ₹363 ($3.83) | 2.61× |
+| [Paisa Saathi](logs/sample/agent_paisa_model_fit_report.json) / 300,000 | Llama-3.1-8B-Instruct: ₹154 ($1.62) | Llama-3.1-8B-Instruct: ₹154 ($1.62) | 1.00× |
 
 These dated provider scenarios reconstruct completed conversations with each model's own tokenizer and price, including history replay. They exclude provider chat templates, retries, taxes and unpublished cache discounts; the small totals are content-token estimates, not invoices. USD prices retain their original fetch dates. All eight tokenizers completed on all four workloads. Eight priced models are ranked separately, with all eleven provider quotes available for inspection; four unpriced families show **tokenizer fit only**.
 
 The predictions registered in the [25 October addendum](docs/CONTRACT.md) passed for each company's dominant script, cost candidate and constraint handling. Quality remains **verify on your sample**. Neither voice candidate has exact-model/provider/workload latency evidence, so neither receives a voice-qualified recommendation. [Recomputed score and top-three rankings](logs/sample/model_fit_score.md) · [Machine-readable score](logs/sample/model_fit_score.jsonl) · [Full completion report](docs/MODEL_FIT_COMPLETION.md).
 
-The Model fit tab shows the script mix, conversation shape, answer share, ranked models, runner-up, and a higher-cost model to avoid on cost alone. Every figure opens a source receipt. The Companies view makes the different recommendations visible together. [Replay recording](docs/images/model_fit_replay.webm).
+The Model fit tab shows the script mix, conversation shape, answer share, ranked models, runner-up, and the largest tokenizer penalty among cheap-per-token models to avoid. Every figure opens a source receipt. The Companies view compares monthly cost at each company’s own volume. For Raitu, Llama 3.1 8B’s lowest unit quote still costs **2.61×** Gemma, with **5.03×** English tokens versus **1.35×**; Llama 3.2 3B costs **16.42×** the best fit. [Checked Raitu cost and ratio claims](logs/sample/agent_raitu_model_fit_report.json). Monthly = checked USD / 1,000 × checked monthly conversations / 1,000; “× best fit” divides checked model cost by the lowest checked cost. INR uses the [recorded ₹94.9432/USD rate, dated 23 October](data/reference/fx.json); the currency switch shows its source. “Cheap per token” means the lower half of models by the price of an equal input/output token basket. [Replay recording](docs/images/model_fit_replay.webm).
 
 ## How the evidence becomes advice
 

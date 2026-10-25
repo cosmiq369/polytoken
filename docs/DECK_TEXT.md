@@ -10,10 +10,19 @@ Native-script speech transcripts, romanized messages and code-mixed product voca
 Samudra Telecom: Tenglish and romanized app support. Swara Care: Hindi voice with long spoken answers. Raitu Mitra: Telugu voice with rural vocabulary. Paisa Saathi: short Hinglish fintech chat. All data is fictional and review is pending.
 
 ## 4. Show the Companies screen
-Llama 3.1 8B is the cheapest quoted candidate for Samudra and Paisa. Gemma 3 4B is the cheapest candidate for Swara and Raitu. Use checked costs from logs/sample/model_fit_score.jsonl. Voice latency remains unverified.
+Llama 3.1 8B is the cheapest quoted candidate for Samudra and Paisa. Gemma 3 4B is the cheapest candidate for Swara and Raitu. Compare monthly cost at the company’s configured volume, with the cheapest-per-token model alongside it.
+
+| Company / monthly volume | Best content-cost fit / month | Cheapest per token / month | × best fit |
+| --- | --- | --- | ---: |
+| [Samudra Telecom](../logs/sample/agent_samudra_model_fit_report.json) / 200,000 | Llama-3.1-8B-Instruct: ₹176 ($1.86) | Llama-3.1-8B-Instruct: ₹176 ($1.86) | 1.00× |
+| [Swara Care](../logs/sample/agent_swara_model_fit_report.json) / 120,000 | gemma-3-4b-it: ₹275 ($2.89) | Llama-3.1-8B-Instruct: ₹359 ($3.78) | 1.31× |
+| [Raitu Mitra](../logs/sample/agent_raitu_model_fit_report.json) / 80,000 | gemma-3-4b-it: ₹139 ($1.47) | Llama-3.1-8B-Instruct: ₹363 ($3.83) | 2.61× |
+| [Paisa Saathi](../logs/sample/agent_paisa_model_fit_report.json) / 300,000 | Llama-3.1-8B-Instruct: ₹154 ($1.62) | Llama-3.1-8B-Instruct: ₹154 ($1.62) | 1.00× |
+
+Monthly costs multiply the reports’ checked cost claims by `profile/monthly_conversations` / 1,000. INR uses the [dated FX receipt](../data/reference/fx.json). Voice latency remains unverified.
 
 ## 5. Explain the decision
-The Model fit tab links script mix, conversation shape, model-specific measured tokens and dated provider quotes. It ranks models, names a runner-up and explains a higher-cost alternative to avoid on cost alone.
+The Model fit tab links script mix, conversation shape, model-specific measured tokens and dated provider quotes. It ranks models, names a runner-up and shows “× the best fit” and flags the highest tokenizer penalty among models in the cheaper half of equal input/output unit quotes. Raitu’s lowest-unit-price Llama 3.1 8B costs 2.61× Gemma: 5.03× English tokens versus 1.35×. Llama 3.2 3B costs 16.42× Gemma. [Checked Raitu claims](../logs/sample/agent_raitu_model_fit_report.json).
 
 ## 6. Evidence before recommendation
 The checker authenticates and recomputes each number. Missing prices produce tokenizer-fit-only entries. Missing exact-model/provider/workload timing cannot satisfy a voice constraint. Quality stays “verify on your sample.”

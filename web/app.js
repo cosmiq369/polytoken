@@ -220,7 +220,9 @@
   function rate() { return state.currencies.find(r=>r.currency===state.currency) || state.currencies[0]; }
   function money(value) {
     if(!finite(value)) return 'not measured';
-    return new Intl.NumberFormat('en-IN',{style:'currency',currency:state.currency,minimumFractionDigits:2,maximumFractionDigits:Math.abs(value*(rate()?.per_usd || 1))<.1?6:2}).format(value*(rate()?.per_usd || 1));
+    const converted=value*(rate()?.per_usd || 1),small=Math.abs(converted)>0 && Math.abs(converted)<1;
+    const digits=small?Math.min(8,Math.max(2,1-Math.floor(Math.log10(Math.abs(converted))))):state.currency==='INR'?0:2;
+    return new Intl.NumberFormat('en-IN',{style:'currency',currency:state.currency,minimumFractionDigits:digits,maximumFractionDigits:digits}).format(converted);
   }
   function rateNote() {
     const r=rate();
@@ -234,7 +236,7 @@
       if(!state.currencies.some(r=>r.currency===state.currency)) state.currency='USD';
     } catch {state.currency='USD';}
     $('#currency').innerHTML=state.currencies.map(r=>`<option value="${r.currency}" ${r.currency===state.currency?'selected':''}>${r.currency}</option>`).join('');
-    $('#currency-source').textContent=rateNote();if(state.report) renderReport();
+    $('#currency-source').textContent=rateNote();if(state.report) renderReport();window.dispatchEvent(new Event('polytoken:currency'));
   }
   function billMetric(key,style,label) {
     const id=state.billingData?.headline?.[key];
@@ -503,7 +505,7 @@
   });
   $('#token-form').addEventListener('submit',event=>{event.preventDefault();inspectTokens();});
   document.addEventListener('change',event=>{
-    if(event.target.id==='currency') {state.currency=event.target.value;try{localStorage.setItem('polytoken.currency',state.currency);}catch{}$('#currency-source').textContent=rateNote();if(state.report)renderReport();}
+    if(event.target.id==='currency') {state.currency=event.target.value;try{localStorage.setItem('polytoken.currency',state.currency);}catch{}$('#currency-source').textContent=rateNote();if(state.report)renderReport();window.dispatchEvent(new Event('polytoken:currency'));}
     if(event.target.id==='ratio-part') {state.ratioPart=event.target.value;renderReport();$('#ratio-part').focus();}
     if(event.target.id==='billing-tokenizer') {state.tokenizer=event.target.value;renderReport();$('#billing-tokenizer').focus();}
   });
@@ -524,6 +526,6 @@
     finally{state.posting=false;$('#investigate').disabled=!state.company || state.demo;}
   });
   window.addEventListener('beforeunload',stopStream);
-  window.polyConsole={state,show,resetRun,setReport,renderInvestigation,renderReport,fetchJSON,metric,format,escape,notice,inspectTokens,connectEvents,stopStream,openEvidence,enableViews};
+  window.polyConsole={money,rateNote,state,show,resetRun,setReport,renderInvestigation,renderReport,fetchJSON,metric,format,escape,notice,inspectTokens,connectEvents,stopStream,openEvidence,enableViews};
   loadCompanies();loadCurrencies();
 })();
