@@ -8,9 +8,11 @@ Built by **Mohan Chelluru** for Open Agent Hackathon 2026, **Track 02: The Agent
 
 ![Four workload profiles and their model-fit candidates](docs/images/model_fit_companies_desktop_dark.png)
 
-**Public video URL: PENDING UPLOAD**
+**Demo video:** [Watch on YouTube](https://youtu.be/IHxXnPjBIEM) (published unlisted).
 
-The deck is submitted through the hackathon form. Video, audio, deck and internal prompts stay local.
+Narration is an AI voice generated from the author's own voice with ElevenLabs.
+
+The deck is submitted through the hackathon form. Source video, audio, deck and internal prompts stay local.
 
 ## The users change the fit
 
@@ -99,7 +101,7 @@ Script detection is a Unicode/lexicon heuristic with an unclassified bucket; Eng
 
 All audit and provenance records go to `logs/`, with curated evidence committed in [logs/sample](logs/sample/). [Complete model-fit evidence closure](logs/sample/model_fit_v1_world_events.jsonl.gz) includes the first partial run as well as all four completed runs. Previous datasets and logs remain archived. Model-fit scoring is offline; the agent never reads the contract or scorer.
 
-Cursor was not used. Codex and Claude assisted development. [Submission](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Deck text](docs/DECK_TEXT.md). The submission video URL remains PENDING UPLOAD until a public upload is available.
+Cursor was not used. Codex and Claude assisted development. [Submission](docs/SUBMISSION.md) · [Metadata](metadata.json) · [MIT licence](LICENSE) · [Deck text](docs/DECK_TEXT.md).
 
 ## Set up with your coding agent
 

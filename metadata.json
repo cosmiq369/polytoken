@@ -27,7 +27,7 @@
   ],
   "repository_url": "https://github.com/cosmiq369/polytoken",
   "license": "MIT",
-  "demo_video_url": "PENDING UPLOAD",
+  "demo_video_url": "https://youtu.be/IHxXnPjBIEM",
   "description": "PolyToken explains which model fits an Indian-language workload and why: measured token counts, dated provider prices, Nemotron reasoning, Zetaris SQL and checked evidence receipts.",
   "demo_question": "Which model fits our users and our budget, and why?",
   "demo_companies": [
@@ -43,7 +43,8 @@
     "Voice candidate latency unverified.",
     "Only GPT-OSS passed the serving probe; stand-in evidence does not transfer."
   ],
-  "demo_video_url_status": "pending_upload",
+  "demo_video_url_status": "published unlisted",
+  "demo_narration": "Narration is an AI voice generated from the author's own voice with ElevenLabs.",
   "demo_captions_url": "PENDING UPLOAD",
   "deck_pdf_url": "PENDING FORM SUBMISSION",
   "deck_pptx_url": "PENDING FORM SUBMISSION",

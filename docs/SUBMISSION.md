@@ -1,6 +1,8 @@
 # PolyToken submission
 
-Public video URL: **PENDING UPLOAD**. Mohan reviews and submits; no upload or visibility change has been performed.
+Demo video: [Watch on YouTube](https://youtu.be/IHxXnPjBIEM) (published unlisted).
+
+Narration is an AI voice generated from the author's own voice with ElevenLabs.
 
 ## Sponsor technology explanation
 
